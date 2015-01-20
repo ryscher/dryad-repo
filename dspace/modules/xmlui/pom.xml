@@ -334,10 +334,9 @@
            <artifactId>payment-webapp</artifactId>
            <type>war</type>
        </dependency>
-
        <dependency>
            <groupId>org.dspace.modules</groupId>
-           <artifactId>xmlui-journal-landing-webapp</artifactId>
+           <artifactId>journal-landing-webapp</artifactId>
            <type>jar</type>
            <classifier>classes</classifier>
            <exclusions>
@@ -348,10 +347,9 @@
            </exclusions>
            <version>${project.version}</version>
        </dependency>
-       
        <dependency>
            <groupId>org.dspace.modules</groupId>
-           <artifactId>xmlui-journal-landing-webapp</artifactId>
+           <artifactId>journal-landing-webapp</artifactId>
            <type>war</type>
            <version>${project.version}</version>
        </dependency>
@@ -380,7 +378,12 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.5.6</version>
         </dependency>
-
+      <dependency>
+         <groupId>org.dspace.dependencies.solr</groupId>
+         <artifactId>dspace-solr-solrj</artifactId>
+         <version>1.4.0.1</version>
+         <type>jar</type>
+      </dependency>
    </dependencies>
 
 </project>
