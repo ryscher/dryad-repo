@@ -118,7 +118,7 @@ public class DryadGmailService {
         labels.add(ConfigurationManager.getProperty("submit.journal.email.testlabel"));
 
         String result = "";
-
+        //poke
         List<Message> messages = dryadGmailService.retrieveMessagesWithLabels(labels);
         // Print ID of each Thread.
         if (messages != null) {
