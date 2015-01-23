@@ -5,94 +5,101 @@
  */
 package org.dspace.app.xmlui.aspect.journal.landing;
 
-import java.io.IOException;
 import org.apache.log4j.Logger;
 
 import org.dspace.app.xmlui.wing.Message;
 import org.dspace.app.xmlui.wing.element.Body;
-import org.dspace.app.xmlui.wing.element.Division;
-import static org.dspace.app.xmlui.aspect.journal.landing.Const.*;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.logging.Level;
-import org.apache.avalon.framework.parameters.ParameterException;
-import org.apache.commons.collections.ExtendedProperties;
+import org.dspace.app.xmlui.utils.UIException;
+import org.dspace.app.xmlui.wing.WingException;
+import org.dspace.authorize.AuthorizeException;
+
 import org.xml.sax.SAXException;
+import java.io.IOException;
+import java.text.DateFormatSymbols;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Iterator;
+import org.apache.avalon.framework.parameters.ParameterException;
+
+import org.apache.commons.collections.ExtendedProperties;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.dspace.app.xmlui.aspect.discovery.AbstractFiltersTransformer;
+import static org.dspace.app.xmlui.aspect.journal.landing.Const.*;
 import org.dspace.app.xmlui.utils.ContextUtil;
-import org.dspace.app.xmlui.utils.UIException;
-import static org.dspace.app.xmlui.wing.AbstractWingTransformer.message;
-import org.dspace.app.xmlui.wing.WingException;
+import static org.dspace.app.xmlui.wing.AbstractWingTransformer.*;
+import org.dspace.app.xmlui.wing.element.Division;
 import org.dspace.app.xmlui.wing.element.List;
 import org.dspace.app.xmlui.wing.element.ReferenceSet;
-import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+
+import org.dspace.discovery.SearchUtils;
 import org.dspace.discovery.SearchService;
 import org.dspace.discovery.SearchServiceException;
-import org.dspace.discovery.SearchUtils;
 import org.dspace.workflow.DryadWorkflowUtils;
 
 /**
  *
  * @author Nathan Day
  */
-public class MostRecentDeposits extends AbstractFiltersTransformer {
+public class TopTenViews extends AbstractFiltersTransformer {
     
-    private static final Logger log = Logger.getLogger(MostRecentDeposits.class);
-    
-    private static final Message T_mostRecent = message("xmlui.JournalLandingPage.MostRecentDeposits.panel_head");
-    private static final Message T_date = message("xmlui.JournalLandingPage.MostRecentDeposits.date");
+    private static final Logger log = Logger.getLogger(TopTenDownloads.class);
+    private static final Message T_head = message("xmlui.JournalLandingPage.TopTenViews.panel_head");
+    private static final Message T_val_head = message("xmlui.JournalLandingPage.TopTenViews.val_head");
     
     private ArrayList<DSpaceObject> references;
-    private ArrayList<String> dates;
+    private ArrayList<String> views;
     private String journalName;
-    
+        
     @Override
     public void addBody(Body body) throws SAXException, WingException,
             UIException, SQLException, IOException, AuthorizeException
-    {
+    {        
         try {
-            this.journalName = parameters.getParameter(PARAM_JOURNAL_NAME);
+            journalName = parameters.getParameter(PARAM_JOURNAL_NAME);
         } catch (ParameterException ex) {
-            log.error(ex);
+            log.error((ex));
         }
         if (journalName == null || journalName.length() == 0) return;
 
-        // ------------------
-        // Most recent deposits
-        // 
-        // ------------------
-        Division mostRecent = body.addDivision(MOST_RECENT_DEPOSITS_DIV);
-        mostRecent.setHead(T_mostRecent);
+        Division topTen = body.addDivision(TOPTEN_VIEWS);
+        topTen.setHead(T_head);
         
-        Division items = mostRecent.addDivision(ITEMS);
-        ReferenceSet refs = items.addReferenceSet(MOST_RECENT_DEPOSITS_REFS, "summaryList");
+        Calendar now = Calendar.getInstance();
+        String month = new DateFormatSymbols().getMonths()[now.get(Calendar.MONTH)];
+        String year = Integer.toString(now.get(Calendar.YEAR));
+        
+        Division items = topTen.addDivision(ITEMS);
+        ReferenceSet refs = items.addReferenceSet(TOPTEN_VIEWS_REFS, "summaryList");
+        refs.setHead(month + " " + year);
 
-        Division count = mostRecent.addDivision(VALS);
-        List vals = count.addList("date-count", List.TYPE_SIMPLE, "date-count");
-        vals.setHead(T_date);
-        
+        Division count = topTen.addDivision(VALS);
+        List list = count.addList("most-viewed-count", List.TYPE_SIMPLE, "most-viewed-count");
+        list.setHead(T_val_head);
+
         references = new ArrayList<DSpaceObject>();
-        dates = new ArrayList<String>();
+        views = new ArrayList<String>();
         try {
             performSearch(null);
         } catch (SearchServiceException e) {
             log.error(e.getMessage(), e);
+            return;
         }
         for (DSpaceObject ref : references)
             refs.addReference(ref);
-        for (String date : dates)
-            vals.addItem().addContent(date);
+        for (String s : views)
+            list.addItem(s);
         references = null;
-        dates = null;
+        views = null;
     }
 
     /**
@@ -105,7 +112,7 @@ public class MostRecentDeposits extends AbstractFiltersTransformer {
         if (queryResults != null) return;
         queryArgs = prepareDefaultFilters(getView());
         queryArgs.setQuery("search.resourcetype:" + Constants.ITEM + " AND prism.publicationName:" + journalName);
-        queryArgs.setRows(1000);
+        queryArgs.setRows(10);
         String sortField = SearchUtils.getConfig().getString("recent.submissions.sort-option");
         if(sortField != null){
             queryArgs.setSortField(
@@ -113,16 +120,14 @@ public class MostRecentDeposits extends AbstractFiltersTransformer {
                     SolrQuery.ORDER.desc
             );
         }
-        SearchService service = (SearchService) getSearchService();
-        Context c;
+        SearchService service = getSearchService();
+        Context c = null;
         try {
             c = ContextUtil.obtainContext(objectModel);
-            queryResults = service.search(c, queryArgs);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return;
+        } catch (SQLException ex) {
+            log.error(ex.getMessage());
         }
-        
+        queryResults = (QueryResponse) service.search(c, queryArgs);
         boolean includeRestrictedItems = ConfigurationManager.getBooleanProperty("harvest.includerestricted.rss", false);
         int numberOfItemsToShow= SearchUtils.getConfig().getInt("solr.recent-submissions.size", 5);
         ExtendedProperties config = SearchUtils.getConfig();
@@ -133,17 +138,17 @@ public class MostRecentDeposits extends AbstractFiltersTransformer {
                 try {
                     obj = SearchUtils.findDSpaceObject(context, doc);
                 } catch (SQLException ex) {
-                    java.util.logging.Logger.getLogger(MostRecentDeposits.class.getName()).log(Level.SEVERE, null, ex);
+                    log.error(ex.getMessage());
                 }
                 try {
                     if (obj != null
-                            && DryadWorkflowUtils.isAtLeastOneDataFileVisible(context, (Item) obj))
+                        && DryadWorkflowUtils.isAtLeastOneDataFileVisible(context, (Item) obj))
                     {
                         references.add(obj);
-                        dates.add(doc.getFieldValue(config.getString("recent.submissions.sort-option")).toString());                        
+                        views.add(doc.getFieldValue(config.getString("total.download.sort-option")).toString());
                     }
                 } catch (SQLException ex) {
-                    log.error(ex.getMessage(), ex);
+                    log.error(ex.getMessage());
                 }
             }
         }
@@ -153,5 +158,4 @@ public class MostRecentDeposits extends AbstractFiltersTransformer {
     public String getView() {
         return "site";
     }
-    
 }

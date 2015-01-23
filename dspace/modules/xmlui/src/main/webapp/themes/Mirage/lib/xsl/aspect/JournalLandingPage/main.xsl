@@ -10,16 +10,37 @@
     xmlns:dc="http://purl.org/dc/elements/1.1/"
     xmlns="http://www.w3.org/1999/xhtml"
     xmlns:confman="org.dspace.core.ConfigurationManager"
-    exclude-result-prefixes="i18n dri mets xlink xsl dim xhtml mods dc">
+    exclude-result-prefixes="confman dc dim dri i18n mets mods xhtml xlink xsl">
+
+    <xsl:variable name="upper" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
+    <xsl:variable name="lower" select="'abcdefghijklmnopqrstuvwxyz'"/>
+
+    <xsl:template match="//dri:document/dri:body/dri:div[@id='aspect.journal.landing.TopTenDownloads.div.journal-landing-topten-downloads']">
+        <xsl:call-template name="journal-landing-panel"/>
+    </xsl:template>
+
+    <xsl:template match="//dri:document/dri:body/dri:div[@id='aspect.journal.landing.TopTenViews.div.journal-landing-topten-views']">
+        <xsl:call-template name="journal-landing-panel"/>
+    </xsl:template>
     
-    <xsl:template match="//dri:document/dri:body/dri:div[@id='aspect.journal.landing.TopTenDownloads.div.journal-landing-topten']">
+    <xsl:template match="//dri:document/dri:body/dri:div[@id='aspect.journal.landing.MostRecentDeposits.div.journal-landing-recent']">
+        <xsl:call-template name="journal-landing-panel"/>
+    </xsl:template>
+    
+    <xsl:template match="//dri:document/dri:body/dri:div[@id='aspect.journal.landing.UserGeography.div.journal-landing-user-geo']">
+        <xsl:call-template name="journal-landing-panel"/>
+    </xsl:template>
+
+    <xsl:template name="journal-landing-panel">
         <xsl:apply-templates select="dri:head"/>
-        <div id="aspect_journal_landing_TopTenDownloads_journal-landing-topten" class="ds-static-div primary">
+        <div id="{translate(string(@id), '.', '_')}" class="ds-static-div primary">
             <table>
-                <tr>
-                    <th><xsl:apply-templates select="dri:div[@n='items']/dri:head"/></th>
-                    <th><xsl:apply-templates select="dri:div[@n='count']/dri:head"/></th>
-                </tr>
+                <xsl:if test="dri:div[@n='items']/dri:referenceSet/dri:head or dri:div[@n='vals']/dri:list/dri:head">
+                    <tr>
+                        <th style="float:left"><xsl:apply-templates select="dri:div[@n='items']/dri:referenceSet/dri:head"/></th>
+                        <th><xsl:apply-templates select="dri:div[@n='vals']/dri:list/dri:head"/></th>
+                    </tr>
+                </xsl:if>
                 <xsl:for-each select="dri:div[@n='items']/dri:referenceSet/dri:reference">
                     <xsl:variable name="position" select="position()"/>
                     <tr>
@@ -27,34 +48,64 @@
                             <xsl:apply-templates select="." mode="summaryList"/>
                         </td>
                         <td>
-                            <xsl:apply-templates select="ancestor::dri:div[@n='journal-landing-topten']/dri:div[@n='count']/dri:list/dri:item[position()=$position]"/>
+                            <xsl:apply-templates select="ancestor::dri:div[@n='items']/following-sibling::dri:div[@n='vals']/dri:list/dri:item[position()=$position]"/>
                         </td>
                     </tr>
                 </xsl:for-each>
             </table>
         </div>
     </xsl:template>
-
-    <xsl:template match="//dri:document/dri:body/dri:div[@id='aspect.journal.landing.TopTenDownloads.div.journal-landing-recent']">
+    
+    <!-- non-headered panels, which need @class="ds-static-div primary" for panel whitespace -->
+    <xsl:template match="//dri:document/dri:body/dri:div[@n='journal-landing-banner-outer' or @n='journal-landing-dryadinfo-wrapper']">
+        <div id="{translate(string(@id), '.', '_')}" class="ds-static-div primary">    
+            <xsl:apply-templates/>
+        </div>
+    </xsl:template>
+    
+    <!-- 
+    TODO: filter to journal name
+    http://datadryad.org/discover?query=submit&fq=prism.publicationName_filter:molecular\%20ecology\|\|\|Molecular\%20Ecology
+    -->
+    <xsl:template match="//dri:document/dri:body/dri:div[@n='journal-landing-search']">
+        <xsl:variable name="label" select="'Enter keyword, author, title, DOI.'"/>
+        <xsl:variable name="placeholder" select="concat($label, ' ', 'Example: herbivory')"/>
+        <xsl:variable name="journal-name" select="/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='request'][@qualifier='journalName']"/>
+        <xsl:variable name="fq" select="concat('prism.publicationName_filter:',
+                                                translate($journal-name, $upper, $lower), 
+                                                '|||', $journal-name)"/>
         <xsl:apply-templates select="dri:head"/>
-        <div id="aspect_journal_landing_TopTenDownloads_journal-journal-landing-recent" class="ds-static-div primary">
-            <table>
-                <tr>
-                    <th><xsl:apply-templates select="dri:div[@n='items']/dri:head"/></th>
-                    <th><xsl:apply-templates select="dri:div[@n='date']/dri:head"/></th>
-                </tr>
-                <xsl:for-each select="dri:div[@n='items']/dri:referenceSet/dri:reference">
-                    <xsl:variable name="position" select="position()"/>
-                    <tr>
-                        <td>
-                            <xsl:apply-templates select="." mode="summaryList"/>
-                        </td>
-                        <td>
-                            <xsl:apply-templates select="ancestor::dri:div[@n='journal-landing-topten']/dri:div[@n='date']/dri:list/dri:item[position()=$position]"/>
-                        </td>
-                    </tr>
-                </xsl:for-each>
-            </table>
+        <form id="{translate(string(@id), '.', '_')}" class="ds-interactive-div primary"
+              action="/discover" method="get" onsubmit="javascript:tSubmit(this);">
+            <input type="hidden" name="fq" value="{$fq}"></input>
+            <p class="ds-paragraph" style="overflow; hidden; margin-bottom: 0px;">
+                <label for="aspect_discovery_SiteViewer_field_query" class="accessibly-hidden">
+                    <xsl:value-of select="$label"/>
+                </label>
+                <input id="aspect_journal_landing_JournalSearch_field_query" class="ds-text-field" name="query"
+                    placeholder="{$placeholder}" title="{$placeholder}"
+                    type="text" value="" style="width: 80%;"/><!-- no whitespace between these!
+                     --><input id="aspect_journal_landing_JournalSearch_field_submit" class="ds-button-field" name="submit"
+                    type="submit" value="Go" style="margin-right: -4px;"/>
+            </p>
+        </form>
+    </xsl:template>
+
+    <xsl:template match="//dri:document/dri:body/dri:div[@n='journal-landing-banner-outer']">
+        <xsl:variable name="journal-name" select="string(/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='request'][@qualifier='journalName'])"/>
+        <xsl:variable name="journal-abbr" select="string(/dri:document/dri:meta/dri:pageMeta/dri:metadata[@element='request'][@qualifier='journalAbbr'])"/>
+        <xsl:variable name="alt" select="concat($journal-name, ' cover')"/>
+        <xsl:variable name="cover" select="concat('/themes/Dryad/images/coverimages/', $journal-abbr, '.png')"/>
+        <xsl:variable name="default" select="'/themes/Dryad/images/invisible.gif'"/>
+        <div id="{translate(string(@id), '.', '_')}" class="ds-static-div primary clearfix">
+            <p style="position: relative; float: right; max-width:100%; max-height:100%">
+                <img alt="{$alt}" 
+                    src="{$cover}" 
+                    id="journal-logo"
+                    class="pub-cover"
+                    onerror="this.src='{$default}'"></img>
+            </p>
+            <xsl:apply-templates/>
         </div>
     </xsl:template>
     

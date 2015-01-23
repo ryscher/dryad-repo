@@ -17,9 +17,12 @@ import org.dspace.authorize.AuthorizeException;
 
 import org.xml.sax.SAXException;
 import java.io.IOException;
+import java.text.DateFormatSymbols;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Iterator;
+import org.apache.avalon.framework.parameters.ParameterException;
 
 import org.apache.commons.collections.ExtendedProperties;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -50,29 +53,38 @@ import org.dspace.workflow.DryadWorkflowUtils;
 public class TopTenDownloads extends AbstractFiltersTransformer {
     
     private static final Logger log = Logger.getLogger(TopTenDownloads.class);
-    private static final Message T_head = message("xmlui.JournalLandingPage.TopTenRecentDeposits.panel_head"); 
+    private static final Message T_head = message("xmlui.JournalLandingPage.TopTenDownloads.panel_head");
+    private static final Message T_val_head = message("xmlui.JournalLandingPage.TopTenDownloads.val_head");
     
-    ArrayList<DSpaceObject> references;
-    ArrayList<String> downloads;
+    private ArrayList<DSpaceObject> references;
+    private ArrayList<String> downloads;
+    private String journalName;
         
     @Override
     public void addBody(Body body) throws SAXException, WingException,
             UIException, SQLException, IOException, AuthorizeException
     {
-        // ------------------
-        // Top 10 downloads
-        // 
-        // ------------------
-        Division topTen = body.addDivision(TOPTEN_DEPOSITS_DIV);
+        try {
+            journalName = parameters.getParameter(PARAM_JOURNAL_NAME);
+        } catch (ParameterException ex) {
+            log.error((ex));
+        }
+        if (journalName == null || journalName.length() == 0) return;
+
+        Division topTen = body.addDivision(TOPTEN_DOWNLOADS,TOPTEN_DOWNLOADS);
         topTen.setHead(T_head);
-        Division items = topTen.addDivision("items");
-        Division count = topTen.addDivision("count");
-       
-        // items.setHead(); Month/Year/All-time
-        // count.setHead(); "Downloads"
         
-        ReferenceSet refs = items.addReferenceSet(TOPTEN_DEPOSITS_REFS, "summaryList");
+        Calendar now = Calendar.getInstance();
+        String month = new DateFormatSymbols().getMonths()[now.get(Calendar.MONTH)];
+        String year = Integer.toString(now.get(Calendar.YEAR));
+
+        Division items = topTen.addDivision(ITEMS);
+        ReferenceSet refs = items.addReferenceSet(TOPTEN_DOWNLOADS_REFS, "summaryList");
+        refs.setHead(month + " " + year);
+
+        Division count = topTen.addDivision(VALS);
         List list = count.addList("most-viewed-count", List.TYPE_SIMPLE, "most-viewed-count");
+        list.setHead(T_val_head);
 
         references = new ArrayList<DSpaceObject>();
         downloads = new ArrayList<String>();
@@ -80,7 +92,6 @@ public class TopTenDownloads extends AbstractFiltersTransformer {
             performSearch(null);
         } catch (SearchServiceException e) {
             log.error(e.getMessage(), e);
-            return;
         }
         for (DSpaceObject ref : references)
             refs.addReference(ref);
@@ -99,9 +110,9 @@ public class TopTenDownloads extends AbstractFiltersTransformer {
     public void performSearch(DSpaceObject object) throws SearchServiceException, UIException {
         if (queryResults != null) return;
         queryArgs = prepareDefaultFilters(getView());
-        queryArgs.setQuery("search.resourcetype:" + Constants.ITEM);
-        queryArgs.setRows(1000);
-        String sortField = SearchUtils.getConfig().getString("recent.submissions.sort-option");
+        queryArgs.setQuery("search.resourcetype:" + Constants.BITSTREAM + " AND prism.publicationName:" + journalName);
+        queryArgs.setRows(10);
+        String sortField = SearchUtils.getConfig().getString("total.download.sort-option");
         if(sortField != null){
             queryArgs.setSortField(
                     sortField,
