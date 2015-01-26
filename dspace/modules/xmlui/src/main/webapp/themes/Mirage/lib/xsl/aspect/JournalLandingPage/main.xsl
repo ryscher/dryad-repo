@@ -16,11 +16,11 @@
     <xsl:variable name="lower" select="'abcdefghijklmnopqrstuvwxyz'"/>
 
     <xsl:template match="//dri:document/dri:body/dri:div[@id='aspect.journal.landing.TopTenDownloads.div.journal-landing-topten-downloads']">
-        <xsl:call-template name="journal-landing-panel"/>
+        <xsl:call-template name="journal-landing-panel-tabs"/>
     </xsl:template>
 
     <xsl:template match="//dri:document/dri:body/dri:div[@id='aspect.journal.landing.TopTenViews.div.journal-landing-topten-views']">
-        <xsl:call-template name="journal-landing-panel"/>
+        <xsl:call-template name="journal-landing-panel-tabs"/>
     </xsl:template>
     
     <xsl:template match="//dri:document/dri:body/dri:div[@id='aspect.journal.landing.MostRecentDeposits.div.journal-landing-recent']">
@@ -28,7 +28,7 @@
     </xsl:template>
     
     <xsl:template match="//dri:document/dri:body/dri:div[@id='aspect.journal.landing.UserGeography.div.journal-landing-user-geo']">
-        <xsl:call-template name="journal-landing-panel"/>
+        <xsl:call-template name="journal-landing-panel-tabs"/>
     </xsl:template>
 
     <xsl:template name="journal-landing-panel">
@@ -55,6 +55,63 @@
             </table>
         </div>
     </xsl:template>
+
+    <!-- tabbed panels: Top-10, User-Geography -->
+    <xsl:template name="journal-landing-panel-tabs">
+        
+        <xsl:variable name="id" select="translate(string(@id), '.', '_')"/>
+        <xsl:apply-templates select="dri:head"/>
+
+        <div id="{$id}-browse-data-buttons" class="tab-buttons">
+            <xsl:for-each select="dri:list[@n='tablist']/dri:item">
+                <a href="#{concat($id, '-', string(position()))}">
+                    <xsl:if test="position()=1">
+                        <xsl:attribute name="class">selected</xsl:attribute>
+                    </xsl:if>
+                    <!-- TODO: debug why the i18n:text is necesary -->
+                    <span>
+                        <i18n:text><xsl:value-of select="."/></i18n:text>
+                    </span>
+                </a>
+            </xsl:for-each>
+        </div>
+
+        <div id="{$id}" class="ds-static-div primary">
+            <xsl:for-each select="dri:div">
+                <xsl:variable name="id2" select="concat($id, '-', string(position()))"/>
+                <div id="{$id2}" class="browse-data-panel" style="">
+                    <xsl:attribute name="style">
+                        <xsl:choose>
+                            <xsl:when test="position() = 1">overflow: auto;</xsl:when>
+                            <xsl:otherwise>overflow: auto; display: none;</xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:attribute>
+                    <table>
+                        <xsl:if test="dri:div[@n='items']/dri:referenceSet/dri:head or 
+                                      dri:div[@n='vals']/dri:list/dri:head"
+                        >
+                            <tr>
+                                <th style="float:left"><xsl:apply-templates select="dri:div[@n='items']/dri:referenceSet/dri:head"/></th>
+                                <th><xsl:apply-templates select="dri:div[@n='vals']/dri:list/dri:head"/></th>
+                            </tr>
+                        </xsl:if>
+                        <xsl:for-each select="dri:div[@n='vals']/dri:list/dri:item">
+                            <xsl:variable name="position" select="position()"/>
+                            <tr>
+                                <td>
+                                    <xsl:apply-templates select="ancestor::dri:div[@n='items']/preceding-sibling::dri:div[@n='items']/dri:referneceSet/dri:reference[position()=$position]" mode="summaryList"/>
+                                </td>
+                                <td>
+                                    <xsl:apply-templates select="."/>
+                                </td>
+                            </tr>
+                        </xsl:for-each>
+                    </table>
+                </div>
+            </xsl:for-each>
+        </div>
+    </xsl:template>
+    
     
     <!-- non-headered panels, which need @class="ds-static-div primary" for panel whitespace -->
     <xsl:template match="//dri:document/dri:body/dri:div[@n='journal-landing-banner-outer' or @n='journal-landing-dryadinfo-wrapper']">
