@@ -6,6 +6,7 @@
 package org.dspace.app.xmlui.aspect.journal.landing;
 
 import java.io.IOException;
+import java.io.Serializable;
 import org.apache.log4j.Logger;
 
 import org.dspace.app.xmlui.wing.Message;
@@ -86,8 +87,7 @@ public class MostRecentDeposits extends AbstractFiltersTransformer {
         } catch (SearchServiceException e) {
             log.error(e.getMessage(), e);
         }
-        if (references.isEmpty()) {
-            refs.addReference(null);
+        if (references.size() == 0) {
             vals.addItem(EMPTY_VAL);
         } else {
             for (DSpaceObject ref : references)
@@ -118,12 +118,8 @@ public class MostRecentDeposits extends AbstractFiltersTransformer {
             );
         }
         SearchService service = (SearchService) getSearchService();
-        Context c;
         try {
-            c = ContextUtil.obtainContext(objectModel);
-            queryResults = service.search(c, queryArgs);
-            log.debug(queryArgs.toString());
-            log.debug((queryResults.getResults().toString()));
+            queryResults = service.search(context, queryArgs);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return;
@@ -134,8 +130,8 @@ public class MostRecentDeposits extends AbstractFiltersTransformer {
         ExtendedProperties config = SearchUtils.getConfig();
         Object o;
         if (queryResults != null && !includeRestrictedItems)  {
-            for (Iterator<SolrDocument> it = queryResults.getResults().iterator(); it.hasNext() && references.size() < numberOfItemsToShow;) {
-                SolrDocument doc = it.next();
+            for (SolrDocument doc : queryResults.getResults()) {
+                if (references.size() > numberOfItemsToShow) break;
                 DSpaceObject obj = null;
                 try {
                     obj = SearchUtils.findDSpaceObject(context, doc);
@@ -167,5 +163,9 @@ public class MostRecentDeposits extends AbstractFiltersTransformer {
     public String getView() {
         return "site";
     }
-    
+    @Override
+    public Serializable getKey() {
+        // do not allow this to be cached
+        return null;
+    }
 }
