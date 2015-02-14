@@ -1067,33 +1067,42 @@ parameter that is being used (see variable defined above) -->
     </xsl:template-->
     <!--add hidden class to help text-->
     <xsl:template match="dri:help" mode="compositeComponent">
-        <span class="composite-help">
-            <xsl:if test="ancestor::dri:field[@rend='hidden']">
-                <xsl:attribute name="class">
-                    <xsl:text>hidden</xsl:text>
-                </xsl:attribute>
-            </xsl:if>
-            <xsl:apply-templates />
-        </span>
-    </xsl:template>
-    <xsl:template match="dri:help">
-        <xsl:if
-                test="not(ancestor::dri:div[@id='aspect.submission.StepTransformer.div.submit-describe-publication' or @id= 'aspect.submission.StepTransformer.div.submit-describe-dataset' or @id= 'aspect.submission.StepTransformer.div.submit-select-publication' or @id= 'aspect.dryadfeedback.MembershipApplicationForm.div.membership-form' or @id= 'aspect.artifactbrowser.FeedbackForm.div.feedback-form'])">
-            <!--Only create the <span> if there is content in the <dri:help> node-->
-            <xsl:if test="./text() or ./node()">
-                <span>
-                    <xsl:attribute name="class">
-                        <xsl:text>field-help</xsl:text>
-                    </xsl:attribute>
+        <xsl:choose>
+            <xsl:when test="ancestor::dri:div[@id='aspect.dryadfeedback.MembershipApplicationForm.div.membership-form']"/>
+            <xsl:otherwise>
+                <span class="composite-help">
                     <xsl:if test="ancestor::dri:field[@rend='hidden']">
                         <xsl:attribute name="class">
                             <xsl:text>hidden</xsl:text>
                         </xsl:attribute>
                     </xsl:if>
-                    <xsl:apply-templates/>
+                    <xsl:apply-templates />
                 </span>
-            </xsl:if>
-        </xsl:if>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+    <xsl:template match="dri:help">
+        <xsl:choose>
+            <!-- only display <help> in tooltip for feedback form -->
+            <xsl:when test="ancestor::dri:div[@id='aspect.artifactbrowser.FeedbackForm.div.feedback-form']"/>
+            
+            <xsl:when test="not(ancestor::dri:div[@id='aspect.submission.StepTransformer.div.submit-describe-publication' or @id= 'aspect.submission.StepTransformer.div.submit-describe-dataset' or @id= 'aspect.submission.StepTransformer.div.submit-select-publication' or @id= 'aspect.dryadfeedback.MembershipApplicationForm.div.membership-form' or @id= 'aspect.artifactbrowser.FeedbackForm.div.feedback-form'])">
+                <!--Only create the <span> if there is content in the <dri:help> node-->
+                <xsl:if test="./text() or ./node()">
+                    <span>
+                        <xsl:attribute name="class">
+                            <xsl:text>field-help</xsl:text>
+                        </xsl:attribute>
+                        <xsl:if test="ancestor::dri:field[@rend='hidden']">
+                            <xsl:attribute name="class">
+                                <xsl:text>hidden</xsl:text>
+                            </xsl:attribute>
+                        </xsl:if>
+                        <xsl:apply-templates/>
+                    </span>
+                </xsl:if>
+            </xsl:when>
+        </xsl:choose>
     </xsl:template>
 
     <xsl:template match="/dri:document/dri:body/dri:div/dri:div/dri:list[@n='most_recent' or @n='link-to-button']">
