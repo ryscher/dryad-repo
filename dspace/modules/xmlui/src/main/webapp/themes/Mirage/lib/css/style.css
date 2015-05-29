@@ -444,10 +444,13 @@ div.bioText {
 } 
 
 #aspect_eperson_PasswordLogin_div_register h1, #aspect_eperson_PasswordLogin_div_login h1 {
-    font-size: 130%;
+    margin: 20px 0px 0px; /* top right bottom left */
+	font-size: 130%;
     text-align: center;
 }
-
+#aspect_eperson_PasswordLogin_div_login p a {
+    margin-right: 20px;
+}
 #aspect_eperson_PasswordLogin_div_login {
     margin: 20px 0px 40px; /* top right bottom left */
     float: right;
@@ -2552,6 +2555,7 @@ td.ds-author-input-col {
 td.ds-author-input-col input {
     width: 45%;
 }
+
 /* membershipOverview.xhtml */
 ul.membership-overview {
     margin-bottom: 10px;
@@ -2654,4 +2658,8 @@ h2.pricing-plan {
     font-style: italic;
 }
 
+
+.orcid-error{
+    color:red;
+}
 

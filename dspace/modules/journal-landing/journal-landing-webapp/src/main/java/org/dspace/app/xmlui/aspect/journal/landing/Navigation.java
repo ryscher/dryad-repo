@@ -1,12 +1,13 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * The contents of this file are subject to the license and copyright
+ * detailed in the LICENSE and NOTICE files at the root of the source
+ * tree and available online at
+ *
+ * http://www.dspace.org/license/
  */
 package org.dspace.app.xmlui.aspect.journal.landing;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.sql.SQLException;
 import org.apache.avalon.framework.parameters.ParameterException;
 import org.apache.cocoon.environment.ObjectModelHelper;
@@ -20,19 +21,19 @@ import org.dspace.app.xmlui.wing.element.Options;
 import org.dspace.app.xmlui.wing.element.PageMeta;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.ConfigurationManager;
-import org.dspace.submit.utils.DryadJournalSubmissionUtils;
 import org.xml.sax.SAXException;
 
 /**
- *
+ * Add options and meta DRI elements to the journal landing page.
+ * 
  * @author Nathan Day
  */
    
 public class Navigation extends AbstractDSpaceTransformer {
     
     private static final Logger log = Logger.getLogger(Navigation.class);
-    private static final String ENCODING = "UTF-8";
 
+    @Override
     public void addOptions(Options options) throws SAXException, WingException,
             UIException, SQLException, IOException, AuthorizeException
     {
@@ -42,15 +43,6 @@ public class Navigation extends AbstractDSpaceTransformer {
         options.addList("DryadMail");
     }
 
-    /**
-     * Insure that the context path is added to the page meta.
-     * @param pageMeta
-     * @throws org.xml.sax.SAXException
-     * @throws org.dspace.app.xmlui.wing.WingException
-     * @throws org.dspace.app.xmlui.utils.UIException
-     * @throws java.sql.SQLException
-     * @throws java.io.IOException
-     */
     @Override
     public void addPageMeta(PageMeta pageMeta) throws SAXException,
             WingException, UIException, SQLException, IOException,
@@ -90,7 +82,7 @@ public class Navigation extends AbstractDSpaceTransformer {
         }
         if (journalName != null && journalName.length() != 0) {
             pageMeta.addMetadata("request","journalName").addContent(journalName);
-            pageMeta.addMetadata("request","journalAbbr").addContent(journalAbbr);        
+            pageMeta.addMetadata("request","journalAbbr").addContent(journalAbbr);
         }
     }
 }
