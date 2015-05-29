@@ -40,8 +40,12 @@
         <module>versioning</module>
         <module>payment-system</module>
         <module>dryad-rest-webapp</module>
+<<<<<<< HEAD
         <module>dryad-widgets</module>
         <module>journal-landing</module>
+=======
+        <module>journal-landing</module> 
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
         <!--module>solr-load-tester</module-->
 	</modules>
 
@@ -135,20 +139,8 @@
                    <type>war</type>
                </dependency>
 
-               <dependency>
-                   <groupId>org.dspace.modules</groupId>
-                   <artifactId>dryad-widgets-webapp</artifactId>
-                   <type>jar</type>
-                   <classifier>classes</classifier>
-                   <version>${pom.version}</version>
-               </dependency>
 
-               <dependency>
-                   <groupId>org.dspace.modules</groupId>
-                   <artifactId>dryad-widgets-webapp</artifactId>
-                   <version>${pom.version}</version>
-                   <type>war</type>
-               </dependency>
+
 
            </dependencies>
        </dependencyManagement>

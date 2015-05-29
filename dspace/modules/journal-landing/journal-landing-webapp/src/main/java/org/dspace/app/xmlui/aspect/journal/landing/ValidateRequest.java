@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 /**
  * The contents of this file are subject to the license and copyright
  * detailed in the LICENSE and NOTICE files at the root of the source
  * tree and available online at
  *
  * http://www.dspace.org/license/
+=======
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
  */
 package org.dspace.app.xmlui.aspect.journal.landing;
 
@@ -16,6 +23,7 @@ import org.apache.cocoon.environment.Redirector;
 import org.apache.cocoon.environment.SourceResolver;
 
 import org.apache.log4j.Logger;
+<<<<<<< HEAD
 import org.dspace.JournalUtils;
 
 import static org.dspace.app.xmlui.aspect.journal.landing.Const.*;
@@ -48,6 +56,30 @@ public class ValidateRequest extends AbstractAction {
         }
         String journalName = JournalUtils.getFullName(journalConcept);        
         if (journalName != null && journalName.length() != 0) {
+=======
+
+import static org.dspace.app.xmlui.aspect.journal.landing.Const.*;
+import org.dspace.submit.utils.DryadJournalSubmissionUtils;
+
+/**
+ *
+ * @author Nathan Day
+ */
+public class ValidateRequest extends AbstractAction {
+        
+    private static final Logger log = Logger.getLogger(ValidateRequest.class);
+    
+    @Override
+    public Map act(Redirector redirector, SourceResolver resolver, Map objectModel, 
+                    String source, Parameters parameters) throws Exception 
+    {
+        String journalName = parameters.getParameter(PARAM_JOURNAL_NAME);
+        if (journalName == null || journalName.length() == 0) return null;
+
+        // verify we have an accurate journal
+        String journalAbbr = DryadJournalSubmissionUtils.findKeyByFullname(journalName);
+        if (journalAbbr != null && journalAbbr.length() != 0) {
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
             Map map = new HashMap();
             map.put(PARAM_JOURNAL_NAME, journalName);
             map.put(PARAM_JOURNAL_ABBR, journalAbbr);

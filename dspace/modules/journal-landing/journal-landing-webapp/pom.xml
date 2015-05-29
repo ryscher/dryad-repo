@@ -17,6 +17,7 @@
     <build>
         <plugins>
             <plugin>
+<<<<<<< HEAD
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-surefire-plugin</artifactId>
                <configuration>
@@ -24,6 +25,8 @@
                </configuration>
             </plugin>
             <plugin>
+=======
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
@@ -52,10 +55,40 @@
     </build>
 
     <profiles>
+<<<<<<< HEAD
+=======
+        <!--
+			when activated a dspace.config configuration file location passed on
+			the commandline (-Ddspace.config=...) can be passed through to be
+			used as a filter source by projects for tasks such as updating the
+			${dspace.dir} in web.xml etc.
+		-->
+        <profile>
+            <activation>
+                <property>
+                    <name>dspace.config</name>
+                </property>
+            </activation>
+            <build>
+                <filters>
+                    <filter>${dspace.config}</filter>
+                </filters>
+            </build>
+        </profile>
+
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
         <profile>
             <id>dev</id>
             <dependencies>
                 <dependency>
+<<<<<<< HEAD
+=======
+                    <groupId>org.dspace</groupId>
+                    <artifactId>dspace-api</artifactId>
+                    <version>${pom.version}</version>
+                </dependency>
+                <dependency>
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
                     <groupId>org.apache.avalon.framework</groupId>
                     <artifactId>avalon-framework-api</artifactId>
                     <version>4.3.1</version>
@@ -108,6 +141,7 @@
             <version>${pom.version}</version>
         </dependency>
         <dependency>
+<<<<<<< HEAD
             <!-- This is required to get the base classes for tests -->
             <groupId>org.dspace.modules</groupId>
             <artifactId>api</artifactId>
@@ -121,6 +155,8 @@
             <version>${pom.version}</version>
         </dependency>
         <dependency>
+=======
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
             <groupId>org.dspace.discovery</groupId>
             <artifactId>discovery-xmlui-block</artifactId>
             <version>0.9.4-SNAPSHOT</version>
@@ -146,11 +182,14 @@
             <type>war</type>
             <version>${pom.version}</version>
         </dependency>
+<<<<<<< HEAD
         <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-stats</artifactId>
             <version>${pom.version}</version>
         </dependency>
+=======
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
     </dependencies>
 
 </project>

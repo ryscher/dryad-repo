@@ -1,21 +1,44 @@
+<<<<<<< HEAD
 /**
  * The contents of this file are subject to the license and copyright
  * detailed in the LICENSE and NOTICE files at the root of the source
  * tree and available online at
  *
  * http://www.dspace.org/license/
+=======
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
  */
 package org.dspace.app.xmlui.aspect.journal.landing;
 
 import java.io.IOException;
+<<<<<<< HEAD
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+=======
+import java.io.Serializable;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Iterator;
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
 import java.util.Map;
 import org.apache.avalon.framework.parameters.ParameterException;
 import org.apache.avalon.framework.parameters.Parameters;
 import org.apache.cocoon.ProcessingException;
 import org.apache.cocoon.environment.SourceResolver;
+<<<<<<< HEAD
 import org.apache.log4j.Logger;
+=======
+import org.apache.commons.collections.ExtendedProperties;
+import org.apache.log4j.Logger;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
+import org.dspace.app.xmlui.aspect.discovery.AbstractFiltersTransformer;
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
 import static org.dspace.app.xmlui.aspect.journal.landing.Const.*;
 import org.dspace.app.xmlui.utils.UIException;
 import org.dspace.app.xmlui.wing.Message;
@@ -25,6 +48,7 @@ import org.dspace.app.xmlui.wing.element.Division;
 import org.dspace.app.xmlui.wing.element.List;
 import org.dspace.app.xmlui.wing.element.ReferenceSet;
 import org.dspace.authorize.AuthorizeException;
+<<<<<<< HEAD
 import org.xml.sax.SAXException;
 import java.util.LinkedHashMap;
 import org.datadryad.api.DryadJournal;
@@ -52,11 +76,54 @@ public abstract class JournalLandingTabbedTransformer extends AbstractDSpaceTran
         public String n;
         public Message T_div_head;
         public int maxResults;
+=======
+import org.dspace.content.DSpaceObject;
+import org.dspace.content.Item;
+import org.dspace.core.ConfigurationManager;
+import org.dspace.discovery.SearchService;
+import org.dspace.discovery.SearchServiceException;
+import org.dspace.discovery.SearchUtils;
+import org.dspace.workflow.DryadWorkflowUtils;
+import org.xml.sax.SAXException;
+
+/**
+ *
+ * @author Nathan Day
+ */
+public class JournalLandingTabbedTransformer extends AbstractFiltersTransformer {
+    
+    private static final Logger log = Logger.getLogger(TopTenDownloads.class);
+   
+    // cocoon parameters
+    protected String journalName;
+        
+    // performSearch() values
+    private ArrayList<DSpaceObject> references;
+    private ArrayList<String> values;
+    private String q;
+    private String sortOption;
+    private String sortFieldOption;
+    private TabData currentTabData;
+    
+    // config values (final)
+    private final String submissionSize = "solr.recent-submissions.size";
+    private final int submissionSizeDefault = 5;
+    private final String includeRestricted = "harvest.includerestricted.rss";
+    private final boolean includeRestrictedDefault = false;
+    
+    // container for data pertaining to entire div
+    protected class DivData {
+        public String sortOption;
+        public String sortFieldOption;
+        public String n;
+        public Message T_div_head;
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
     }
     protected DivData divData;
     protected class TabData {
         public String n;
         public Message buttonLabel;
+<<<<<<< HEAD
         public Message refHead;
         public Message valHead;
         public String dateFilter;
@@ -65,6 +132,14 @@ public abstract class JournalLandingTabbedTransformer extends AbstractDSpaceTran
     }
     protected java.util.List<TabData> tabData;
 
+=======
+        public String query;
+        public Message refHead;
+        public Message valHead;
+    }
+    protected ArrayList<TabData> tabData;
+    
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
     @Override
     public void setup(SourceResolver resolver, Map objectModel, String src,
             Parameters parameters) throws ProcessingException, SAXException,
@@ -77,6 +152,7 @@ public abstract class JournalLandingTabbedTransformer extends AbstractDSpaceTran
             log.error(ex);
             throw new ProcessingException(ex.getMessage());
         }
+<<<<<<< HEAD
         dryadJournal = new DryadJournal(this.context, this.journalName);
     }
 
@@ -93,6 +169,12 @@ public abstract class JournalLandingTabbedTransformer extends AbstractDSpaceTran
      * @throws AuthorizeException 
      */
     protected void addStatsLists(Body body) throws SAXException, WingException,
+=======
+    }
+    
+    @Override
+    public void addBody(Body body) throws SAXException, WingException,
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
             UIException, SQLException, IOException, AuthorizeException
     {
         Division outer = body.addDivision(divData.n,divData.n);
@@ -102,6 +184,7 @@ public abstract class JournalLandingTabbedTransformer extends AbstractDSpaceTran
         List tablist = outer.addList(TABLIST, List.TYPE_ORDERED, TABLIST);
         for(TabData t : tabData) {
             tablist.addItem(t.buttonLabel);
+<<<<<<< HEAD
         }
         for(TabData t : tabData) {
             Division wrapper = outer.addDivision(t.n, t.n);
@@ -117,11 +200,43 @@ public abstract class JournalLandingTabbedTransformer extends AbstractDSpaceTran
                 doDownloadsQuery(itemsContainer, valsList, dryadJournal, divData, t);
             } else if (t.queryType == QueryType.DEPOSITS ) {
                 doDepositsQuery(itemsContainer, valsList, dryadJournal, divData, t);
+=======
+        }        
+        sortOption = divData.sortOption;
+        sortFieldOption = divData.sortFieldOption;
+        for(TabData t : tabData) {
+            q = t.query;
+            Division wrapper = outer.addDivision(t.n, t.n);
+            Division items = wrapper.addDivision(ITEMS);
+            // reference list
+            ReferenceSet refs = items.addReferenceSet(t.n, ReferenceSet.TYPE_SUMMARY_LIST);
+            refs.setHead(t.refHead);
+            // dspace item value list
+            Division count = wrapper.addDivision(VALS);
+            List list = count.addList(t.n, List.TYPE_SIMPLE, t.n);
+            list.setHead(t.valHead);
+
+            references = new ArrayList<DSpaceObject>();
+            values = new ArrayList<String>();
+            try {
+                performSearch(null);
+            } catch (SearchServiceException e) {
+                log.error(e.getMessage(), e);
+            }
+            if (references.size() == 0) {
+                list.addItem(EMPTY_VAL);
+            } else {
+                for (DSpaceObject ref : references)
+                    refs.addReference(ref);
+                for (String s : values)
+                    list.addItem().addContent(s);
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
             }
         }
     }
 
     /**
+<<<<<<< HEAD
      * Populate the given reference and values lists with data from Solr on 
      * download statistics.
      * @param itemsContainer DRI ReferenceSet element to contain retrieved Items
@@ -176,8 +291,73 @@ public abstract class JournalLandingTabbedTransformer extends AbstractDSpaceTran
                     } catch (Exception ex) {
                         log.error(ex);
                     }
+=======
+     * 
+     *
+     * @param object
+     */
+    @Override
+    public void performSearch(DSpaceObject object) throws SearchServiceException, UIException {
+        if (queryResults != null) return;        
+        queryArgs = prepareDefaultFilters(getView());
+        queryArgs.setQuery(q);
+        queryArgs.setRows(10);
+        String sortField = SearchUtils.getConfig().getString(sortFieldOption);
+        if(sortField != null){
+            queryArgs.setSortField(
+                    sortField,
+                    SolrQuery.ORDER.desc
+            );
+        }
+        SearchService service = getSearchService();
+log.debug(queryArgs);
+        queryResults = (QueryResponse) service.search(context, queryArgs);
+        boolean includeRestrictedItems = ConfigurationManager.getBooleanProperty(includeRestricted,includeRestrictedDefault);
+        int numberOfItemsToShow= SearchUtils.getConfig().getInt(submissionSize, submissionSizeDefault);
+        String config = SearchUtils.getConfig().getString(sortOption);
+        if (queryResults != null && !includeRestrictedItems)  {
+            for (SolrDocument doc : queryResults.getResults()) {
+                if (references.size() > numberOfItemsToShow) break;
+                DSpaceObject obj = null;
+                try {
+                    obj = SearchUtils.findDSpaceObject(context, doc);
+                } catch (SQLException ex) {
+                    log.error(ex.getMessage());
+                }
+                try {
+                    if (obj != null
+                        && DryadWorkflowUtils.isAtLeastOneDataFileVisible(context, (Item) obj))
+                    {
+                        references.add(obj);
+                        Object o = doc.getFieldValue(config);
+                        
+                        if (o instanceof ArrayList) {
+                            values.add(((ArrayList) o).get(0).toString());
+                        } else if (o instanceof String) {
+                            values.add(o.toString());
+                        }
+
+                    }
+                } catch (SQLException ex) {
+                    log.error(ex.getMessage());
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
                 }
             }
         }
     }
+<<<<<<< HEAD
+=======
+
+    @Override
+    public String getView() {
+        return "site";
+    }
+    
+    @Override
+    public Serializable getKey() {
+        // do not allow this to be cached
+        return null;
+    }
+    
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
 }

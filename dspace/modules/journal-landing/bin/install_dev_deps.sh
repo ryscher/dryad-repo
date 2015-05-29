@@ -6,11 +6,14 @@
 # This script must be run from the dryad-repo/ directory.
 #
 
+<<<<<<< HEAD
 if [[ "$LOGNAME" != "vagrant" ]]; then
     echo "This script is meant to be run on vagrant. Exiting.";
     exit 1;
 fi
 
+=======
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
 DIR="$(basename $(pwd))"
 if [[ "$DIR" != "dryad-repo" ]]; then 
     echo "Run this script from the dryad-repo/ directory";

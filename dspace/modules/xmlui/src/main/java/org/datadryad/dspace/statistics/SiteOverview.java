@@ -18,6 +18,9 @@ import org.dspace.app.xmlui.wing.element.Row;
 import org.dspace.authorize.AuthorizeException;
 import org.xml.sax.SAXException;
 
+// from api-stats module
+import org.datadryad.dspace.statistics.SiteOverviewStats;
+
 public class SiteOverview extends AbstractDSpaceTransformer implements
         CacheableProcessingComponent {
 

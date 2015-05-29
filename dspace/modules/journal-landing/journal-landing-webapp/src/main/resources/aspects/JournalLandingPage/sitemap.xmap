@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map:sitemap xmlns:map="http://apache.org/cocoon/sitemap/1.0">
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
     <map:components>
         <map:actions>
             <map:action name="ValidateRequest" src="org.dspace.app.xmlui.aspect.journal.landing.ValidateRequest"/>
@@ -8,17 +12,34 @@
         <map:transformers>
             <map:transformer name="Navigation"          src="org.dspace.app.xmlui.aspect.journal.landing.Navigation"/>
             <map:transformer name="Banner"              src="org.dspace.app.xmlui.aspect.journal.landing.Banner"/>
+<<<<<<< HEAD
             <map:transformer name="JournalSearch"       src="org.dspace.app.xmlui.aspect.journal.landing.JournalSearch"/>
             <map:transformer name="JournalStats"        src="org.dspace.app.xmlui.aspect.journal.landing.JournalStats"/>
+=======
+            <map:transformer name="DryadInfo"           src="org.dspace.app.xmlui.aspect.journal.landing.DryadInfo"/>
+            <map:transformer name="JournalSearch"       src="org.dspace.app.xmlui.aspect.journal.landing.JournalSearch"/>
+            <map:transformer name="TopTenDownloads"     src="org.dspace.app.xmlui.aspect.journal.landing.TopTenDownloads"/>
+            <map:transformer name="TopTenViews"         src="org.dspace.app.xmlui.aspect.journal.landing.TopTenViews"/>
+            <map:transformer name="MostRecentDeposits"  src="org.dspace.app.xmlui.aspect.journal.landing.MostRecentDeposits"/>
+            <map:transformer name="UserGeography"       src="org.dspace.app.xmlui.aspect.journal.landing.UserGeography"/>
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
         </map:transformers>
         <map:matchers default="wildcard"/>
         <map:selectors/>
     </map:components>
+<<<<<<< HEAD
 
     <map:pipelines>
         <map:pipeline type="noncaching">
             <map:generate/>
 
+=======
+    
+    <map:pipelines>
+        <map:pipeline type="noncaching">
+            <map:generate/>
+            
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
             <map:match type="wildcard" pattern="journal/*">
 
                 <!-- journal abbreviation is found: return page -->
@@ -32,14 +53,39 @@
                         <map:parameter name="journalName" value="{journalName}"/>
                         <map:parameter name="journalAbbr" value="{journalAbbr}"/>
                     </map:transform>
+<<<<<<< HEAD
+=======
+                    <map:transform type="DryadInfo">
+                        <map:parameter name="journalName" value="{journalName}"/>
+                        <map:parameter name="journalAbbr" value="{journalAbbr}"/>
+                    </map:transform>
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
                     <map:transform type="JournalSearch">
                         <map:parameter name="journalName" value="{journalName}"/>
                         <map:parameter name="journalAbbr" value="{journalAbbr}"/>
                     </map:transform>
+<<<<<<< HEAD
                     <map:transform type="JournalStats">
                         <map:parameter name="journalName" value="{journalName}"/>
                         <map:parameter name="journalAbbr" value="{journalAbbr}"/>
                         <map:parameter name="archivedDatafileIds" value="{archivedDatafileIds}"/>
+=======
+                    <map:transform type="TopTenDownloads">
+                        <map:parameter name="journalName" value="{journalName}"/>
+                        <map:parameter name="journalAbbr" value="{journalAbbr}"/>
+                    </map:transform>
+                    <map:transform type="TopTenViews">
+                        <map:parameter name="journalName" value="{journalName}"/>
+                        <map:parameter name="journalAbbr" value="{journalAbbr}"/>
+                    </map:transform>
+                    <map:transform type="MostRecentDeposits">
+                        <map:parameter name="journalName" value="{journalName}"/>
+                        <map:parameter name="journalAbbr" value="{journalAbbr}"/>
+                    </map:transform>
+                    <map:transform type="UserGeography">
+                        <map:parameter name="journalName" value="{journalName}"/>
+                        <map:parameter name="journalAbbr" value="{journalAbbr}"/>
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
                     </map:transform>
                     <map:serialize type="xml"/>
                 </map:act>
@@ -58,5 +104,11 @@
             <map:serialize type="xml"/>
         </map:pipeline>
     </map:pipelines>
+<<<<<<< HEAD
 
 </map:sitemap>
+=======
+    
+</map:sitemap>
+
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a

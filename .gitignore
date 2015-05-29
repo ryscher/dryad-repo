@@ -27,6 +27,9 @@ META-INF/
 *.properties
 !build.properties
 notes.txt
+<<<<<<< HEAD
 
 ## ignore OSX system files
+=======
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
 .DS_Store

@@ -29,22 +29,27 @@
 		    <name>selenium_test_url</name>
 		    <value>${seleniumTestURL}</value>
 		  </property>
-		  <property>
-		    <name>selenium_test_browser</name>
-		    <value>${seleniumTestBrowser}</value>
-		  </property>
 		</systemProperties>
 	      </configuration>
 	    </plugin>
 	  </plugins>
 	</build>
 
+<<<<<<< HEAD
     <dependencies>
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
             <version>2.45.0</version>
         </dependency>
+=======
+        <dependencies>
+            <dependency>
+                <groupId>org.seleniumhq.selenium</groupId>
+                <artifactId>selenium-java</artifactId>
+                <version>2.12.0</version>
+            </dependency>
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
 	    <dependency>
 	        <groupId>junit</groupId>
 	        <artifactId>junit</artifactId>

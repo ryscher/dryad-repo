@@ -334,15 +334,18 @@
            <artifactId>payment-webapp</artifactId>
            <type>war</type>
        </dependency>
+<<<<<<< HEAD
        <dependency>
            <groupId>org.dspace.modules</groupId>
            <artifactId>dryad-widgets-webapp</artifactId>
            <type>war</type>
        </dependency>
 
+=======
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
        <dependency>
            <groupId>org.dspace.modules</groupId>
-           <artifactId>dryad-widgets-webapp</artifactId>
+           <artifactId>journal-landing-webapp</artifactId>
            <type>jar</type>
            <classifier>classes</classifier>
            <exclusions>
@@ -353,6 +356,7 @@
            </exclusions>
            <version>${project.version}</version>
        </dependency>
+<<<<<<< HEAD
 
        <dependency>
            <groupId>org.dspace.modules</groupId>
@@ -367,6 +371,8 @@
            </exclusions>
            <version>${project.version}</version>
        </dependency>
+=======
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
        <dependency>
            <groupId>org.dspace.modules</groupId>
            <artifactId>journal-landing-webapp</artifactId>

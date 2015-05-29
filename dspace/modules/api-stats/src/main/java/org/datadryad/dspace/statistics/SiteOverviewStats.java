@@ -32,6 +32,12 @@ public class SiteOverviewStats  {
     private static final String PUB_COUNTER = "count(//lst[@name='prism.publicationName_filter']/int[.!='0'])";
     private static final String AUTH_COUNTER = "count(//lst[@name='dc.contributor.author_filter']/int[.!='0'])";
     private static final String DOWN_COUNTER = "//result/@numFound";
+<<<<<<< HEAD
+=======
+
+    private static final String solrSearchUrlBase = ConfigurationManager.getProperty("solr.search.server");
+    private static final String solrStatsUrlBase = ConfigurationManager.getProperty("solr.stats.server");
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
     
     // formatted date string for -30 days (last 30 days)
     private static String formattedThirtyDayPrior;
@@ -93,6 +99,7 @@ public class SiteOverviewStats  {
 
     private void getStats() {
         // TODO: rewrite these to use xpaths and remove getCollectionCount(), getSolrResponseCount
+<<<<<<< HEAD
         this.dataFileCount          = getCollectionCount("stats.datafiles.coll", null);
         this.dataFileCount_30day    = getCollectionCount("stats.datafiles.coll", formattedThirtyDayPrior);
         this.dataPackageCount       = getSolrResponseCount(SolrUtils.solrSearchUrlBase, "location:l2 AND DSpaceStatus:Archived", null);
@@ -106,6 +113,21 @@ public class SiteOverviewStats  {
         this.totalFileDownload_30day = getSolrXPathResult(SolrUtils.solrStatsUrlBase, DOWN_SEARCH_30DAY, DOWN_COUNTER);
     }
 
+=======
+        this.dataFileCount = getCollectionCount("stats.datafiles.coll", null);
+        this.dataFileCount_30day = getCollectionCount("stats.datafiles.coll", formattedThirtyDayPrior);
+        this.dataPackageCount = getSolrResponseCount(solrSearchUrlBase, "location:l2 AND DSpaceStatus:Archived", null);
+        this.dataPackageCount_30day = getSolrResponseCount(solrSearchUrlBase, "location:l2 AND DSpaceStatus:Archived", "dc.date.issued_dt:[NOW-30DAY TO NOW]");
+        // /TODO
+        this.journalCount = getSolrXPathResult(solrSearchUrlBase, PUB_SEARCH, PUB_COUNTER);
+        this.journalCount_30day = getSolrXPathResult(solrSearchUrlBase, PUB_SEARCH_30DAY, PUB_COUNTER);
+        this.uniqAuthors = getSolrXPathResult(solrSearchUrlBase, AUTH_SEARCH, AUTH_COUNTER);
+        this.uniqAuthors_30day = getSolrXPathResult(solrSearchUrlBase, AUTH_SEARCH_30DAY, AUTH_COUNTER);
+        this.totalFileDownload = getSolrXPathResult(solrStatsUrlBase, DOWN_SEARCH, DOWN_COUNTER);
+        this.totalFileDownload_30day = getSolrXPathResult(solrStatsUrlBase, DOWN_SEARCH_30DAY, DOWN_COUNTER);
+    }
+    
+>>>>>>> 1f11d49ccd30292c63576a7b9b2e536c7699a90a
     private String getCollectionCount(String colName, String formattedDate) {
         Integer result = 0;
         try {
