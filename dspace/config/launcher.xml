@@ -406,5 +406,20 @@
         </step>
     </command>
 
+    <command>
+        <name>import-journal</name>
+        <description>Import authority from solr to database</description>
+        <step>
+            <class>org.datadryad.authority.ImportJournal2Authority</class>
+        </step>
+    </command>
+
+    <command>
+        <name>association-anywhere</name>
+        <description>Import associate anywhere to journal</description>
+        <step>
+            <class>org.datadryad.anywhere.AssociationAnywhere</class>
+        </step>
+    </command>
 
 </commands>
