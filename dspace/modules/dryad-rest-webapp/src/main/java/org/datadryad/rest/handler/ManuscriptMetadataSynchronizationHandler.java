@@ -4,23 +4,13 @@ package org.datadryad.rest.handler;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.apache.log4j.Logger;
-import org.apache.lucene.util.ArrayUtil;
 import org.datadryad.api.DryadDataPackage;
 import org.datadryad.rest.models.Manuscript;
 import org.datadryad.rest.storage.StoragePath;
-import org.dspace.content.DSpaceObject;
-import org.dspace.content.Item;
-import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.identifier.IdentifierException;
-import org.dspace.identifier.IdentifierNotFoundException;
-import org.dspace.identifier.IdentifierNotResolvableException;
-import org.dspace.identifier.IdentifierService;
-import org.dspace.utils.DSpace;
 
 /**
  * Extracts metadata from manuscript objects and places in corresponding Dryad
@@ -44,7 +34,9 @@ public class ManuscriptMetadataSynchronizationHandler implements HandlerInterfac
 
     private static void completeContext(Context context) throws SQLException {
         try {
-            context.complete();
+            if(context != null) {
+                context.complete();
+            }
         } catch (SQLException ex) {
             // Abort the context to force a new connection
             abortContext(context);
@@ -53,7 +45,9 @@ public class ManuscriptMetadataSynchronizationHandler implements HandlerInterfac
     }
 
     private static void abortContext(Context context) {
-        context.abort();
+        if(context != null) {
+            context.abort();
+        }
     }
 
     @Override
@@ -80,7 +74,7 @@ public class ManuscriptMetadataSynchronizationHandler implements HandlerInterfac
      */
     private static DryadDataPackage findDataPackage(Manuscript manuscript, Context context) throws HandlerException {
         String doi = manuscript.dryadDataDOI;
-        String reviewerURL = manuscript.dryadReviewerURL;
+        String reviewerURL = manuscript.dataReviewURL;
         String manuscriptId = manuscript.manuscriptId;
         DryadDataPackage dataPackage = null;
         try {
@@ -105,8 +99,18 @@ public class ManuscriptMetadataSynchronizationHandler implements HandlerInterfac
     private void processChange(Manuscript manuscript) throws HandlerException {
         try {
             Context context = getContext();
-            DryadDataPackage dataPackage = findDataPackage(manuscript, context);
+            DryadDataPackage dataPackage = null;
+            try {
+                 dataPackage = findDataPackage(manuscript, context);
+            } catch (HandlerException ex) {
+                // Lookup threw an exception
+                abortContext(context);
+                context = null;
+                throw ex;
+            }
             if(dataPackage == null) {
+                abortContext(context);
+                context = null;
                 throw new HandlerException("Data package not found for manuscript: " + manuscript.manuscriptId);
             }
             // Check if rejected or accepted
@@ -116,6 +120,7 @@ public class ManuscriptMetadataSynchronizationHandler implements HandlerInterfac
                 associateWithManuscript(dataPackage, manuscript);
             }
             completeContext(context);
+            context = null;
         } catch (SQLException ex) {
             throw new HandlerException("SQLException updating Data Package with metadata", ex);
         }

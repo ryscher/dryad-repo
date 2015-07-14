@@ -7,7 +7,7 @@
  */
 function AuthorLookup(url, authorityInput, collectionID) {
 //    TODO i18n
-    var content =   jQuery('<div title="Person Lookup">' +
+    var content =   jQuery('<div title="Look up and add via:">' +
                         '<table class="dttable">' +
                             '<thead>' +
                                 '<th>Name</th>' +
@@ -167,6 +167,7 @@ function AuthorLookup(url, authorityInput, collectionID) {
 
                     }
                     content.dialog('destroy');
+                    content.remove();
                 });
                 vcard.show();
             });

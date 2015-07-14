@@ -4,7 +4,7 @@ package org.datadryad.rest.storage;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 
 /**
  *
@@ -38,6 +38,10 @@ public class StoragePath extends ArrayList<StoragePathElement> {
             }
         }
         return true;
+    }
 
+    @Override
+    public String toString() {
+        return "/" + StringUtils.join(getValuePath().toArray(), "/");
     }
 }

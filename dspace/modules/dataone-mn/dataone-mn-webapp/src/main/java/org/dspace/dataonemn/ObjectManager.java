@@ -47,6 +47,8 @@ import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
+import org.datadryad.api.DryadDataFile;
+
 public class ObjectManager implements Constants {
     
     private static final Logger log = Logger.getLogger(ObjectManager.class);
@@ -253,8 +255,7 @@ public class ObjectManager implements Constants {
             String doi = tr.getStringColumn("doi");
 	    String idTimestamp = "";
 	    String idRemTimestamp = "";
-            Date dateAvailable = tr.getDateColumn("date_available");
-	    Date lastModifiedDate = tr.getDateColumn("last_modified");
+	        Date lastModifiedDate = tr.getDateColumn("last_modified");
             String lastModified = dateFormatter.format(lastModifiedDate);
 
 	    if(useTimestamps) {
@@ -411,8 +412,7 @@ public class ObjectManager implements Constants {
             String format = tr.getStringColumn("format");
             String checksum = tr.getStringColumn("checksum");
             String checksumAlgorithm = tr.getStringColumn("checksum_algorithm");
-            Date dateAvailable = tr.getDateColumn("date_available");
-	    Date lastModifiedDate = tr.getDateColumn("last_modified");
+    	    Date lastModifiedDate = tr.getDateColumn("last_modified");
             String lastModified = dateFormatter.format(lastModifiedDate);
 	    long size = tr.getLongColumn("size_bytes");
 
@@ -550,22 +550,7 @@ public class ObjectManager implements Constants {
     throws SQLException {
         return queryDataPackagesDatabase(false, start, count, fromDate, toDate);
     }
-    
-    private int getDateAvailableFieldID() 
-    throws SQLException {
-        String dateMetadataFieldIDquery = "SELECT f.metadata_field_id FROM "
-                + "metadatafieldregistry f, metadataschemaregistry s "
-                + "WHERE f.metadata_schema_id = s.metadata_schema_id "
-                + "AND s.short_id = ? "
-                + "AND f.element = ? "
-                + "AND f.qualifier = ?";
-        TableRow tr = DatabaseManager.querySingle(myContext, dateMetadataFieldIDquery, "dc", "date", "available");
-        int dateAvailableFieldId = tr.getIntColumn("metadata_field_id");
 
-        log.info("dc.date.available: metadata_field_id " + dateAvailableFieldId); // should be 12
-        return dateAvailableFieldId;
-    }
-    
     private int getDCIdentifierFieldID()
     throws SQLException {
         String dcIdentifierFieldIDQuery = "SELECT f.metadata_field_id FROM "
@@ -584,7 +569,6 @@ public class ObjectManager implements Constants {
     private TableRowIterator queryDataFilesDatabase(boolean countTotal, int start, int count, Date fromDate, Date toDate, String objFormat) 
     throws SQLException {
         Collection c = (Collection) HandleManager.resolveToObject(myContext, myFiles);
-        int dateAvailableFieldId = getDateAvailableFieldID();
         int dcIdentifierFieldId = getDCIdentifierFieldID();
 
         StringBuilder queryBuilder = new StringBuilder();
@@ -598,16 +582,14 @@ public class ObjectManager implements Constants {
             queryBuilder.append("  bfr.mimetype AS format, "); 
             queryBuilder.append("  bit.checksum, "); 
             queryBuilder.append("  bit.checksum_algorithm, "); 
-            queryBuilder.append("  mv.text_value::timestamp AS date_available,  ");
-	    queryBuilder.append("  it.last_modified::timestamp AS last_modified, ");
+    	    queryBuilder.append("  it.last_modified::timestamp AS last_modified, ");
             queryBuilder.append("  bit.size_bytes "); 
         }
         queryBuilder.append("FROM  "); 
         queryBuilder.append("  item AS it ");
         queryBuilder.append("  JOIN collection2item as c2i using (item_id) ");
         queryBuilder.append("  JOIN collection as col using (collection_id) ");
-        queryBuilder.append("  JOIN metadatavalue AS mv using (item_id) "); 
-        queryBuilder.append("  JOIN metadatavalue AS md using (item_id) "); 
+        queryBuilder.append("  JOIN metadatavalue AS md using (item_id) ");
         queryBuilder.append("  JOIN item2bundle AS i2b using (item_id) "); 
         queryBuilder.append("  JOIN bundle AS bun using (bundle_id) "); 
         queryBuilder.append("  JOIN bundle2bitstream as b2b using (bundle_id) "); 
@@ -616,9 +598,7 @@ public class ObjectManager implements Constants {
         queryBuilder.append("WHERE ");
         queryBuilder.append("  NOT it.withdrawn = true AND");
         queryBuilder.append("  it.in_archive = true AND ");
-        queryBuilder.append("  mv.metadata_field_id = ? AND "); 
-        bindParameters.add(dateAvailableFieldId);
-        queryBuilder.append("  md.metadata_field_id = ? AND "); 
+        queryBuilder.append("  md.metadata_field_id = ? AND ");
         bindParameters.add(dcIdentifierFieldId);
         queryBuilder.append("  md.place = 1 AND "); 
         queryBuilder.append("  bun.name = ? AND ");
@@ -635,7 +615,7 @@ public class ObjectManager implements Constants {
             Timestamp fromTimestamp = new java.sql.Timestamp(fromDate.getTime());
             log.info("queryDataFilesDatabase: Requested fromDate: " + fromTimestamp.toString());
             // Postgres-specific, casts text_value to a timestamp
-            queryBuilder.append("  mv.text_value::timestamp > ? AND ");
+            queryBuilder.append("  last_modified::timestamp > ? AND ");
             bindParameters.add(fromTimestamp);
         }
 
@@ -643,14 +623,14 @@ public class ObjectManager implements Constants {
             Timestamp toTimestamp = new java.sql.Timestamp(toDate.getTime());
             log.info("queryDataFilesDatabase: Requested toDate: " + toTimestamp.toString());
             // Postgres-specific, casts text_value to a timestamp
-            queryBuilder.append("  mv.text_value::timestamp < ? AND "); // bind to toDate
+            queryBuilder.append("  last_modified::timestamp < ? AND "); // bind to toDate
             bindParameters.add(toTimestamp);
         }
         queryBuilder.append("  col.collection_id = ? "); 
         bindParameters.add(c.getID()); 
 
         if(!countTotal) {
-            queryBuilder.append("ORDER BY date_available ASC, doi ASC ");
+            queryBuilder.append("ORDER BY last_modified ASC, doi ASC ");
             queryBuilder.append("LIMIT ? "); 
             bindParameters.add(count);
             queryBuilder.append("OFFSET ? "); 
@@ -661,13 +641,13 @@ public class ObjectManager implements Constants {
         // and text_value::timestamp > to_timestamp('2009-06-01','YYYY-MM-DD') 
         // and text_value::timestamp < to_timestamp('2009-07-01','YYYY-MM-DD')
         // limit 10;
+        log.debug ("Query files is " + queryBuilder.toString() + " with params " + bindParameters.toString());
         return DatabaseManager.query(myContext, queryBuilder.toString(), bindParameters.toArray());
     }
 
     private TableRowIterator queryDataPackagesDatabase(boolean countTotal, int start, int count, Date fromDate, Date toDate)
             throws SQLException {
         Collection c = (Collection) HandleManager.resolveToObject(myContext, myPackages);
-        int dateAvailableFieldId = getDateAvailableFieldID();
         int dcIdentifierFieldId = getDCIdentifierFieldID();
         StringBuilder queryBuilder = new StringBuilder();
         // build up bind paramaters 
@@ -677,20 +657,16 @@ public class ObjectManager implements Constants {
             queryBuilder.append("  count(*) AS total ");
         } else {
             queryBuilder.append("  md.text_value AS doi, ");
-            queryBuilder.append("  mv.text_value::timestamp AS date_available, ");
 	        queryBuilder.append("  it.last_modified::timestamp AS last_modified ");
         }        
         queryBuilder.append("FROM ");
         queryBuilder.append("  item AS it ");
         queryBuilder.append("  JOIN collection2item as c2i using (item_id) ");
         queryBuilder.append("  JOIN collection as col using (collection_id) ");
-        queryBuilder.append("  JOIN metadatavalue AS mv using (item_id) ");
         queryBuilder.append("  JOIN metadatavalue AS md using (item_id) ");
         queryBuilder.append("WHERE ");
         queryBuilder.append("  NOT it.withdrawn = true AND ");
         queryBuilder.append("  it.in_archive = true AND ");
-        queryBuilder.append("  mv.metadata_field_id = ? AND ");
-        bindParameters.add(dateAvailableFieldId);
         queryBuilder.append("  md.metadata_field_id = ? AND ");
         bindParameters.add(dcIdentifierFieldId);
         queryBuilder.append("  md.place = 1 AND ");
@@ -698,7 +674,7 @@ public class ObjectManager implements Constants {
             Timestamp fromTimestamp = new java.sql.Timestamp(fromDate.getTime());
             log.info("queryDataPackagesDatabase: Requested fromDate: " + fromTimestamp.toString());
             // Postgres-specific, casts text_value to a timestamp
-            queryBuilder.append("  mv.text_value::timestamp > ? AND ");
+            queryBuilder.append("  last_modified::timestamp > ? AND ");
             bindParameters.add(fromTimestamp);
         }
 
@@ -706,19 +682,20 @@ public class ObjectManager implements Constants {
             Timestamp toTimestamp = new java.sql.Timestamp(toDate.getTime());
             log.info("queryDataPackagesDatabase: Requested toDate: " + toTimestamp.toString());
             // Postgres-specific, casts text_value to a timestamp
-            queryBuilder.append("  mv.text_value::timestamp < ? AND "); // bind to toDate
+            queryBuilder.append("  last_modified::timestamp < ? AND "); // bind to toDate
             bindParameters.add(toTimestamp);
         }
         queryBuilder.append("  col.collection_id = ? "); 
         bindParameters.add(c.getID()); 
 
         if(!countTotal) {
-            queryBuilder.append("ORDER BY date_available ASC, doi ASC ");
+            queryBuilder.append("ORDER BY last_modified ASC, doi ASC ");
             queryBuilder.append("LIMIT ? "); 
             bindParameters.add(count);
             queryBuilder.append("OFFSET ? "); 
             bindParameters.add(start);
         }
+        log.debug ("Query packages is " + queryBuilder.toString() + " with params " + bindParameters.toString());
         return DatabaseManager.query(myContext, queryBuilder.toString(), bindParameters.toArray());
         
     }
@@ -807,33 +784,9 @@ public class ObjectManager implements Constants {
        Retrieve the first bitstream in a bundle. The bitstream must be in a bundle
        marked "ORIGINAL". Bitstreams for "readme" files are ignored.
     **/
-    public Bitstream getFirstBitstream(Item item) throws SQLException, NotFoundException {
-	Bitstream result = null;
-	
-	Bundle[] bundles = item.getBundles("ORIGINAL");
-	if (bundles.length == 0) {
-	    log.error("Didn't find any original bundles for " + item.getHandle());
-	    throw new NotFoundException("data bundle for " + item.getHandle() + " not found");
-	}
-	log.debug("This object has " + bundles.length + " bundles");
-	
-	Bitstream[] bitstreams = bundles[0].getBitstreams();
-	boolean found = false;
-	for(int i = 0; i < bitstreams.length && !found; i++) {
-	    result = bitstreams[i];
-	    String name = result.getName();
-	    
-	    if (!name.equalsIgnoreCase("readme.txt")
-		&& !name.equalsIgnoreCase("readme.txt.txt")) {
-		log.debug("Retrieving bitstream " + name);
-		found = true;
-	    }
-	}	    
-	if (!found) {
-	    log.error("unable to locate a valid bitstream within the first bundle of " + item.getHandle());
-	    throw new NotFoundException(item.getHandle() + " -- first bitstream wasn't found");
-	}
-	
+    public Bitstream getFirstBitstream(Item item) throws SQLException, IOException {
+        DryadDataFile df = new DryadDataFile(item);
+        Bitstream result = df.getFirstBitstream();	
 	return result;
     }
     
