@@ -73,10 +73,10 @@ public class AssociationAnywhere {
 
         }
         else if(line.hasOption("d")){
-            deductCredit(line.getOptionValue("i"));
+            deductCredit(line.getOptionValue("d"));
         }
         else if(line.hasOption("l")){
-            System.out.print(printDocument(loadCustomerInfo(line.getOptionValue("i"))));
+            System.out.print(printDocument(loadCustomerInfo(line.getOptionValue("l"))));
         }
         else if(line.hasOption("i")){
             //load credit
@@ -99,7 +99,7 @@ public class AssociationAnywhere {
     private static String getCredit(String customerId)
             throws Exception
     {
-
+        log.debug("getting credits for customerId " + customerId);
         try {
 
             String requestUrl =  ConfigurationManager.getProperty("association.anywhere.url")
@@ -169,7 +169,8 @@ public class AssociationAnywhere {
      * @throws AssociationAnywhereException
      */
     public static String deductCredit(String customerId) throws AssociationAnywhereException {
-
+        log.debug("deducting one credit for customerId " + customerId);
+        
         if("test".equals(customerId))
         {
             return "SUCCESS";
@@ -190,7 +191,7 @@ public class AssociationAnywhere {
                 Document result = getResponseAsDocument(get.getResponseBodyAsString());
                 log.debug("Response body : " + get.getResponseBodyAsString());
                 status = getStringValue(result, "//credit-update-status/status");
-
+                
                 if("FAILURE".equals(status))
                 {
                     throw new AssociationAnywhereException(get.getResponseBodyAsString());
