@@ -355,7 +355,7 @@ public class AssociationAnywhere {
 
     static Templates template = null;
 
-    static SimpleDateFormat dateFormat = new SimpleDateFormat("mm/dd/yyyy");
+    static SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 
     private static String createRequest(String customerId, String form)
     {
