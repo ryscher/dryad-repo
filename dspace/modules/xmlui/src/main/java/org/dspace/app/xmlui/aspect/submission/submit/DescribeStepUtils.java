@@ -38,6 +38,7 @@ public class DescribeStepUtils extends AbstractDSpaceTransformer {
     protected static final Message T_required_field = message("xmlui.Submission.submit.DescribeStep.required_field");
     protected static final Message T_last_name_help = message("xmlui.Submission.submit.DescribeStep.last_name_help");
     protected static final Message T_first_name_help = message("xmlui.Submission.submit.DescribeStep.first_name_help");
+    protected static final Message T_manual_add_name = message("xmlui.Submission.submit.DescribeStep.manual_add_name");
     protected static final Message T_year = message("xmlui.Submission.submit.DescribeStep.year");
     protected static final Message T_month = message("xmlui.Submission.submit.DescribeStep.month");
     protected static final Message T_day = message("xmlui.Submission.submit.DescribeStep.day");
@@ -201,7 +202,7 @@ public class DescribeStepUtils extends AbstractDSpaceTransformer {
         fullName.setLabel(dcInput.getLabel());
 
         // add modified help message that clarifies this is a manual name field
-        fullName.setHelp("Manual message! " + cleanHints(dcInput.getHints()));
+        fullName.setHelp(T_manual_add_name + " " + cleanHints(dcInput.getHints()));
         if (dcInput.isRequired())
             fullName.setRequired();
         if (isFieldInError(fieldName))
