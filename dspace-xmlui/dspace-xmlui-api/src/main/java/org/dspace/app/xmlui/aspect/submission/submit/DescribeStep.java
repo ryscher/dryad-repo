@@ -394,7 +394,7 @@ public class DescribeStep extends AbstractSubmissionStep
         return describeSection;
     }
     
-
+        
         /**
          * Render a Name field to the DRI document. The name field consists of two
          * text fields, one for the last name and the other for a first name (plus
@@ -417,11 +417,9 @@ public class DescribeStep extends AbstractSubmissionStep
                 Text lastName = fullName.addText(fieldName+"_last");
                 Text firstName = fullName.addText(fieldName+"_first");
 
-                // add modified help message that clarifies this is a manual name field
-            fullName.setHelp("Manual message! " + cleanHints(dcInput.getHints()));
-
-            // Setup the full name
+                // Setup the full name
                 fullName.setLabel(dcInput.getLabel());
+                fullName.setHelp(cleanHints(dcInput.getHints()));
                 if (dcInput.isRequired())
                 {
                     fullName.setRequired();
