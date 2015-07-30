@@ -132,11 +132,12 @@
         <div class="ds-form-content">
             <!-- display the help message here.-->
             <div class="ds-form-label help">
-                <xsl:variable name="help" select="dri:help"/>
+                <xsl:variable name="manual" i18n:attr="select" select="xmlui.Submission.submit.DescribeStep.manual_add_name"/>
+                <xsl:variable name="help" select="string(dri:help)"/>
                 <div class="help-title">
-                    <xsl:value-of select="concat(substring-before($help,'.'),'.')"/>
+                    <xsl:value-of select="$manual"/>
                     <xsl:call-template name="help-hover">
-                        <xsl:with-param name="hover" select="substring-after($help,'.')"/>
+                        <xsl:with-param name="hover" select="$help"/>
                     </xsl:call-template>
                 </div>
             </div>

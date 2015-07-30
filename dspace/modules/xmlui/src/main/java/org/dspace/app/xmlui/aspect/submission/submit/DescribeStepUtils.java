@@ -202,7 +202,7 @@ public class DescribeStepUtils extends AbstractDSpaceTransformer {
         fullName.setLabel(dcInput.getLabel());
 
         // add modified help message that clarifies this is a manual name field
-        fullName.setHelp(T_manual_add_name.getKey() + " " + cleanHints(dcInput.getHints()));
+        fullName.setHelp(cleanHints(dcInput.getHints()));
 
         if (dcInput.isRequired())
             fullName.setRequired();
