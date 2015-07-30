@@ -133,7 +133,7 @@
             <!-- display the help message here.-->
             <div class="ds-form-label help">
                 <xsl:variable name="manual">
-                    <i18n:text i18n:key="xmlui.Submission.submit.DescribeStep.manual_add_name">Default value</i18n:text>
+                    <i18n:text i18n:key="xmlui.Submission.submit.DescribeStep.required_field">Default value</i18n:text>
                 </xsl:variable>
 
                 <xsl:variable name="help" select="string(dri:help)"/>
