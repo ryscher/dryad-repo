@@ -41,11 +41,6 @@
 
     <!-- A collection rendered in the detailView pattern; default way of viewing a collection. -->
     <xsl:template name="collectionDetailView-DIM">
-<h1>TEST - dspace/modules/xmlui/src/main/webapp/themes/DryadLab/collection-view.xsl</h1>
-<xsl:message>
-	<xsl:text>HELLO from dspace/modules/xmlui/src/main/webapp/themes/DryadLab/collection-view.xsl</xsl:text>
-	<!--<xsl:value-of select="name()"/>-->
-</xsl:message>
         <div class="detail-view">&#160;
             <!-- Generate the logo, if present, from the file section -->
             <xsl:apply-templates select="./mets:fileSec/mets:fileGrp[@USE='LOGO']"/>
