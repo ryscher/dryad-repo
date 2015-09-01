@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-
     The contents of this file are subject to the license and copyright
     detailed in the LICENSE and NOTICE files at the root of the source
     tree and available online at
-
     http://www.dspace.org/license/
-
 -->
 <!--
     Original author: Alexey Maslov
@@ -246,6 +243,15 @@
                                 <img src="/themes/Mirage/images/integration-slide.jpg" alt="Publishers: Simplify data submission. Strengthen links between articles and data. For free. Integrate your journal with Dryad now" />
                             </a>
                         </div>
+                        <div><span class="publication-date">2015-02-15</span>
+                            <a href="/pages/dryadlab">
+                                <img alt="" src="/themes/Mirage/images/dryadlab-promo.png" />
+                                <p style="width: 580px; color: #444; font-size: 80%; top: 75px; right: 10px; line-height: 1.2em; position: absolute; text-shadow: 1px 2px 2px rgba(33, 33, 33, 0.25);"> 
+                                    DryadLab is a collection of free, openly-licensed, high-quality, hands-on, educational modules for students to engage in scientific inquiry using real data.
+                                </p>
+                                <p style="drop-shadow: 4px 4px; position: absolute; right: 40px; bottom: 6px; font-size: 70%; text-align: right; text-shadow: 1px 2px 2px rgba(33, 33, 33, 0.25);">Learn More &#187;</p>
+                            </a>
+                        </div>
                         <div><span class="publication-date">2015-03-23</span>
                             <a href="/pages/membershipOverview">
                                 <img alt="" src="/themes/Mirage/images/watering-can.png" />
@@ -400,8 +406,8 @@
                         <a class="single-image-link" href="/discover?field=prism.publicationName_filter&amp;query=&amp;fq=prism.publicationName_filter%3Abone%5C+%26%5C+joint%5C+journal%5C%7C%5C%7C%5C%7CBone%5C+%26%5C+Joint%5C+Journal"><img class="pub-cover" src="/themes/Mirage/images/recentlyIntegrated-BJJ.png" alt="Bone &amp; Joint Journal" /></a>
                         <!-- Bone & Joint Research -->
                         <a class="single-image-link" href="/discover?field=prism.publicationName_filter&amp;query=&amp;fq=prism.publicationName_filter%3Abone%5C+%26%5C+joint%5C+research%5C%7C%5C%7C%5C%7CBone%5C+%26%5C+Joint%5C+Research"><img class="pub-cover" src="/themes/Mirage/images/recentlyIntegrated-BJR.png" alt="Bone &amp; Joint Research" /></a>
-                        <!-- Ecology -->
-                        <a class="single-image-link" href="/discover?field=prism.publicationName_filter&amp;query=&amp;fq=prism.publicationName_filter%3Aecology%5C%7C%5C%7C%5C%7CEcology"><img class="pub-cover" src="/themes/Mirage/images/recentlyIntegrated-ecology.png" alt="Ecology" /></a>
+                        <!-- Evidence-based Preclinical Medicine -->
+                        <a class="single-image-link" href="/discover?field=prism.publicationName_filter&amp;query=&amp;fq=prism.publicationName_filter%3Aevidence-based%5C+preclinical%5C+medicine%5C%7C%5C%7C%5C%7CEvidence-based%5C+Preclinical%5C+Medicine"><img class="pub-cover" src="/themes/Mirage/images/recentlyIntegrated-EBPM.png" alt="Evidence-based Preclinical Medicine" /></a>
                     </div>
                 </div>
             </div>
@@ -437,12 +443,9 @@
         The template to handle dri:options. Since it contains only dri:list tags (which carry the actual
         information), the only things than need to be done is creating the ds-options div and applying
         the templates inside it.
-
         In fact, the only bit of real work this template does is add the search box, which has to be
         handled specially in that it is not actually included in the options div, and is instead built
         from metadata available under pageMeta.
-
-
 -->
 
     <xsl:template match="dri:options/dri:list[@n='administrative']"/>
@@ -483,13 +486,9 @@
     <xsl:template match="dri:options/dri:list[@n='DryadInfo']" priority="3">
         <div id="main-menu">
             <ul class="sf-menu">
-
                 <xsl:apply-templates select="dri:list" mode="nested"/>
-
-
                 <xsl:apply-templates select="dri:item" mode="nested"/>
             </ul>
-
         </div>
     </xsl:template>
     -->
@@ -636,11 +635,11 @@
     <!--xsl:variable name="doc" select="document(concat('pages/', $pageName, '.xhtml'))"/-->
 
     <xsl:template match="dri:xref[@rend='embed']">
-               
+               
         <xsl:variable name="url" select="concat('pages/',@target)"/>
-               
+               
         <xsl:copy-of select="document(string($url))/html/*"/>
-           
+           
     </xsl:template>
 
     <!-- description of dataset for 'Submission overview' page -->
@@ -755,9 +754,7 @@
                         </xsl:choose>
                     </xsl:with-param>
                     </xsl:call-template>
-
                     <div class="ds-form-content">
-
                     <xsl:if test="dri:field[@type='radio']">
                         <xsl:apply-templates select="dri:field[@type='radio']"/>
                         <br/>
@@ -768,7 +765,6 @@
                         - journalID_status_in_review
                         - journalID
                         - MANUSCRIPT NUMBER
-
                     -->
                     <xsl:for-each select="dri:field[@type='composite']/dri:field">
                         <tr class="selectPubSubmitTable"><td>
@@ -910,7 +906,6 @@ parameter that is being used (see variable defined above) -->
 
     <!--
 <xsl:template match="/dri:document/dri:body/dri:div/dri:div[@id='aspect.discovery.SimpleSearch.div.search-results']/dri:list">
-
 </xsl:template>
 -->
     <xsl:template match="/dri:document/dri:body/dri:div/dri:div/dri:list[@n='tabs']">
@@ -1035,7 +1030,6 @@ parameter that is being used (see variable defined above) -->
                             />_tooltip
                     </xsl:attribute>
                 </xsl:if>
-
                 <xsl:apply-templates/>
             </span>
         </xsl:if>
