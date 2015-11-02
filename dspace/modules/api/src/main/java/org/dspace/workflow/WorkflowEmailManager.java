@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.mail.MessagingException;
 import org.apache.log4j.Logger;
 import org.dspace.content.Collection;
@@ -24,7 +26,7 @@ import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.identifier.DOIIdentifierProvider;
-import org.dspace.submit.utils.DryadJournalSubmissionUtils;
+import org.dspace.JournalUtils;
 
 /**
  * Refactoring email notification methods into this class.
@@ -113,17 +115,24 @@ public class WorkflowEmailManager {
             }else{
                 email.addArgument("");
             }
-            String manuScriptIdentifier = "";
-            DCValue[] manuScripIdentifiers = i.getMetadata(MetadataSchema.DC_SCHEMA, "identifier", "manuscriptNumber", Item.ANY);
-            if(0 < manuScripIdentifiers.length){
-                manuScriptIdentifier = manuScripIdentifiers[0].value;
+            String manuscriptIdentifier = "";
+            DCValue[] manuscriptIdentifiers = i.getMetadata(MetadataSchema.DC_SCHEMA, "identifier", "manuscriptNumber", Item.ANY);
+            if(0 < manuscriptIdentifiers.length){
+                manuscriptIdentifier = manuscriptIdentifiers[0].value;
             }
 
-	    if(manuScriptIdentifier.length() == 0) {
-		manuScriptIdentifier = "none available";
-	    }
+            if(manuscriptIdentifier.length() == 0) {
+                manuscriptIdentifier = "none available";
+            }
+            email.addArgument(manuscriptIdentifier);
 
-            email.addArgument(manuScriptIdentifier);
+            // add a DOI URL as well:
+            String doi_url = "";
+            Matcher doimatcher = Pattern.compile("doi:(.+)").matcher(datapackageDoi);
+            if (doimatcher.find()) {
+                doi_url = "http://dx.doi.org/" + doimatcher.group(1);
+            }
+            email.addArgument(doi_url);
 
             email.send();
         }
@@ -139,9 +148,9 @@ public class WorkflowEmailManager {
         if(values!=null && values.length> 0){
             String journal = values[0].value;
             if(journal!=null){
-                Map<String, String> properties = DryadJournalSubmissionUtils.getPropertiesByJournal(journal);
+                Map<String, String> properties = JournalUtils.getPropertiesByJournal(journal);
                 if(properties != null) {
-                    String emails = properties.get(DryadJournalSubmissionUtils.NOTIFY_ON_ARCHIVE);
+                    String emails = properties.get(JournalUtils.NOTIFY_ON_ARCHIVE);
                     if(emails != null) {
                         String[] emails_=emails.split(",");
                         for(String emailAddr : emails_){
