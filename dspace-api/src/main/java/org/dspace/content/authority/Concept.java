@@ -436,6 +436,7 @@ public class Concept extends AuthorityObject
         return concepts;
     }
 
+
     /**
      * Find concepts by a metadata value in the concept metadata.
      *
