@@ -10,11 +10,15 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.apache.log4j.Logger;
+import org.dspace.core.ConfigurationManager;
+import org.dspace.identifier.DOIIdentifierProvider;
 
 /**
  *
@@ -63,7 +67,7 @@ public class Manuscript {
     public String manuscript_abstract;
     public AuthorsList authors = new AuthorsList();
     public CorrespondingAuthor correspondingAuthor = new CorrespondingAuthor();
-    public String dryadDataDOI;
+    private String dryadDataDOI;
     public List<String> keywords = new ArrayList<String>();
     public String manuscriptId = "";
     private String status = STATUS_ACCEPTED; // STATUS_ACCEPTED is the default
@@ -86,7 +90,15 @@ public class Manuscript {
     @JsonIgnore
     public Organization organization = new Organization();
 
-    @JsonIgnore
+    public void setDryadDataDOI(String newDOI) {
+        this.dryadDataDOI = newDOI;
+    }
+
+    public String getDryadDataDOI() {
+        // find the first instance of a Dryad DOI in these three fields (in this order of priority)
+        return findDryadDOI(dryadDataDOI + "," + dataReviewURL + "," + dataAvailabilityStatement);
+    }
+
     public void setStatus(String newStatus) {
         if (newStatus != null) {
             this.status = newStatus;
@@ -95,7 +107,6 @@ public class Manuscript {
         }
     }
 
-    @JsonIgnore
     public String getStatus() {
         if (isAccepted()) {
             return STATUS_ACCEPTED;
@@ -118,6 +129,58 @@ public class Manuscript {
     @JsonIgnore
     public String getLiteralStatus() {
         return this.status;
+    }
+
+    // check the status of a manuscript, regardless of what the literal status is
+    @JsonIgnore
+    public Boolean isSubmitted() {
+        return statusIsSubmitted(status);
+    }
+
+    @JsonIgnore
+    public Boolean isAccepted() {
+        return statusIsAccepted(status);
+    }
+
+    @JsonIgnore
+    public Boolean isRejected() {
+        return statusIsRejected(status);
+    }
+
+    @JsonIgnore
+    public Boolean isNeedsRevision() {
+        return statusIsNeedsRevision(status);
+    }
+
+    @JsonIgnore
+    public Boolean isPublished() {
+        return statusIsPublished(status);
+    }
+
+    // Convenience methods to compare status strings anywhere to known statuses.
+    @JsonIgnore
+    public static Boolean statusIsSubmitted(String status) {
+        return SUBMITTED_STATUSES.contains(status);
+    }
+
+    @JsonIgnore
+    public static Boolean statusIsAccepted(String status) {
+        return ACCEPTED_STATUSES.contains(status);
+    }
+
+    @JsonIgnore
+    public static Boolean statusIsRejected(String status) {
+        return REJECTED_STATUSES.contains(status);
+    }
+
+    @JsonIgnore
+    public static Boolean statusIsNeedsRevision(String status) {
+        return NEEDS_REVISION_STATUSES.contains(status);
+    }
+
+    @JsonIgnore
+    public static Boolean statusIsPublished(String status) {
+        return PUBLISHED_STATUSES.contains(status);
     }
 
     @JsonIgnore
@@ -152,29 +215,14 @@ public class Manuscript {
         return true;
     }
 
-    @JsonIgnore
-    public Boolean isSubmitted() {
-        return SUBMITTED_STATUSES.contains(status);
-    }
-
-    @JsonIgnore
-    public Boolean isAccepted() {
-        return ACCEPTED_STATUSES.contains(status);
-    }
-
-    @JsonIgnore
-    public Boolean isRejected() {
-        return REJECTED_STATUSES.contains(status);
-    }
-
-    @JsonIgnore
-    public Boolean isNeedsRevision() {
-        return NEEDS_REVISION_STATUSES.contains(status);
-    }
-
-    @JsonIgnore
-    public Boolean isPublished() {
-        return PUBLISHED_STATUSES.contains(status);
+    private static String findDryadDOI(String searchString) {
+        // we need to look for anything matching the form doi:10.5061/dryad.xxxx as well as dx.doi.org/10.5061/dryad.xxxx
+        Matcher manuscriptMatcher = Pattern.compile(Pattern.quote(DOIIdentifierProvider.getDryadDOIPrefix()) + "[a-zA-Z0-9]+").matcher(searchString);
+        if (manuscriptMatcher.find()) {
+            return "doi:" + manuscriptMatcher.group(0);
+        } else {
+            return null;
+        }
     }
 
     public void configureTestValues() {
