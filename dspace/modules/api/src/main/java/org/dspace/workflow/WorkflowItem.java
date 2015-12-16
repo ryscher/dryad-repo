@@ -6,6 +6,7 @@ import org.datadryad.rest.models.Manuscript;
 import org.dspace.JournalUtils;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.*;
+import org.dspace.content.authority.Concept;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -182,6 +183,12 @@ public class WorkflowItem implements InProgressSubmission {
         return wfArray;
     }
 
+    public static WorkflowItem[] findAllByJournalCode(Context c, String journalCode) throws SQLException, AuthorizeException, IOException {
+        Concept concept = JournalUtils.getJournalConceptByShortID(c, journalCode);
+        String journalName = JournalUtils.getFullName(concept);
+        return findAllByJournalName(c, journalName);
+    }
+
     public static WorkflowItem[] findAllByJournalName(Context c, String journalName) throws SQLException, AuthorizeException, IOException {
         List<WorkflowItem> wfItems = new ArrayList<WorkflowItem>();
 
@@ -261,12 +268,12 @@ public class WorkflowItem implements InProgressSubmission {
     }
 
     public static List<WorkflowItem> findAllByManuscript(Context context, Manuscript manuscript) throws ApproveRejectReviewItemException {
-        String journalName = manuscript.organization.organizationName;
+        String journalCode = manuscript.organization.organizationCode;
         WorkflowItem[] workflowItems = null;
         ArrayList<WorkflowItem> matchingItems = new ArrayList<WorkflowItem>();
 
         try {
-            workflowItems = WorkflowItem.findAllByJournalName(context, journalName);
+            workflowItems = WorkflowItem.findAllByJournalCode(context, journalCode);
             for (int i=0;i<workflowItems.length;i++) {
                 Boolean matched = false;
                 WorkflowItem wfi = workflowItems[i];
@@ -283,9 +290,9 @@ public class WorkflowItem implements InProgressSubmission {
 
                 if (matched == false) {
                     // count number of authors and number of matched authors: if equal, this is a match.
-                    if (manuscript.authors.author.size() > 0) {
+                    DCValue[] itemAuthors = item.getMetadata("dc", "contributor", "author", Item.ANY);
+                    if (manuscript.authors.author.size() == itemAuthors.length) {
                         int numMatched = 0;
-                        DCValue[] itemAuthors = item.getMetadata("dc", "contributor", "author", Item.ANY);
                         for (int j = 0; j < itemAuthors.length; j++) {
                             for (Author a : manuscript.authors.author) {
                                 double score = JournalUtils.getHamrScore(itemAuthors[j].value, a.fullName());
