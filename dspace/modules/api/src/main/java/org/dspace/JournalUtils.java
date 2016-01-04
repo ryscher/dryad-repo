@@ -1,7 +1,7 @@
 package org.dspace;
 
 import org.apache.log4j.Logger;
-import org.datadryad.rest.converters.ManuscriptToLegacyXMLConverter;
+import org.apache.commons.lang.StringUtils;
 import org.datadryad.rest.models.Manuscript;
 import org.datadryad.rest.models.Author;
 import org.datadryad.rest.models.Organization;
@@ -25,6 +25,7 @@ import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.lang.Math;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -223,14 +224,14 @@ public class JournalUtils {
         String regex = null;
         try {
             Concept concept = getJournalConceptByShortID(context, journalCode);
-            AuthorityMetadataValue[] vals = concept.getMetadata("journal","manuscriptNumberIgnorePattern",null, Item.ANY);
+            AuthorityMetadataValue[] vals = concept.getMetadata("journal","canonicalManuscriptNumberPattern",null, Item.ANY);
             if(vals != null && vals.length > 0) {
                 regex = vals[0].getValue();
                 Matcher manuscriptMatcher = Pattern.compile(regex).matcher(canonicalID);
                 if (manuscriptMatcher.find()) {
                     canonicalID = manuscriptMatcher.group(1);
                 } else {
-                    canonicalID = null;
+                    log.error("Manuscript " + manuscriptId + " does not match with the regex provided for " + journalCode);
                 }
             } else {
                 // there is no regex specified, just use the manuscript.
@@ -240,11 +241,6 @@ public class JournalUtils {
             log.error(e.getMessage(),e);
         }
         return canonicalID;
-    }
-
-    public static Boolean manuscriptIsValid(Context context, Manuscript manuscript) {
-        Boolean result = manuscript.isValid() && (getCanonicalManuscriptID(context, manuscript) != null);
-        return result;
     }
 
     public static String getFullName(Concept concept) {
@@ -378,7 +374,7 @@ public class JournalUtils {
     }
 
     public static String getDescription(Concept concept) {
-        AuthorityMetadataValue[] vals = concept.getMetadata("journal","description",null, Item.ANY);
+        AuthorityMetadataValue[] vals = concept.getMetadata("journal", "description", null, Item.ANY);
         if(vals != null && vals.length > 0)
             return vals[0].value;
 
@@ -386,7 +382,7 @@ public class JournalUtils {
     }
 
     public static String getMemberName(Concept concept) {
-        AuthorityMetadataValue[] vals = concept.getMetadata("journal","memberName",null, Item.ANY);
+        AuthorityMetadataValue[] vals = concept.getMetadata("journal", "memberName", null, Item.ANY);
         if(vals != null && vals.length > 0)
             return vals[0].value;
 
@@ -528,40 +524,9 @@ public class JournalUtils {
                 action == JournalUtils.RecommendedBlackoutAction.JOURNAL_NOT_INTEGRATED);
     }
 
-    public static void writeManuscriptToXMLFile(Context context, Manuscript manuscript) throws StorageException {
-        try {
-            log.debug ("looking for metadatadir for " + manuscript.organization.organizationCode);
-            Concept concept = JournalUtils.getJournalConceptByShortID(context, manuscript.organization.organizationCode);
-            if (concept != null) {
-                String filename = JournalUtils.escapeFilename(manuscript.manuscriptId + ".xml");
-                File file = new File(JournalUtils.getMetadataDir(concept), filename);
-                FileOutputStream outputStream = null;
-
-                try {
-                    outputStream = new FileOutputStream(file);
-                } catch (FileNotFoundException e) {
-                    log.warn("couldn't open a file to write", e);
-                }
-
-                if (outputStream != null) {
-                    try {
-                        ManuscriptToLegacyXMLConverter.convertToInternalXML(manuscript, outputStream);
-                        log.info("wrote xml to file " + file.getAbsolutePath());
-                    } catch (JAXBException e) {
-                        log.warn("couldn't convert to XML");
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            throw new StorageException(e);
-        }
-    }
-
     public static void writeManuscriptToDB(Context context, Manuscript manuscript) throws StorageException {
-        String journalCode = cleanJournalCode(manuscript.organization.organizationCode);
-        StoragePath storagePath = new StoragePath();
-        storagePath.addPathElement(Organization.ORGANIZATION_CODE, journalCode);
-        storagePath.addPathElement(Manuscript.MANUSCRIPT_ID, manuscript.manuscriptId);
+        String journalCode = cleanJournalCode(manuscript.organization.organizationCode).toUpperCase();
+        StoragePath storagePath = StoragePath.createManuscriptPath(journalCode, manuscript.manuscriptId);
 
         ManuscriptDatabaseStorageImpl manuscriptStorage = new ManuscriptDatabaseStorageImpl();
         List<Manuscript> manuscripts = getManuscriptsMatchingID(journalCode, manuscript.manuscriptId);
@@ -581,38 +546,16 @@ public class JournalUtils {
         }
     }
 
-    public static void createOrganizationinDB(Context context, Organization organization) throws StorageException {
-        // normalize with all caps for the code:
-        organization.organizationCode = cleanJournalCode(organization.organizationCode);
-
-        StoragePath storagePath = new StoragePath();
-        storagePath.addPathElement(Organization.ORGANIZATION_CODE, organization.organizationCode);
-
-        // check to see if this organization exists in the database: if not, add it.
-        OrganizationDatabaseStorageImpl organizationStorage = new OrganizationDatabaseStorageImpl();
-        List<Organization> orgs = organizationStorage.getResults(storagePath, organization.organizationCode, 0);
-        if (orgs.size() == 0) {
-            try {
-                log.info("creating an organization " + organization.organizationCode);
-                organizationStorage.create(storagePath, organization);
-            } catch (StorageException ex) {
-                log.error("Exception creating organizations", ex);
-            }
-        }
-    }
-
     public static List<Manuscript> getManuscriptsMatchingID(String journalCode, String manuscriptId) {
         journalCode = cleanJournalCode(journalCode);
         ArrayList<Manuscript> manuscripts = new ArrayList<Manuscript>();
-        StoragePath storagePath = new StoragePath();
-        storagePath.addPathElement(Organization.ORGANIZATION_CODE, journalCode);
+        StoragePath storagePath = StoragePath.createManuscriptPath(journalCode, manuscriptId);
 
         try {
             OrganizationDatabaseStorageImpl organizationStorage = new OrganizationDatabaseStorageImpl();
             List<Organization> orgs = organizationStorage.getResults(storagePath, journalCode, 0);
             if (orgs.size() > 0) {
                 ManuscriptDatabaseStorageImpl manuscriptStorage = new ManuscriptDatabaseStorageImpl();
-                storagePath.addPathElement(Manuscript.MANUSCRIPT_ID, manuscriptId);
                 manuscripts.addAll(manuscriptStorage.getResults(storagePath, manuscriptId, 10));
             }
         } catch (StorageException e) {
@@ -625,41 +568,44 @@ public class JournalUtils {
         PublicationBean pBean = new PublicationBean();
         pBean.setManuscriptNumber(manuscript.manuscriptId);
         pBean.setJournalID(cleanJournalCode(manuscript.organization.organizationCode));
-        pBean.setJournalName(manuscript.organization.organizationName);
         pBean.setTitle(manuscript.title);
-        pBean.setAbstract(manuscript.manuscript_abstract);
-        pBean.setCorrespondingAuthor(manuscript.correspondingAuthor.author.givenNames + " " + manuscript.correspondingAuthor.author.familyName);
-        pBean.setEmail(manuscript.correspondingAuthor.email);
-        String issn = manuscript.optionalProperties.get("ISSN");
-        if (issn != null) {
-            pBean.setJournalISSN(issn);
-        }
+        pBean.setStatus(manuscript.getStatus());
+
         ArrayList<String> authorstrings = new ArrayList<String>();
         for (Author a : manuscript.authors.author) {
 
-            authorstrings.add(a.givenNames + " " + a.familyName);
+            authorstrings.add(a.familyName + ", " + a.givenNames);
         }
         pBean.setAuthors(authorstrings);
+
+        // the rest of the fields are optional:
+        if (manuscript.organization.organizationName != null) {
+            pBean.setJournalName(manuscript.organization.organizationName);
+        }
+        if (manuscript.manuscript_abstract != null) {
+            pBean.setAbstract(manuscript.manuscript_abstract);
+        }
+        if (manuscript.correspondingAuthor.author != null) {
+            pBean.setCorrespondingAuthor(manuscript.correspondingAuthor.author.givenNames + " " + manuscript.correspondingAuthor.author.familyName);
+        }
+        if (manuscript.correspondingAuthor.email != null) {
+            pBean.setEmail(manuscript.correspondingAuthor.email);
+        }
+        if (manuscript.optionalProperties != null) {
+            String issn = manuscript.optionalProperties.get("ISSN");
+            if (issn != null) {
+                pBean.setJournalISSN(issn);
+            }
+        }
         ArrayList<String> subjectKeywords = new ArrayList<String>();
         for (String keyword : manuscript.keywords) {
             subjectKeywords.add(keyword);
         }
         pBean.setSubjectKeywords(subjectKeywords);
-        String ttext = manuscript.status;
 
-        pBean.setStatus(ttext);
-        if(ttext.equals("submitted") ||
-                ttext.equals("in review")   ||
-                ttext.equals("under review")  ||
-                ttext.equals("revision in review") ||
-                ttext.equals("revision under review")
-                ) {
+        if (manuscript.isSubmitted()) {
             pBean.setSkipReviewStep(false);
-        } else if(ttext.equals("accepted") ||
-                ttext.startsWith("reject") ||
-                ttext.equals("open reject") ||
-                ttext.equals("transferred") ||
-                ttext.equals("needs revision")) {
+        } else if (manuscript.isAccepted() || manuscript.isRejected()) {
             pBean.setSkipReviewStep(true);
         }
         return pBean;
@@ -699,5 +645,14 @@ public class JournalUtils {
 
     public static String cleanJournalCode(String journalCode) {
         return journalCode.replaceAll("[^a-zA-Z0-9]", "").toUpperCase();
+    }
+
+    // getHamrScore compares two author names to each other.
+    // In practice, it seems that a score of 0.7 or higher generally indicates a good match.
+    public static double getHamrScore(String name1, String name2) {
+        int maxlen = Math.max(name1.length(), name2.length());
+        int editlen = StringUtils.getLevenshteinDistance(name1, name2);
+
+        return (double)(maxlen-editlen)/(double)maxlen;
     }
 }

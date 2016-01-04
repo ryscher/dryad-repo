@@ -60,43 +60,14 @@ public class ManuscriptReviewStatusChangeHandler implements HandlerInterface<Man
         } else if(!kernelImpl.isRunning()) {
             throw new HandlerException("Cannot process change, DSpace Kernel is not running");
         }
-
-        String status = manuscript.status;
-        if(Manuscript.STATUS_SUBMITTED.equals(status)) {
-            // Do nothing for submitted
-        } else if(Manuscript.STATUS_ACCEPTED.equals(status) || Manuscript.STATUS_PUBLISHED.equals(status)) {
-            // accept for accepted or published
-            accept(manuscript);
-        } else if (Manuscript.STATUS_REJECTED.equals(status) || Manuscript.STATUS_NEEDS_REVISION.equals(status)) {
-            // reject for rejected or needs revision
-            reject(manuscript);
-        }
-    }
-
-    private void accept(Manuscript manuscript) throws HandlerException {
-        // dspace review-item -a true
         try {
-            if(manuscript.dryadDataDOI != null) {
-                ApproveRejectReviewItem.reviewItemDOI(Boolean.TRUE, manuscript.dryadDataDOI);
-            } else {
-                ApproveRejectReviewItem.reviewItem(Boolean.TRUE, manuscript.manuscriptId);
+            if (manuscript.isSubmitted()) {
+                // if it's just a submitted notice, there is no status to change.
+                return;
             }
+            ApproveRejectReviewItem.reviewManuscript(manuscript);
         } catch (ApproveRejectReviewItemException ex) {
             throw new HandlerException("Exception handling acceptance notice for manuscript " + manuscript.manuscriptId, ex);
         }
     }
-
-    private void reject(Manuscript manuscript) throws HandlerException {
-        // dspace review-item -a false
-        try {
-            if(manuscript.dryadDataDOI != null) {
-                ApproveRejectReviewItem.reviewItemDOI(Boolean.FALSE, manuscript.dryadDataDOI);
-            } else {
-                ApproveRejectReviewItem.reviewItem(Boolean.FALSE, manuscript.manuscriptId);
-            }
-        } catch (ApproveRejectReviewItemException ex) {
-            throw new HandlerException("Exception handling rejection notice for manuscript " + manuscript.manuscriptId, ex);
-        }
-    }
-
 }

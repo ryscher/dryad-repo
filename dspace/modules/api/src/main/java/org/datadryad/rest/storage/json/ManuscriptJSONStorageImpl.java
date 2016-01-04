@@ -6,9 +6,9 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.List;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectReader;
-import org.codehaus.jackson.map.ObjectWriter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import org.datadryad.rest.models.Manuscript;
 import org.datadryad.rest.storage.AbstractManuscriptStorage;
 import org.datadryad.rest.storage.StorageException;
@@ -34,7 +34,7 @@ public class ManuscriptJSONStorageImpl extends AbstractManuscriptStorage {
 
     private File getSubdirectory(StoragePath path) {
         if(path.size() >= 1) {
-            String organizationCodeDirectory = path.get(0).value;
+            String organizationCodeDirectory = path.getOrganizationCode();
             File directory = new File(this.storageDirectory, organizationCodeDirectory);
             return directory;
         } else {
@@ -44,7 +44,7 @@ public class ManuscriptJSONStorageImpl extends AbstractManuscriptStorage {
 
     private String getBaseFileName(StoragePath path) {
         if(path.size() >= 2) {
-            String manuscriptId = path.get(1).value;
+            String manuscriptId = path.getManuscriptId();
             return manuscriptId;
         } else {
             return null;

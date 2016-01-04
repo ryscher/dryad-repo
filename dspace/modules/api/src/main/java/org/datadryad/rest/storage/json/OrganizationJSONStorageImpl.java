@@ -6,9 +6,9 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.List;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectReader;
-import org.codehaus.jackson.map.ObjectWriter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import org.datadryad.rest.models.Organization;
 import org.datadryad.rest.storage.AbstractOrganizationStorage;
 import org.datadryad.rest.storage.StorageException;
@@ -34,7 +34,7 @@ public class OrganizationJSONStorageImpl extends AbstractOrganizationStorage {
 
     private File getSubdirectory(StoragePath path) {
         if(path.size() >= 1) {
-            String organizationCode = path.get(0).value;
+            String organizationCode = path.getOrganizationCode();
             return getSubdirectory(organizationCode);
         } else {
             return this.storageDirectory;
@@ -48,7 +48,7 @@ public class OrganizationJSONStorageImpl extends AbstractOrganizationStorage {
 
     private String getBaseFileName(StoragePath path) {
         if(path.size() >= 1) {
-            String organizationCode = path.get(0).value;
+            String organizationCode = path.getOrganizationCode();
             return organizationCode;
         } else {
             return null;

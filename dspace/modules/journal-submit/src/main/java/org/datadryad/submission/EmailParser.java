@@ -91,6 +91,9 @@ public class EmailParser {
         fieldToXMLTagMap.put("ISSN", ISSN);
         fieldToXMLTagMap.put("ms dryad doi", DRYAD_DOI);
         fieldToXMLTagMap.put("contact author orcid", CORRESPONDING_AUTHOR_ORCID);
+
+        // unnecessary fields
+        fieldToXMLTagMap.put("Dryad author url", UNNECESSARY);
     }
 
     /** The Pattern for dryad_ id. */
@@ -107,6 +110,10 @@ public class EmailParser {
 
 	public void parseMessage(List<String> message) {
         XMLValue currValue = new XMLValue();
+
+        // set a default status of ACCEPTED:
+        dataForXML.put(ARTICLE_STATUS, Manuscript.STATUS_ACCEPTED);
+
         for (String line : message) {
             if (StringUtils.stripToNull(line) != null) {
                 // match field names
@@ -121,27 +128,6 @@ public class EmailParser {
                     dataForXML.put(currValue.key, currValue.value);
                 }
             }
-        }
-
-        // make sure there's a status:
-        if (dataForXML.get(ARTICLE_STATUS) != null) {
-            // if article status says "in review", it's the same as a submission
-            if (dataForXML.get(ARTICLE_STATUS).equalsIgnoreCase("in review")) {
-                dataForXML.put(ARTICLE_STATUS, Manuscript.STATUS_SUBMITTED);
-            }
-
-            // if article status says "rejected w/o review", it's the same as a rejection
-            if (dataForXML.get(ARTICLE_STATUS).equalsIgnoreCase("rejected w/o review")) {
-                dataForXML.put(ARTICLE_STATUS, Manuscript.STATUS_REJECTED);
-            }
-        } else {
-            // default status: assume it's a submission email if not otherwise specified.
-            dataForXML.put(ARTICLE_STATUS, Manuscript.STATUS_ACCEPTED);
-        }
-
-        // if article status says "transferred", it's the same as a rejection
-        if (dataForXML.get(ARTICLE_STATUS).equalsIgnoreCase("transferred")) {
-            dataForXML.put(ARTICLE_STATUS,Manuscript.STATUS_REJECTED);
         }
 
         // remove any unnecessary tags
@@ -188,10 +174,9 @@ public class EmailParser {
         String authorstring = (String) dataForXML.remove(AUTHORS);
         manuscript.authors.author = parseAuthorList(authorstring);
 
-        manuscript.dryadDataDOI = null;
         manuscript.keywords.addAll(parseClassificationList((String) dataForXML.remove(CLASSIFICATION)));
         manuscript.manuscriptId = (String) dataForXML.remove(MANUSCRIPT);
-        manuscript.status = dataForXML.remove(ARTICLE_STATUS).toLowerCase();
+        manuscript.setStatus(dataForXML.remove(ARTICLE_STATUS).toLowerCase());
         manuscript.title = (String) dataForXML.remove(ARTICLE_TITLE);
         manuscript.publicationDOI = null;
         manuscript.publicationDate = null;
@@ -216,7 +201,7 @@ public class EmailParser {
         manuscript.correspondingAuthor.address.state = (String) dataForXML.remove(STATE);
         manuscript.correspondingAuthor.address.country = (String) dataForXML.remove(COUNTRY);
         manuscript.correspondingAuthor.address.zip = (String) dataForXML.remove(ZIP);
-        manuscript.dryadDataDOI = (String) dataForXML.remove(DRYAD_DOI);
+        manuscript.setDryadDataDOI((String) dataForXML.remove(DRYAD_DOI));
         manuscript.optionalProperties = dataForXML;
     }
 
