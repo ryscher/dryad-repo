@@ -537,7 +537,7 @@
 	<message key="xmlui.EPerson.EditProfile.password">Password</message>
 	<message key="xmlui.EPerson.EditProfile.confirm_password">Retype to confirm</message>
     <message key="xmlui.EPerson.EditProfile.terms">Terms of Service</message>
-    <message key="xmlui.EPerson.EditProfile.terms_help">To use Dryad's data publishing services, you must agree to the <a target="_blank" href="/themes/Mirage/docs/TermsOfService-Letter-2013.08.22.pdf">Terms of Service</a>.</message>
+    <message key="xmlui.EPerson.EditProfile.terms_help">To use Dryad's data publishing services, you must agree to the <a target="_blank" href="/pages/policies">Terms of Service</a>.</message>
     <message key="xmlui.EPerson.EditProfile.terms.checkbox">I agree to Dryad's Terms of Service.</message>
 
     <message key="xmlui.EPerson.EditProfile.submit_update">Complete registration</message>
@@ -2931,7 +2931,7 @@ Dryad is a <strong>nonprofit organization</strong> that provides <strong>long-te
         <div>
             Please select and upload a data file from your computer, and describe the data file in as much detail as possible. Providing a detailed description will make it easier for others to find your data in Dryad. (While a data file may not have the same authors and keywords as the publication, for convenience, some of this information has been copied over. Please update as needed).<br />
 <br />Only one file may be uploaded and described on this page. Once this data file has been saved, you may add additional files to the data package. If you have a large number of related files, they may be submitted in an archive format such as .tar or .zip.<br />
-<br />Note that there will be additional fees if the total content submitted to Dryad for a given publication is more than 10GB. Submitters will be charged an additional $15 for the first GB beyond 10, and $10 for each GB thereafter.<br />
+<br />Note that there will be additional fees if the total content submitted to Dryad for a given publication is more than 20GB. Submitters will be asked to pay $50 for each additional 10GB, or part thereof.<br />
 <br />Please remember that Dryad does <strong>not</strong> accept data submissions that contain personally identifiable human subject information or non-CC0 compatible licenses. <a href="/pages/faq#depositing" target="_blank">View guidance</a> about what types of data Dryad accepts and our preferred file formats.<br />
 <br />Fields marked with an asterisk (*) are required. For more information on expected contents for a field, mouse over the ? icon. If you have trouble submitting files, please contact us at <a href="mailto:help@datadryad.org"
                 >help@datadryad.org</a>.
@@ -3407,7 +3407,6 @@ Dryad is a <strong>nonprofit organization</strong> that provides <strong>long-te
     <message key="xmlui.PaymentSystem.shoppingcart.order.payer">Payer</message>
     <message key="xmlui.PaymentSystem.shoppingcart.order.price">Data Publishing Charge</message>
     <message key="xmlui.PaymentSystem.shoppingcart.order.surcharge">Excess data storage</message>
-    <message key="xmlui.PaymentSystem.shoppingcart.order.noIntegrateFee">Non-integrated submission</message>
     <message key="xmlui.PaymentSystem.shoppingcart.order.country">Fee-waiver country</message>
     <message key="xmlui.PaymentSystem.shoppingcart.order.total">Your total</message>
     <message key="xmlui.PaymentSystem.shoppingcart.order.voucher">Voucher code</message>
