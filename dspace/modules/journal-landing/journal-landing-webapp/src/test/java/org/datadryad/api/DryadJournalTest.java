@@ -9,12 +9,11 @@ package org.datadryad.api;
 
 import java.util.Arrays;
 import java.util.List;
-import org.apache.log4j.Logger;
+import org.datadryad.test.ContextUnitTest;
 import org.dspace.content.Item;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.datadryad.test.ContextUnitTest;
 import org.junit.Ignore;
 
 /**
@@ -22,22 +21,22 @@ import org.junit.Ignore;
  * @author Nathan Day
  */
 public class DryadJournalTest extends ContextUnitTest {
-    private static Logger log = Logger.getLogger(DryadJournalTest.class);
     private static final String testJournalName = "Evolution";
+
     private DryadJournal dryadJournal;
-    
+
     @Before
+    @Override
     public void setUp() {
         super.setUp();
-        dryadJournal = new DryadJournal(this.context, testJournalName);
+        dryadJournal = new DryadJournal(context, testJournalName);
     }
-    
+
     /**
      * Test of getArchivedDataFiles method, of class DryadJournal.
      */
     @Test
     public void testGetArchivedDataFiles() throws Exception {
-        log.debug("getArchivedDataFiles");        
         List<Integer> expResult = Arrays.asList(107333);
         List<Integer> result = dryadJournal.getArchivedDataFiles();
         assertEquals(expResult, result);
@@ -48,7 +47,6 @@ public class DryadJournalTest extends ContextUnitTest {
      */
     @Test
     public void testGetArchivedPackagesCount() {
-        log.debug("getArchivedPackagesCount");
         int expResult = 1;
         int result = dryadJournal.getArchivedPackagesCount();
         assertEquals(expResult, result);
@@ -59,9 +57,8 @@ public class DryadJournalTest extends ContextUnitTest {
      */
     @Test
     public void testGetArchivedPackagesSortedRecent() throws Exception {
-        log.debug("getArchivedPackagesSortedRecent");
         int max = 10;
-        Item item = Item.find(this.context, 107332);
+        Item item = Item.find(context, 107332);
         List<Item> expResult = Arrays.asList(item);
         List<Item> result = dryadJournal.getArchivedPackagesSortedRecent(max);
         assertEquals(expResult, result);
@@ -74,7 +71,6 @@ public class DryadJournalTest extends ContextUnitTest {
     @Test
     public void testGetRequestsPerJournal() {
         /*
-        log.debug("getRequestsPerJournal");
         String facetQueryField = "";
         String time = "";
         int max = 0;
@@ -83,5 +79,4 @@ public class DryadJournalTest extends ContextUnitTest {
         assertEquals(expResult, result);
         */
     }
-    
 }

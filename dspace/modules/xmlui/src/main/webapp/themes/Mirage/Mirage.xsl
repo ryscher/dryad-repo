@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-
     The contents of this file are subject to the license and copyright
     detailed in the LICENSE and NOTICE files at the root of the source
     tree and available online at
-
     http://www.dspace.org/license/
-
 -->
 <!--
     Original author: Alexey Maslov
@@ -241,18 +238,34 @@
                 <div id="dryad-home-carousel" class="ds-static-div primary">
                     <!-- REMINDER: slide publication dates are in the format YEAR-MONTH-DAY, eg, 2013-12-28 -->
                     <div class="bxslider" style="">
-                        <div><span class="publication-date">2015-03-04</span>
-                            <a href="/pages/membershipMeeting2015">
-                                <img src="/themes/Mirage/images/membershipMeeting2015_carousel.jpg" alt="Dryad Community Meeting, 27 May 2015, Washington DC" />
-                           </a>
-                       </div>
-						<div><span class="publication-date">2015-03-23</span>
+						<div><span class="publication-date">2015-12-16</span>
+						                            <a href="http://blog.datadryad.org/2015/12/15/new-pricing-structure-with-simplified-terms-and-increased-size-limits/">
+						                                <img alt="" src="/themes/Mirage/images/watering-can.png" />
+						                                <p style="width: 450px; color: #363; font-size: 90%; top: 0px; right: 10px; line-height: 1.2em; position: absolute; text-shadow: 1px 2px 2px rgba(33, 33, 33, 0.25);">New Dryad pricing structure for 2016 with simplified terms and increased size limits</p>
+						                                <p style="drop-shadow: 4px 4px; position: absolute; right: 40px; bottom: 80px; font-size: 70%; text-align: right; text-shadow: 1px 2px 2px rgba(33, 33, 33, 0.25);">Learn more &#187;</p>
+						                            </a>
+						                        </div>
+                        <div><span class="publication-date">2015-04-14</span>
+                            <a href="/pages/submissionIntegration">
+                                <img src="/themes/Mirage/images/integration-slide.jpg" alt="Publishers: Simplify data submission. Strengthen links between articles and data. For free. Integrate your journal with Dryad now" />
+                            </a>
+                        </div>
+                        <div><span class="publication-date">2015-02-15</span>
+                            <a href="/pages/dryadlab">
+                                <img alt="" src="/themes/Mirage/images/dryadlab-promo.png" />
+                                <p style="width: 580px; color: #444; font-size: 80%; top: 75px; right: 10px; line-height: 1.2em; position: absolute; text-shadow: 1px 2px 2px rgba(33, 33, 33, 0.25);"> 
+                                    DryadLab is a collection of free, openly-licensed, high-quality, hands-on, educational modules for students to engage in scientific inquiry using real data.
+                                </p>
+                                <p style="drop-shadow: 4px 4px; position: absolute; right: 40px; bottom: 6px; font-size: 70%; text-align: right; text-shadow: 1px 2px 2px rgba(33, 33, 33, 0.25);">Learn More &#187;</p>
+                            </a>
+                        </div>
+                        <!--><div><span class="publication-date">2015-03-23</span>
                             <a href="/pages/membershipOverview">
                                 <img alt="" src="/themes/Mirage/images/watering-can.png" />
                                 <p style="width: 450px; color: #363; font-size: 90%; top: 0px; right: 10px; line-height: 1.2em; position: absolute; text-shadow: 1px 2px 2px rgba(33, 33, 33, 0.25);">Help grow open data at Dryad:<br />Become an organizational member</p>
                                 <p style="drop-shadow: 4px 4px; position: absolute; right: 40px; bottom: 80px; font-size: 70%; text-align: right; text-shadow: 1px 2px 2px rgba(33, 33, 33, 0.25);">Learn more &#187;</p>
                             </a>
-                        </div>
+                        </div>-->
                         <div><span class="publication-date">2013-02-01</span>
                             <p Xid="ds-dryad-is" style="font-size: 88%; line-height: 1.35em;"
                                xmlns:i18n="http://apache.org/cocoon/i18n/2.1" xmlns="http://di.tamu.edu/DRI/1.0/">
@@ -269,8 +282,8 @@
                         <div><span class="publication-date">2013-01-01</span>
                             <a href="/pages/repository#keyFeatures">
                                 <img src="/themes/Mirage/images/bookmarkSubmissionProcess.png" alt="Deposit data. Get permanent identifier. Watch your citations grow! Relax, your data are discoverable and secure." />
-                           </a>
-                       </div>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -322,41 +335,13 @@
 
             <!-- START CONNECT  -->
             <div class="home-col-2" style="clear: right;">
-                <h1 class="ds-div-head ds_connect_with_dryad_head" id="ds_connect_with_dryad_head">Be part of Dryad
+                <h1 class="ds-div-head ds_connect_with_dryad_head" id="ds_connect_with_dryad_head">Latest from @datadryad
                 </h1>
 
                 <div id="ds_connect_with_dryad" class="ds-static-div primary" style="height: 475px; font-size: 14px;">
                     <div id="connect-illustrated-prose">
-                        <p>
-                            <img src="/themes/Mirage/images/seed-2.png" style="float: left; margin-left: -8px;" 
-                                 alt="Dryad's data packages are like seeds."
-                                 title="Dryad's data packages are like seeds." />
-                            Publishers, societies, universities, libraries,
-                            funders, and other stakeholder organizations are
-                            invited to become <a href="/pages/membershipOverview">members</a>.
-                            Tap into an active knowledge-sharing network,
-                            receive discounts on data publishing fees, and help
-                            shape Dryad's future.
-                            <img src="/themes/Mirage/images/seed-3.png" style="float: right; margin-right: -8px;" 
-                                 alt="Researchers use Dryad data in their new work."
-                                 title="Researchers use Dryad data in their new work."/>
-                        </p>
-                        <p>
-                            <a href="/pages/submissionIntegration">Submission integration</a> 
-                            is a free service that allows publishers to
-                            coordinate manuscript and data submissions.
-                            It makes submitting data easy for researchers; makes linking
-                            articles and data easy for journals; and enables
-                            confidential review of data prior to publication.
-                        </p>
-                        <p>
-                            <img src="/themes/Mirage/images/seed-1.png" style="float: left; margin-left: -8px;" 
-                                 alt="New data is added to Dryad, and the cycle continues."
-                                 title="New data is added to Dryad, and the cycle continues."/>
-                            Data Publishing Charges (DPCs) support the cost of keeping Dryad's content free to use.
-                            Flexible <a href="/pages/payment">payment plans</a> 
-                            provide volume discounts.
-                        </p>
+		      <a class="twitter-timeline" href="https://twitter.com/datadryad" data-widget-id="572434627277901824">Latest from @datadryad</a>
+		      <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>	
                     </div>
                 </div>
             </div>
@@ -419,19 +404,19 @@
 
             <!-- START INTEGRATED JOURNAL-->
             <div class="home-col-2" style="clear: both; margin-left: 25px;">
-              <h1 class="ds-div-head">Recently integrated journals</h1>
-              <div id="recently_integrated_journals" class="ds-static-div primary">
-                <div class="container">
-					<!-- Ecology -->
-							  <a class="single-image-link" href="/discover?field=prism.publicationName_filter&amp;query=&amp;fq=prism.publicationName_filter%3Aecology%5C%7C%5C%7C%5C%7CEcology"><img class="pub-cover" src="/themes/Mirage/images/recentlyIntegrated-ecology_cover.png" alt="Ecology" /></a>
-                  <!-- Oikos -->
-                  <a class="single-image-link" href="/discover?field=prism.publicationName_filter&amp;query=&amp;fq=prism.publicationName_filter%3Aoikos%5C%7C%5C%7C%5C%7COikos"><img class="pub-cover" src="/themes/Mirage/images/recentlyIntegrated-Oikos.png" alt="Oikos" /></a>
-                  <!-- Systematic Botany -->
-                  <a class="single-image-link" href="/discover?field=prism.publicationName_filter&amp;query=&amp;fq=prism.publicationName_filter%3Asystematic%5C+botany%5C%7C%5C%7C%5C%7CSystematic%5C+Botany"><img class="pub-cover" src="/themes/Mirage/images/recentlyIntegrated-sysbot.png" alt="Systematic Botany" /></a>
-                  <!-- PLOS -->
-                  <a class="single-image-link" href="/discover?field=prism.publicationName_filter&amp;query=&amp;fq=prism.publicationName_filter%3Aplos%2A"><img class="pub-cover" src="/themes/Mirage/images/recentlyIntegrated-plos.png" alt="PLOS" /></a>
+                <h1 class="ds-div-head">Recently integrated journals</h1>
+                <div id="recently_integrated_journals" class="ds-static-div primary">
+                    <div class="container">
+                        <!-- Behavioral Ecology -->
+                        <a class="single-image-link" href="/discover?field=prism.publicationName_filter&amp;query=&amp;fq=prism.publicationName_filter%3Abehavioral%5C+ecology%5C%7C%5C%7C%5C%7CBehavioral%5C+Ecology"><img class="pub-cover" src="/themes/Mirage/images/recentlyIntegrated-BEHECOCover.png" alt="Behavioral Ecology" /></a>
+                        <!-- Biotropica -->
+                        <a class="single-image-link" href="/discover?field=prism.publicationName_filter&amp;query=&amp;fq=prism.publicationName_filter%3Abiotropica%5C%7C%5C%7C%5C%7CBiotropica"><img class="pub-cover" src="/themes/Mirage/images/recentlyIntegrated-BITRCover.png" alt="Biotropica" /></a>
+						<!-- Development -->
+						<a class="single-image-link" href="/discover?field=prism.publicationName_filter&amp;query=&amp;fq=prism.publicationName_filter%3Adevelopment%5C%7C%5C%7C%5C%7CDevelopment"><img class="pub-cover" src="/themes/Mirage/images/recentlyIntegrated-DEVELOPMENT_cover.png" alt="Development" /></a>
+						<!-- American Journal of Botany -->
+						<a class="single-image-link" href="/discover?field=prism.publicationName_filter&amp;query=&amp;fq=prism.publicationName_filter%3Aamerican%5C+journal%5C+of%5C+botany%5C%7C%5C%7C%5C%7CAmerican%5C+Journal%5C+of%5C+Botany"><img class="pub-cover" src="/themes/Mirage/images/recentlyIntegrated-AMJBOTCover.png" alt="American Journal of Botany" /></a>
+                    </div>
                 </div>
-              </div>
             </div>
             <!-- START STATISTICS -->
             <div class="home-col-2" style="margin-left: 25px;">
@@ -465,12 +450,9 @@
         The template to handle dri:options. Since it contains only dri:list tags (which carry the actual
         information), the only things than need to be done is creating the ds-options div and applying
         the templates inside it.
-
         In fact, the only bit of real work this template does is add the search box, which has to be
         handled specially in that it is not actually included in the options div, and is instead built
         from metadata available under pageMeta.
-
-
 -->
 
     <xsl:template match="dri:options/dri:list[@n='administrative']"/>
@@ -511,13 +493,9 @@
     <xsl:template match="dri:options/dri:list[@n='DryadInfo']" priority="3">
         <div id="main-menu">
             <ul class="sf-menu">
-
                 <xsl:apply-templates select="dri:list" mode="nested"/>
-
-
                 <xsl:apply-templates select="dri:item" mode="nested"/>
             </ul>
-
         </div>
     </xsl:template>
     -->
@@ -601,13 +579,9 @@
             <h1 class="ds-div-head ds_large_data_package_head" id="ds_large_data_package_head">Large data packages</h1>
             <div id="ds_large_data_package" class="ds-static-div primary" style="font-size: 14px;">
                 <p style="margin-bottom: 0;">
-                    Note that for data packages over 10GB, submitters will
-                    be asked to pay an additional:
+                    Note that for data packages over 20GB, submitters will
+                    be asked to pay $50 for each additional 10GB, or part thereof.
                 </p>
-                <ul>
-                    <li>$15 for the first GB beyond 10, and</li>
-                    <li>$10 for each GB thereafter.</li>
-                </ul> 
             </div>      
         </div>
     </xsl:template>
@@ -664,11 +638,11 @@
     <!--xsl:variable name="doc" select="document(concat('pages/', $pageName, '.xhtml'))"/-->
 
     <xsl:template match="dri:xref[@rend='embed']">
-               
+               
         <xsl:variable name="url" select="concat('pages/',@target)"/>
-               
+               
         <xsl:copy-of select="document(string($url))/html/*"/>
-           
+           
     </xsl:template>
 
     <!-- description of dataset for 'Submission overview' page -->
@@ -783,9 +757,7 @@
                         </xsl:choose>
                     </xsl:with-param>
                     </xsl:call-template>
-
                     <div class="ds-form-content">
-
                     <xsl:if test="dri:field[@type='radio']">
                         <xsl:apply-templates select="dri:field[@type='radio']"/>
                         <br/>
@@ -796,7 +768,6 @@
                         - journalID_status_in_review
                         - journalID
                         - MANUSCRIPT NUMBER
-
                     -->
                     <xsl:for-each select="dri:field[@type='composite']/dri:field">
                         <tr class="selectPubSubmitTable"><td>
@@ -811,7 +782,7 @@
                                 <i18n:text><xsl:value-of select="dri:label"/></i18n:text>
                                 <xsl:text>: </xsl:text>
                             </label>
-
+                            <br/>
 
 
                             <xsl:apply-templates select="../dri:field[@id=$currentId]"/>
@@ -938,7 +909,6 @@ parameter that is being used (see variable defined above) -->
 
     <!--
 <xsl:template match="/dri:document/dri:body/dri:div/dri:div[@id='aspect.discovery.SimpleSearch.div.search-results']/dri:list">
-
 </xsl:template>
 -->
     <xsl:template match="/dri:document/dri:body/dri:div/dri:div/dri:list[@n='tabs']">
@@ -1063,7 +1033,6 @@ parameter that is being used (see variable defined above) -->
                             />_tooltip
                     </xsl:attribute>
                 </xsl:if>
-
                 <xsl:apply-templates/>
             </span>
         </xsl:if>

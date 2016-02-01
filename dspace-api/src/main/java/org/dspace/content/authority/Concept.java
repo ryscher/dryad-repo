@@ -8,10 +8,9 @@
 package org.dspace.content.authority;
 
 import org.apache.log4j.Logger;
-import org.dspace.authority.AuthorityValue;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
-import org.dspace.content.Item;
+import org.dspace.content.DSpaceObject;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -20,12 +19,13 @@ import org.dspace.event.Event;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;
+import org.dspace.content.MetadataField;
+import org.dspace.content.MetadataSchema;
 
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -46,7 +46,7 @@ public class Concept extends AuthorityObject
 
     /** log4j logger */
     private static Logger log = Logger.getLogger(Concept.class);
-
+    private static int journal_field_id;
 
     /**
      * Construct a Concept from a given context and tablerow
@@ -57,7 +57,6 @@ public class Concept extends AuthorityObject
     Concept(Context context, TableRow row) throws SQLException
     {
         super(context,row);
-
     }
 
     public Date getCreated()
@@ -269,7 +268,7 @@ public class Concept extends AuthorityObject
 
         // Remove any mappings
         DatabaseManager.updateQuery(myContext,
-                "DELETE FROM concept2term WHERE concept_id= ? "+
+                "DELETE FROM concept2term WHERE concept_id= ? " +
                         "AND term_id= ? AND role_id=1", getID(), t.getID());
 
         DatabaseManager.setConstraintImmediate(myContext, "concept2term_term_id_fkey");
@@ -419,7 +418,7 @@ public class Concept extends AuthorityObject
             throws SQLException
     {
         ArrayList<Concept> concepts = new ArrayList<Concept>();
-        TableRowIterator row = DatabaseManager.query(context,"select * from concept where LOWER(identifier) like '"+identifier+"'");
+        TableRowIterator row = DatabaseManager.query(context, "select * from concept where LOWER(identifier) like ?", identifier);
 
         if (row == null)
         {
@@ -436,6 +435,39 @@ public class Concept extends AuthorityObject
         }
         return concepts;
     }
+
+
+    /**
+     * Find concepts by a metadata value in the concept metadata.
+     *
+     * @return the matching Concepts, or null if not found
+     */
+    public static ArrayList<Concept> findByConceptMetadata(Context context, String searchString, String metadataSchema, String metadataElement)
+            throws SQLException, AuthorizeException
+    {
+        ArrayList<Concept> concepts = new ArrayList<Concept>();
+        try {
+            MetadataSchema mds = MetadataSchema.find(context, metadataSchema);
+            MetadataField mdf = MetadataField.findByElement(context, mds.getSchemaID(), metadataElement, null);
+            int target_field_id = mdf.getFieldID();
+            log.info ("looking up concept metadata for " + searchString + " in field number " + target_field_id);
+            TableRowIterator row = DatabaseManager.query(context, "select c.* from concept as c, conceptmetadatavalue as cmv where upper(cmv.text_value) = ? and cmv.parent_id = c.id and cmv.field_id = ?;", searchString, target_field_id);
+
+
+            if (row == null) {
+                return null;
+            } else {
+            while(row.hasNext()) {
+                concepts.add(new Concept(context,row.next()));
+            }
+            }
+        } catch (NullPointerException e) {
+            log.error("Unable to find concept by metadata: search=" + searchString + ", schema=" + metadataSchema + ", element=" + metadataElement, e);
+        }
+
+        return concepts;
+    }
+
     /**
      * Finds all concepts in the site
      *
@@ -1498,5 +1530,11 @@ public class Concept extends AuthorityObject
             }
         }
 
+    }
+
+    @Override
+    public DSpaceObject getParentObject() throws SQLException
+    {
+        return this.getScheme();
     }
 }

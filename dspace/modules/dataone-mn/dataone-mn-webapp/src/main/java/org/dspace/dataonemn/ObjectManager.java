@@ -47,6 +47,8 @@ import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
+import org.datadryad.api.DryadDataFile;
+
 public class ObjectManager implements Constants {
     
     private static final Logger log = Logger.getLogger(ObjectManager.class);
@@ -59,12 +61,12 @@ public class ObjectManager implements Constants {
     public static final int DEFAULT_START = 0;
     public static final int DEFAULT_COUNT = 20;
     
-    protected Context myContext;
+    protected Context context;
     protected String myFiles;
     protected String myPackages;
     
-    public ObjectManager(Context aContext, String aFilesCollection, String aPackagesCollection) {
-	myContext = aContext;
+    public ObjectManager(Context context, String aFilesCollection, String aPackagesCollection) {
+	this.context = context;
 	myFiles = aFilesCollection;
         myPackages = aPackagesCollection;
     }
@@ -143,7 +145,7 @@ public class ObjectManager implements Constants {
             totalDataPackageElements = 0l;
         }
 
-        myContext.turnOffAuthorisationSystem();
+        context.turnOffAuthorisationSystem();
 
         log.debug("Setting start parameter to: " + aStart);
         list.setStart(aStart);
@@ -194,7 +196,7 @@ public class ObjectManager implements Constants {
         serializer.flush();
         aOutStream.close();
 
-        myContext.restoreAuthSystemState();
+        context.restoreAuthSystemState();
     }
 
     private List<nu.xom.Element> buildDataPackagesList(int aStart, int aCount, Date aFrom, Date aTo, String aObjFormat, boolean useTimestamps) 
@@ -557,7 +559,7 @@ public class ObjectManager implements Constants {
                 + "AND s.short_id = ? "
                 + "AND f.element = ? "
                 + "AND f.qualifier is null";                
-        TableRow tr = DatabaseManager.querySingle(myContext, dcIdentifierFieldIDQuery, "dc", "identifier");
+        TableRow tr = DatabaseManager.querySingle(context, dcIdentifierFieldIDQuery, "dc", "identifier");
         int dcIdentifierFieldId = tr.getIntColumn("metadata_field_id");
 
         log.info("dc.identifier: metadata_field_id " + dcIdentifierFieldId); // should be 17
@@ -566,7 +568,7 @@ public class ObjectManager implements Constants {
     // pass countTotal as true to return the count instead of item data
     private TableRowIterator queryDataFilesDatabase(boolean countTotal, int start, int count, Date fromDate, Date toDate, String objFormat) 
     throws SQLException {
-        Collection c = (Collection) HandleManager.resolveToObject(myContext, myFiles);
+        Collection c = (Collection) HandleManager.resolveToObject(context, myFiles);
         int dcIdentifierFieldId = getDCIdentifierFieldID();
 
         StringBuilder queryBuilder = new StringBuilder();
@@ -640,12 +642,12 @@ public class ObjectManager implements Constants {
         // and text_value::timestamp < to_timestamp('2009-07-01','YYYY-MM-DD')
         // limit 10;
         log.debug ("Query files is " + queryBuilder.toString() + " with params " + bindParameters.toString());
-        return DatabaseManager.query(myContext, queryBuilder.toString(), bindParameters.toArray());
+        return DatabaseManager.query(context, queryBuilder.toString(), bindParameters.toArray());
     }
 
     private TableRowIterator queryDataPackagesDatabase(boolean countTotal, int start, int count, Date fromDate, Date toDate)
             throws SQLException {
-        Collection c = (Collection) HandleManager.resolveToObject(myContext, myPackages);
+        Collection c = (Collection) HandleManager.resolveToObject(context, myPackages);
         int dcIdentifierFieldId = getDCIdentifierFieldID();
         StringBuilder queryBuilder = new StringBuilder();
         // build up bind paramaters 
@@ -694,7 +696,7 @@ public class ObjectManager implements Constants {
             bindParameters.add(start);
         }
         log.debug ("Query packages is " + queryBuilder.toString() + " with params " + bindParameters.toString());
-        return DatabaseManager.query(myContext, queryBuilder.toString(), bindParameters.toArray());
+        return DatabaseManager.query(context, queryBuilder.toString(), bindParameters.toArray());
         
     }
     /**
@@ -724,7 +726,7 @@ public class ObjectManager implements Constants {
 		String shortID = aID.substring(0,bitsIndex);
 		aID = shortID;
 	    }
-	    item = (Item) doiService.resolve(myContext, aID, new String[] {});
+	    item = (Item) doiService.resolve(context, aID, new String[] {});
 	} catch (IdentifierNotFoundException e) {
 	    log.error(aID + " not found!");
 	    throw new NotFoundException(aID);
@@ -782,33 +784,9 @@ public class ObjectManager implements Constants {
        Retrieve the first bitstream in a bundle. The bitstream must be in a bundle
        marked "ORIGINAL". Bitstreams for "readme" files are ignored.
     **/
-    public Bitstream getFirstBitstream(Item item) throws SQLException, NotFoundException {
-	Bitstream result = null;
-	
-	Bundle[] bundles = item.getBundles("ORIGINAL");
-	if (bundles.length == 0) {
-	    log.error("Didn't find any original bundles for " + item.getHandle());
-	    throw new NotFoundException("data bundle for " + item.getHandle() + " not found");
-	}
-	log.debug("This object has " + bundles.length + " bundles");
-	
-	Bitstream[] bitstreams = bundles[0].getBitstreams();
-	boolean found = false;
-	for(int i = 0; i < bitstreams.length && !found; i++) {
-	    result = bitstreams[i];
-	    String name = result.getName();
-	    
-	    if (!name.equalsIgnoreCase("readme.txt")
-		&& !name.equalsIgnoreCase("readme.txt.txt")) {
-		log.debug("Retrieving bitstream " + name);
-		found = true;
-	    }
-	}	    
-	if (!found) {
-	    log.error("unable to locate a valid bitstream within the first bundle of " + item.getHandle());
-	    throw new NotFoundException(item.getHandle() + " -- first bitstream wasn't found");
-	}
-	
+    public Bitstream getFirstBitstream(Item item) throws SQLException, IOException {
+        DryadDataFile df = new DryadDataFile(item);
+        Bitstream result = df.getFirstBitstream();	
 	return result;
     }
     
@@ -1071,16 +1049,4 @@ public class ObjectManager implements Constants {
 	iStream.close();
     }
     
-    public void completeContext() {
-	try {
-	    if (myContext != null) {
-		myContext.complete();
-	    }
-	} catch (SQLException e) {
-	    log.error("unable to complete DSpace context", e);
-	    
-	    // don't pass on the exception because this isn't an error in responding to a DataONE request,
-	    // it's an internal error in shutting down resources.
-	}
-    }
 }

@@ -537,7 +537,7 @@
 	<message key="xmlui.EPerson.EditProfile.password">Password</message>
 	<message key="xmlui.EPerson.EditProfile.confirm_password">Retype to confirm</message>
     <message key="xmlui.EPerson.EditProfile.terms">Terms of Service</message>
-    <message key="xmlui.EPerson.EditProfile.terms_help">To use Dryad's data publishing services, you must agree to the <a target="_blank" href="/themes/Mirage/docs/TermsOfService-Letter-2013.08.22.pdf">Terms of Service</a>.</message>
+    <message key="xmlui.EPerson.EditProfile.terms_help">To use Dryad's data publishing services, you must agree to the <a target="_blank" href="/pages/policies">Terms of Service</a>.</message>
     <message key="xmlui.EPerson.EditProfile.terms.checkbox">I agree to Dryad's Terms of Service.</message>
 
     <message key="xmlui.EPerson.EditProfile.submit_update">Complete registration</message>
@@ -700,6 +700,7 @@
 	<message key="xmlui.EPerson.StartRegistration.error_bad_email">Unable to send email to this
 		address.</message>
 	<message key="xmlui.EPerson.StartRegistration.submit_register">Register</message>
+    <message key="xmlui.EPerson.StartRegistration.no_orcid_found">This ORCID is not associated with an existing Dryad account. Please create a Dryad user account, then on the Profile page link your ORCID account.</message>
 
 	<!-- org.dspace.app.xmlui.eperson.VerifyEmail.java -->
 	<message key="xmlui.EPerson.VerifyEmail.title">Verification email sent</message>
@@ -1033,7 +1034,7 @@
 		and found it is <strong>not</strong> suitable for inclusion in the collection, select "Reject".
 		You will then be asked to enter a message indicating why the item is unsuitable, and whether the
 		submitter should change something and resubmit.</message>
-	<message key="xmlui.Submission.workflow.PerformTaskStep.reject_submit">Reject item</message>
+	<message key="xmlui.Submission.workflow.PerformTaskStep.reject_submit">Return item to submitter</message>
 	<message key="xmlui.Submission.workflow.PerformTaskStep.edit_help">Select this option to change
 		the item's metadata.</message>
 	<message key="xmlui.Submission.workflow.PerformTaskStep.edit_submit">Edit metadata</message>
@@ -1050,12 +1051,12 @@
 
 	<!-- org.dspace.app.xmlui.Submission.workflow.RejectTaskStep -->
 	<message key="xmlui.Submission.workflow.RejectTaskStep.info1">Please enter your reason for
-		rejecting the submission into the box below, indicating whether the submitter may fix a problem
+		returning the submission into the box below, indicating whether the submitter may fix a problem
 		and resubmit.</message>
 	<message key="xmlui.Submission.workflow.RejectTaskStep.reason">Reason</message>
 	<message key="xmlui.Submission.workflow.RejectTaskStep.reason_required">The reason field is
 		required</message>
-	<message key="xmlui.Submission.workflow.RejectTaskStep.submit_reject">Reject item</message>
+	<message key="xmlui.Submission.workflow.RejectTaskStep.submit_reject">Return item to submitter</message>
 
 
 
@@ -2930,7 +2931,7 @@ Dryad is a <strong>nonprofit organization</strong> that provides <strong>long-te
         <div>
             Please select and upload a data file from your computer, and describe the data file in as much detail as possible. Providing a detailed description will make it easier for others to find your data in Dryad. (While a data file may not have the same authors and keywords as the publication, for convenience, some of this information has been copied over. Please update as needed).<br />
 <br />Only one file may be uploaded and described on this page. Once this data file has been saved, you may add additional files to the data package. If you have a large number of related files, they may be submitted in an archive format such as .tar or .zip.<br />
-<br />Note that there will be additional fees if the total content submitted to Dryad for a given publication is more than 10GB. Submitters will be charged an additional $15 for the first GB beyond 10, and $10 for each GB thereafter.<br />
+<br />Note that there will be additional fees if the total content submitted to Dryad for a given publication is more than 20GB. Submitters will be asked to pay $50 for each additional 10GB, or part thereof.<br />
 <br />Please remember that Dryad does <strong>not</strong> accept data submissions that contain personally identifiable human subject information or non-CC0 compatible licenses. <a href="/pages/faq#depositing" target="_blank">View guidance</a> about what types of data Dryad accepts and our preferred file formats.<br />
 <br />Fields marked with an asterisk (*) are required. For more information on expected contents for a field, mouse over the ? icon. If you have trouble submitting files, please contact us at <a href="mailto:help@datadryad.org"
                 >help@datadryad.org</a>.
@@ -3115,6 +3116,7 @@ Dryad is a <strong>nonprofit organization</strong> that provides <strong>long-te
     <message key="xmlui.DryadItemSummary.withdrawn">The current Item is withdrawn</message>
     <message key="xmlui.DryadItemSummary.in_workflow">Unpublished data -- the associated publication is in review </message>
     <message key="xmlui.DryadItemSummary.notCurrentVersion">This is not the most current version of this Item</message>
+	<message key="xmlui.DryadItemSummary.not_in_review">This item has been archived at </message>
     <message key="xmlui.DryadItemSummary.mostCurrentVersion">&#160;&#160;[View current version]</message>
     <message key="xmlui.DryadItemSummary.charge">Payment Charge</message>
     <message key="xmlui.DryadItemSummary.transactionId">Transaction Id</message>
@@ -3405,7 +3407,6 @@ Dryad is a <strong>nonprofit organization</strong> that provides <strong>long-te
     <message key="xmlui.PaymentSystem.shoppingcart.order.payer">Payer</message>
     <message key="xmlui.PaymentSystem.shoppingcart.order.price">Data Publishing Charge</message>
     <message key="xmlui.PaymentSystem.shoppingcart.order.surcharge">Excess data storage</message>
-    <message key="xmlui.PaymentSystem.shoppingcart.order.noIntegrateFee">Non-integrated submission</message>
     <message key="xmlui.PaymentSystem.shoppingcart.order.country">Fee-waiver country</message>
     <message key="xmlui.PaymentSystem.shoppingcart.order.total">Your total</message>
     <message key="xmlui.PaymentSystem.shoppingcart.order.voucher">Voucher code</message>

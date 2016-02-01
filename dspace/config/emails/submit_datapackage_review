@@ -32,10 +32,12 @@ Your data package has been assigned a unique identifier, called a DOI. This DOI 
 
 REVIEWER ACCESS TO YOUR DRYAD DATA
 
-Journal editors and anonymous peer reviewers may view the submission for review purposes using the following url:
+Journal editors and anonymous peer reviewers may access your submission using the following temporary url:
 {4}
 
-This url will be functional only temporarily. If/when your publication is accepted, your Dryad submission will move out of review and into our queue for curation and archiving.
+This url SHOULD NOT be included in the manuscript. Please use your Dryad DOI (above) instead. 
+
+If/when we receive notice from the journal that your publication is accepted, your Dryad submission will move out of review and into our queue for curation and archiving.
 
 
 MODIFYING YOUR DRYAD SUBMISSION
@@ -53,6 +55,11 @@ To add new or corrected files:
   - If/when your article has been accepted for publication, Dryad curators will remove any files that you have indicated are duplicate or superseded.
 
 If/when your publication is accepted, your Dryad submission will automatically move out of review and into our queue for curation and archiving, and will no longer be accessible for modification.
+
+
+PAYMENT
+
+If you were asked to enter a credit card number, your card has been verified, but will be not be charged unless/until your article is accepted and the curatorial team approves your submission. You will receive a confirmation and a receipt when your card is charged.
 
 Please email us at help@datadryad.org if you have questions.
 

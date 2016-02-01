@@ -61,6 +61,7 @@ a:hover {
     background-color: transparent;
     color: #444;
     min-width: 950px;
+    padding-bottom: 10px;
 }
 
 #ds-header {
@@ -244,13 +245,6 @@ a.discreet {
 #ds-body {
     float: left;
     width: 675px;
-    padding-top: 12px;
-}
-/* alignment fix for "nested" bodies */
-#ds-body #ds-body {
-    padding: 0;
-    margin: 0;
-    margin-top: -1em;
 }
 
 #ds-options-wrapper {
@@ -448,7 +442,9 @@ div.bioText {
 	font-size: 130%;
     text-align: center;
 }
-
+#aspect_eperson_PasswordLogin_div_login p a {
+    margin-right: 20px;
+}
 #aspect_eperson_PasswordLogin_div_login {
     margin: 20px 0px 40px; /* top right bottom left */
     float: right;
@@ -481,7 +477,7 @@ div.bioText {
 #aspect_submission_StepTransformer_list_doi > table {
     border: 1px solid #ccc;
     float: left;
-    width: 497px;
+    width: 95%;
     display: inline-block;
     padding: 10px;
     position: relative;
@@ -771,6 +767,11 @@ li.ds-form-item.last {
 }
 
 li.ds-form-item .ds-form-label{
+    font-weight: bold;
+    font-size: 123.1%;
+}
+
+.ds-form-label.help{
     font-weight: bold;
     font-size: 123.1%;
 }
@@ -1293,7 +1294,7 @@ div.simple-item-view-description h3{
 }
 
 .file-metadata {
-    width: 400px;
+    width: 450px;
 }
 
 .file-metadata span,
@@ -1819,6 +1820,7 @@ img.pub-cover {
 .publication-header .pub-title {
     font-size: 1.2em;
     font-weight: bold;
+    word-wrap: break-word;
 }
 .citation-sample {
     background-color: #ddd;
@@ -1843,6 +1845,7 @@ table.package-file-description {
     -moz-box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
     -webkit-box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+    table-layout:fixed;
 }
 table.package-file-description th:first-child {
     width: 120px;
@@ -1852,6 +1855,7 @@ table.package-file-description th {
     font-weight: bold;
     text-align: left;
     vertical-align: top;
+    word-wrap:break-word;
 }
 table.package-metadata th:first-child,
 table.package-file-description th:first-child {
@@ -1921,6 +1925,10 @@ div.ds-form-content {
     display: block;
     padding: 7px;
     width:100%;
+}
+a.ds-form-content {
+    vertical-align: text-top;
+    padding: 7px;
 }
 span.ds-form-label,label.ds-form-label {
     display: block;
@@ -2418,12 +2426,11 @@ div.step-link{
     color:green;
 }
 .label-mark{
-
+    margin-left: 5px;
+    vertical-align: middle;
     width:20px;
     display:inline;
 }
-
-
 
 #aspect_eperson_TermsOfService_div_background{
     display: none;
@@ -2553,6 +2560,7 @@ td.ds-author-input-col {
 td.ds-author-input-col input {
     width: 45%;
 }
+
 /* membershipOverview.xhtml */
 ul.membership-overview {
     margin-bottom: 10px;
@@ -2608,7 +2616,8 @@ span.income { float: right; }
     margin-bottom: 0.5em;
 }
 .pricing-table td, .pricing-table th {
-    text-align: center;
+    text-align: left;
+    font-size:90%;
 }
 .pricing-table th:first-child,
 .pricing-table td:first-child {
@@ -2655,4 +2664,8 @@ h2.pricing-plan {
     font-style: italic;
 }
 
+
+.orcid-error{
+    color:red;
+}
 

@@ -436,7 +436,13 @@ references to stylesheets pulled directly from the pageMeta element. -->
                                     <a href="/pages/repository">Repository features and technology</a>
                                 </li>
                                 <li>
+                                    <a href="/pages/policies">Policies</a>
+                                </li>
+                                <li>
                                     <a href="http://blog.datadryad.org" target="_blank">Blog: News and views</a>
+                                </li>
+                                <li>
+                                    <a href="/pages/dryadlab" target="_blank">DryadLab: Research data for educators</a>
                                 </li>
                                 <li>
                                     <a href="/pages/employment">Employment opportunities</a>
@@ -465,7 +471,13 @@ references to stylesheets pulled directly from the pageMeta element. -->
                                   <a href="/pages/faq">FAQs</a>
                                 </li>
                                 <li>
+                                  <a href="/pages/payment">Payment</a>
+                                </li>
+                                <li>
                                   <a href="/pages/institutionalSponsors">Institutional sponsors</a>
+                                </li>
+                                <li>
+                                  <a href="/pages/dryadlab" target="_blank">Educational outreach with DryadLab</a>
                                 </li>
                                 <li>
                                     <a href="/pages/policies">Terms of service</a>
@@ -476,20 +488,23 @@ references to stylesheets pulled directly from the pageMeta element. -->
                             <a href="">For organizations</a>
                             <ul>
                                 <li>
+                                    <a href="/pages/bePartOfDryad">Be part of Dryad</a>
+                                </li> 
+                                <li>
                                     <a href="/pages/submissionIntegration">Submission integration</a>
                                 </li>                            
                                 <li>
                                     <a href="/pages/membershipOverview">Membership</a>
+                                </li> 
+                                <li>
+                                    <a href="/pages/membershipMeeting">Membership meeting</a>
                                 </li>                            
                                 <li>
-                                    <a href="/pages/payment">Payment plans</a>
+                                    <a href="/pages/paymentPlans">Payment plans</a>
                                 </li> 
                                 <li>
                                     <a href="/pages/paymentPlanComparisonTool">Payment plan comparison tool</a>
-                                </li>    
-                                <li>
-                                    <a href="/pages/membershipMeeting">Membership meeting</a>
-                                </li>                         
+                                </li>                            
                             </ul>
                         </li>
                         <li>
