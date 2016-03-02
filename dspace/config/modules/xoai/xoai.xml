@@ -46,7 +46,7 @@
 			<Filter refid="authorexistsFilter"/>
 			<!-- Possible Document Type -->
 			<Filter refid="driverdocumenttypeFilter"/>
-      <!-- dc.rights must contain openAccess token -->
+		  <!-- dc.rights must contain openAccess token -->
 			<Filter refid="driveraccessFilter"/>
 			<!-- Open Access (Downloadable) -->
 			<Filter refid="bitstreamaccessFilter"/>
