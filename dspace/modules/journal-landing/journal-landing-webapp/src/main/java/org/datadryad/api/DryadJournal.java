@@ -23,6 +23,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.dspace.content.Item;
+import org.dspace.content.authority.Concept;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import java.sql.PreparedStatement;
@@ -43,16 +44,16 @@ public class DryadJournal {
     private static final String solrStatsUrl = ConfigurationManager.getProperty("solr.stats.server");
 
     private Context context;
-    private String journalName;
+    private Concept journalConcept;
 
-    public DryadJournal(Context context, String journalName) throws IllegalArgumentException {
+    public DryadJournal(Context context, Concept journalConcept) throws IllegalArgumentException {
         if (context == null) {
             throw new IllegalArgumentException("Illegal null Context.");
-        } else if (journalName == null || journalName.length() == 0) {
-            throw new IllegalArgumentException("Illegal null or empty journal name.");
+        } else if (journalConcept == null) {
+            throw new IllegalArgumentException("Illegal null journal concept.");
         }
         this.context = context;
-        this.journalName = journalName;
+        this.journalConcept = journalConcept;
     }
 
     /**
@@ -98,7 +99,7 @@ public class DryadJournal {
      * @throws SQLException
      */
     public List<Integer> getArchivedDataFiles() throws SQLException {
-        TableRowIterator tri = DatabaseManager.query(this.context, ARCHIVED_DATAFILE_QUERY, this.journalName);
+        TableRowIterator tri = DatabaseManager.query(this.context, ARCHIVED_DATAFILE_QUERY, this.journalConcept.getPreferredLabel());
         List<Integer> dataFiles = new ArrayList<Integer>();
         while(tri.hasNext()) {
             TableRow row = tri.next();
@@ -152,7 +153,7 @@ public class DryadJournal {
         int count = 0;
         try {
             PreparedStatement statement = context.getDBConnection().prepareStatement(ARCHIVED_DATAPACKAGE_QUERY_COUNT);
-            statement.setString(1,journalName);
+            statement.setString(1,this.journalConcept.getPreferredLabel());
             ResultSet rs = statement.executeQuery();
             if (rs.next()) {
                 count = rs.getInt("total");
@@ -172,7 +173,7 @@ public class DryadJournal {
      * @throws SQLException 
      */
     public List<Item> getArchivedPackagesSortedRecent(int max) throws SQLException {
-        TableRowIterator tri = DatabaseManager.query(this.context, ARCHIVED_DATAPACKAGE_QUERY_IDS, this.journalName, max);
+        TableRowIterator tri = DatabaseManager.query(this.context, ARCHIVED_DATAPACKAGE_QUERY_IDS, this.journalConcept.getPreferredLabel(), max);
         List<Item> dataPackages = new ArrayList<Item>();
         while (tri.hasNext() && dataPackages.size() < max) {
             TableRow row = tri.next();

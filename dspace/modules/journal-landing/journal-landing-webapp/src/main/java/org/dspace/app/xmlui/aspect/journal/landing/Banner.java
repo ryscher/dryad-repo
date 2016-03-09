@@ -7,6 +7,7 @@
  */
 package org.dspace.app.xmlui.aspect.journal.landing;
 
+import org.apache.avalon.framework.parameters.ParameterException;
 import org.apache.log4j.Logger;
 
 import org.dspace.app.xmlui.cocoon.AbstractDSpaceTransformer;
@@ -36,7 +37,7 @@ import org.xml.sax.SAXException;
  * 
  * @author Nathan Day
  */
-public class Banner extends AbstractDSpaceTransformer {
+public class Banner extends JournalLandingTransformer {
 
     private static final Logger log = Logger.getLogger(Banner.class);
 
@@ -56,47 +57,23 @@ public class Banner extends AbstractDSpaceTransformer {
     private static final Message T_acceptance = message("xmlui.JournalLandingPage.Banner.onAcceptance");
     private static final Message T_review = message("xmlui.JournalLandingPage.Banner.onReview");
 
-    private String journalName;
-    private DryadJournal dryadJournal;
-    private Concept journalConcept;
-
     @Override
     public void setup(SourceResolver resolver, Map objectModel, String src,
             Parameters parameters) throws ProcessingException, SAXException,
             IOException
     {
         super.setup(resolver, objectModel, src, parameters);
-        try {
-            journalName = parameters.getParameter(PARAM_JOURNAL_NAME);
-        } catch (Exception ex) {
-            log.error(ex);
-            throw(new ProcessingException("Bad access of journal name"));
-        }
-        try {
-            dryadJournal = new DryadJournal(context, journalName);
-        } catch (Exception ex) {
-            log.error(ex);
-            throw(new ProcessingException("Failed to make handler for " + journalName));
-        }
-        try {
-            journalConcept = JournalUtils.getJournalConceptByName(context,journalName);
-        } catch (SQLException ex) {
-            throw(new ProcessingException("Error retrieving Concept for '" + journalName + "': " + ex.getMessage()));
-        }
-        if (journalConcept == null) {
-            throw(new ProcessingException("Failed to retrieve Concept for " + journalName));
-        }
     }
 
     @Override
     public void addBody(Body body) throws SAXException, WingException,
-            UIException, SQLException, IOException, AuthorizeException
+            SQLException, IOException, AuthorizeException
     {
         Division outer = body.addDivision(BANNER_DIV_OUTER);
         Division inner = outer.addDivision(BANNER_DIV_INNER);
 
         // [JOURNAL FULL NAME]
-        inner.setHead(journalName);
+        inner.setHead(journalConcept.getPreferredLabel());
 
         // [Journal description]
         String journalDescr = JournalUtils.getDescription(journalConcept);

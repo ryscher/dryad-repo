@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.datadryad.test.ContextUnitTest;
 import org.dspace.content.Item;
+import org.dspace.content.authority.Concept;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -24,12 +25,13 @@ public class DryadJournalTest extends ContextUnitTest {
     private static final String testJournalName = "Evolution";
 
     private DryadJournal dryadJournal;
+    private Concept journalConcept;
 
     @Before
     @Override
     public void setUp() {
         super.setUp();
-        dryadJournal = new DryadJournal(context, testJournalName);
+        dryadJournal = new DryadJournal(context, journalConcept);
     }
 
     /**

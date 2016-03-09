@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import org.dspace.app.xmlui.utils.UIException;
 import org.dspace.app.xmlui.wing.WingException;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.authority.Concept;
 import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.util.Map;
@@ -33,30 +34,22 @@ import org.apache.cocoon.environment.SourceResolver;
  * 
  * @author Nathan Day
  */
-public class JournalSearch extends AbstractDSpaceTransformer {
-    
+public class JournalSearch extends JournalLandingTransformer {
+
     private static final Logger log = Logger.getLogger(JournalSearch.class);
     private static final Message T_panel_head = message("xmlui.JournalLandingPage.JournalSearch.panel_head"); 
-    
-    private String journalName;
-    
+
     @Override
     public void setup(SourceResolver resolver, Map objectModel, String src,
             Parameters parameters) throws ProcessingException, SAXException,
             IOException
     {
         super.setup(resolver, objectModel, src, parameters);
-        try {
-            journalName = parameters.getParameter(PARAM_JOURNAL_NAME);
-        } catch (Exception ex) {
-            log.error(ex);
-            throw(new ProcessingException("Bad access of journal name"));
-        }
     }
     
     @Override
     public void addBody(Body body) throws SAXException, WingException,
-            UIException, SQLException, IOException, AuthorizeException
+            SQLException, IOException, AuthorizeException
     {
         Division searchDiv = body.addDivision(SEARCH_DIV, SEARCH_DIV);
         searchDiv.setHead(T_panel_head.parameterize(journalName));

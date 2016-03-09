@@ -16,29 +16,32 @@
     </map:components>
 
     <map:pipelines>
-        <map:pipeline type="noncaching">
+        <map:pipeline type="caching">
+
+            <map:parameter name="expires" value="access plus 24 hours"/>
+
             <map:generate/>
 
             <map:match type="wildcard" pattern="journal/*">
 
                 <!-- journal abbreviation is found: return page -->
                 <map:act type="ValidateRequest">
-                    <map:parameter name="journalName" value="{1}"/>
+                    <map:parameter name="journalISSN" value="{1}"/>
                     <map:transform type="Navigation">
-                        <map:parameter name="journalName" value="{journalName}"/>
-                        <map:parameter name="journalAbbr" value="{journalAbbr}"/>
+                        <map:parameter name="journalISSN" value="{journalISSN}"/>
+                        <map:parameter name="conceptID" value="{conceptID}"/>
                     </map:transform>
                     <map:transform type="Banner">
-                        <map:parameter name="journalName" value="{journalName}"/>
-                        <map:parameter name="journalAbbr" value="{journalAbbr}"/>
+                        <map:parameter name="journalISSN" value="{journalISSN}"/>
+                        <map:parameter name="conceptID" value="{conceptID}"/>
                     </map:transform>
                     <map:transform type="JournalSearch">
-                        <map:parameter name="journalName" value="{journalName}"/>
-                        <map:parameter name="journalAbbr" value="{journalAbbr}"/>
+                        <map:parameter name="journalISSN" value="{journalISSN}"/>
+                        <map:parameter name="conceptID" value="{conceptID}"/>
                     </map:transform>
                     <map:transform type="JournalStats">
-                        <map:parameter name="journalName" value="{journalName}"/>
-                        <map:parameter name="journalAbbr" value="{journalAbbr}"/>
+                        <map:parameter name="journalISSN" value="{journalISSN}"/>
+                        <map:parameter name="conceptID" value="{conceptID}"/>
                         <map:parameter name="archivedDatafileIds" value="{archivedDatafileIds}"/>
                     </map:transform>
                     <map:serialize type="xml"/>
