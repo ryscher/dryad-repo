@@ -37,13 +37,14 @@ public class DryadJournal {
     private static Logger log = Logger.getLogger(DryadJournal.class);
     private static final String solrStatsUrl = ConfigurationManager.getProperty("solr.stats.server");
 
-    private static final String archivedDataFilesQuery = "SELECT * FROM ArchivedPackageDataFileItemIdsByJournal(?)";
-    private static final String archivedDataPackageIds = "SELECT * FROM ArchivedPackageItemIdsByJournal(?,?);";
-    private static final String archivedPackageCount   = "SELECT * FROM ArchivedPackageCountByJournal(?)";
+    private static final String archivedDataFilesQuery    = "SELECT * FROM ArchivedPackageDataFileItemIdsByJournal(?)";
+    private static final String archivedDataFilesQueryCol =               "archivedpackagedatafileitemidsbyjournal";
 
-    private static final String archivedPackageCountCol = "archivedpackagecountbyjournal";
-    private static final String archivedDataPackageIdsCol = "archivedpackageitemidsbyjournal";
-    private static final String archivedDataFilesQueryCol = "archiveditembyjournal";
+    private static final String archivedDataPackageIds    = "SELECT * FROM ArchivedPackageItemIdsByJournal(?,?);";
+    private static final String archivedDataPackageIdsCol =               "archivedpackageitemidsbyjournal";
+
+    private static final String archivedPackageCount    = "SELECT * FROM ArchivedPackageCountByJournal(?)";
+    private static final String archivedPackageCountCol =               "archivedpackagecountbyjournal";
 
     private Context context;
     private String journalName;
