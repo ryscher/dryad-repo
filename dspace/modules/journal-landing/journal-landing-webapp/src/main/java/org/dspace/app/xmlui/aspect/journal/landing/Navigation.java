@@ -7,30 +7,23 @@
  */
 package org.dspace.app.xmlui.aspect.journal.landing;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Map;
-
-import org.apache.avalon.framework.parameters.ParameterException;
 import org.apache.avalon.framework.parameters.Parameters;
 import org.apache.cocoon.ProcessingException;
 import org.apache.cocoon.environment.ObjectModelHelper;
 import org.apache.cocoon.environment.Request;
 import org.apache.cocoon.environment.SourceResolver;
 import org.apache.log4j.Logger;
-import static org.dspace.app.xmlui.aspect.journal.landing.Const.*;
-
-import org.dspace.JournalUtils;
-import org.dspace.app.xmlui.cocoon.AbstractDSpaceTransformer;
 import org.dspace.app.xmlui.utils.UIException;
 import org.dspace.app.xmlui.wing.WingException;
 import org.dspace.app.xmlui.wing.element.Options;
 import org.dspace.app.xmlui.wing.element.PageMeta;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.content.authority.AuthorityMetadataValue;
-import org.dspace.content.authority.Concept;
 import org.dspace.core.ConfigurationManager;
 import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Map;
 
 /**
  * Add options and meta DRI elements to the journal landing page.
