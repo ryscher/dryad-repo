@@ -73,7 +73,7 @@ public class Banner extends JournalLandingTransformer {
         Division inner = outer.addDivision(BANNER_DIV_INNER);
 
         // [JOURNAL FULL NAME]
-        inner.setHead(journalConcept.getPreferredLabel());
+        inner.setHead(journalName);
 
         // [Journal description]
         String journalDescr = JournalUtils.getDescription(journalConcept);
