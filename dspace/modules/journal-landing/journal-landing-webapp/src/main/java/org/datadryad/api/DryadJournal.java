@@ -37,7 +37,7 @@ public class DryadJournal {
     private static Logger log = Logger.getLogger(DryadJournal.class);
     private static final String solrStatsUrl = ConfigurationManager.getProperty("solr.stats.server");
 
-    private static final String archivedDataFilesQuery = "SELECT * FROM ArchivedItemByJournal(?)";
+    private static final String archivedDataFilesQuery = "SELECT * FROM ArchivedPackageDataFileItemIdsByJournal(?)";
     private static final String archivedDataPackageIds = "SELECT * FROM ArchivedPackageItemIdsByJournal(?,?);";
     private static final String archivedPackageCount   = "SELECT * FROM ArchivedPackageCountByJournal(?)";
 
