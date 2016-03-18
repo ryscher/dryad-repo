@@ -67,7 +67,7 @@ public class JournalLandingTransformer extends AbstractDSpaceTransformer {
             throw(new ProcessingException("Bad access of journal concept: " + ex.getMessage()));
         }
         try {
-            dryadJournal = new DryadJournal(context, journalConcept);
+            dryadJournal = new DryadJournal(context, journalName);
         } catch (Exception ex) {
             log.error(ex);
             throw(new ProcessingException("Failed to make DryadJournal for concept id: " + conceptID));

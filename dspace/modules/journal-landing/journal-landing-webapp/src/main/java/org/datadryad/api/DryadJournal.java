@@ -7,15 +7,6 @@
  */
 package org.datadryad.api;
 
-import java.net.MalformedURLException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
@@ -23,14 +14,17 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.dspace.content.Item;
-import org.dspace.content.authority.Concept;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;
+import java.net.MalformedURLException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+
 
 /**
  * Convenience class for querying Solr and Postgres for data related to a given 
@@ -43,54 +37,28 @@ public class DryadJournal {
     private static Logger log = Logger.getLogger(DryadJournal.class);
     private static final String solrStatsUrl = ConfigurationManager.getProperty("solr.stats.server");
 
-    private Context context;
-    private Concept journalConcept;
+    private static final String archivedDataFilesQuery    = "SELECT * FROM ArchivedPackageDataFileItemIdsByJournal(?)";
+    private static final String archivedDataFilesQueryCol =               "archivedpackagedatafileitemidsbyjournal";
 
-    public DryadJournal(Context context, Concept journalConcept) throws IllegalArgumentException {
+    private static final String archivedDataPackageIds    = "SELECT * FROM ArchivedPackageItemIdsByJournal(?,?);";
+    private static final String archivedDataPackageIdsCol =               "archivedpackageitemidsbyjournal";
+
+    private static final String archivedPackageCount    = "SELECT * FROM ArchivedPackageCountByJournal(?)";
+    private static final String archivedPackageCountCol =               "archivedpackagecountbyjournal";
+
+
+    private Context context;
+    private String journalName;
+
+    public DryadJournal(Context context, String journalName) throws IllegalArgumentException {
         if (context == null) {
             throw new IllegalArgumentException("Illegal null Context.");
-        } else if (journalConcept == null) {
-            throw new IllegalArgumentException("Illegal null journal concept.");
+        } else if (journalName == null) {
+            throw new IllegalArgumentException("Illegal null journal name.");
         }
         this.context = context;
-        this.journalConcept = journalConcept;
+        this.journalName = journalName;
     }
-
-    /**
-     * Query to request all item id values for the data files associated with
-     * all archived data packages for a given journal.
-     * ? #1: full journal name
-     */
-    private final static String ARCHIVED_DATAFILE_QUERY =
-    // item.item_id for data file
-    " SELECT DISTINCT mdv_df.item_id                                                                                    " +
-    "   FROM metadatavalue mdv_df                                                                                       " +
-    "   JOIN metadatafieldregistry mdfr_df ON mdv_df.metadata_field_id=mdfr_df.metadata_field_id                        " +
-    "   JOIN metadataschemaregistry mdsr_df ON mdsr_df.metadata_schema_id=mdfr_df.metadata_schema_id                    " +
-    "  WHERE mdsr_df.short_id='dc'                                                                                      " +
-    "    AND mdfr_df.element='relation'                                                                                 " +
-    "    AND mdfr_df.qualifier='ispartof'                                                                               " +
-    "    AND mdv_df.text_value IN                                                                                       " +
-    //  doi for data packages for provided journal
-    "   (SELECT mdv_p_doi.text_value                                                                                    " +
-    "      FROM  metadatavalue mdv_p_doi                                                                                " +
-    "      JOIN  metadatafieldregistry mdfr_p_doi ON mdv_p_doi.metadata_field_id=mdfr_p_doi.metadata_field_id           " +
-    "      JOIN  metadataschemaregistry mdsr_p_doi ON mdfr_p_doi.metadata_schema_id=mdsr_p_doi.metadata_schema_id       " +
-    "     WHERE  mdsr_p_doi.short_id='dc'                                                                               " +
-    "       AND  mdfr_p_doi.element='identifier'                                                                        " +
-    "       AND  mdfr_p_doi.qualifier IS NULL                                                                           " +
-    "       AND  mdv_p_doi.item_id IN                                                                                   " +
-    //    item_id for data packages for provided journal
-    "     (SELECT mdv_p_pub.item_id                                                                                     " +
-    "          FROM  metadatavalue mdv_p_pub                                                                            " +
-    "          JOIN  metadatafieldregistry mdfr_p_pub  ON mdv_p_pub.metadata_field_id=mdfr_p_pub.metadata_field_id      " +
-    "          JOIN  metadataschemaregistry mdsr_p_pub ON mdfr_p_pub.metadata_schema_id=mdsr_p_pub.metadata_schema_id   " +
-    "          JOIN  item item_p on mdv_p_pub.item_id=item_p.item_id                                                    " +
-    "         WHERE  mdsr_p_pub.short_id='prism'                                                                        " +
-    "           AND  mdfr_p_pub.element='publicationName'                                                               " +
-    "           AND  mdv_p_pub.text_value = ?                                                                           " + // ? : journal name
-    "           AND  item_p.in_archive = true                                                                           " +
-    "    ));                                                                                                            ";
 
     /**
      * Executes query to Postgres to get archived data file item ids for a given 
@@ -99,51 +67,15 @@ public class DryadJournal {
      * @throws SQLException
      */
     public List<Integer> getArchivedDataFiles() throws SQLException {
-        TableRowIterator tri = DatabaseManager.query(this.context, ARCHIVED_DATAFILE_QUERY, this.journalConcept.getPreferredLabel());
+        TableRowIterator tri = DatabaseManager.query(this.context, archivedDataFilesQuery, journalName);
         List<Integer> dataFiles = new ArrayList<Integer>();
         while(tri.hasNext()) {
             TableRow row = tri.next();
-            int itemId = row.getIntColumn("item_id");
+            int itemId = row.getIntColumn(archivedDataFilesQueryCol);
             dataFiles.add(itemId);
         }
         return dataFiles;
     }
-
-    /**
-     * Query to return a list of item ids for archived data packages for a given journal.
-     */
-    private final static String ARCHIVED_DATAPACKAGE_QUERY_IDS =
-    " SELECT item_p.item_id                                                                                 " +
-    "  FROM item item_p                                                                                     " +
-    "  JOIN metadatavalue          mdv_pub   ON item_p.item_id               = mdv_pub.item_id              " +
-    "  JOIN metadatafieldregistry  mdfr_pub  ON mdv_pub.metadata_field_id    = mdfr_pub.metadata_field_id   " +
-    "  JOIN metadataschemaregistry mdsr_pub  ON mdfr_pub.metadata_schema_id  = mdsr_pub.metadata_schema_id  " +
-    "  JOIN metadatavalue          mdv_date  ON item_p.item_id               = mdv_date.item_id             " +
-    "  JOIN metadatafieldregistry  mdfr_date ON mdv_date.metadata_field_id   = mdfr_date.metadata_field_id  " +
-    "  JOIN metadataschemaregistry mdsr_date ON mdfr_date.metadata_schema_id = mdsr_date.metadata_schema_id " +
-    " WHERE item_p.in_archive   = true                                                                      " +
-    "   AND mdsr_pub.short_id   = 'prism'                                                                   " +
-    "   AND mdfr_pub.element    = 'publicationName'                                                         " +
-    "   AND mdv_pub.text_value  = ?                                                                         " +     // ?: journal name
-    "   AND mdsr_date.short_id  = 'dc'                                                                      " +
-    "   AND mdfr_date.element   = 'date'                                                                    " +
-    "   AND mdfr_date.qualifier = 'accessioned'                                                             " +
-    " ORDER BY mdv_date.text_value DESC                                                                     " +
-    " LIMIT ?                                                                                               ";      // ?: limit
-    
-    /**
-     * Query to return a count of archived data packages for a given journal.
-     */
-    private final static String ARCHIVED_DATAPACKAGE_QUERY_COUNT =
-    " SELECT COUNT(item_p) AS total                                                                         " +
-    "  FROM item item_p                                                                                     " +
-    "  JOIN metadatavalue          mdv_pub   ON item_p.item_id               = mdv_pub.item_id              " +
-    "  JOIN metadatafieldregistry  mdfr_pub  ON mdv_pub.metadata_field_id    = mdfr_pub.metadata_field_id   " +
-    "  JOIN metadataschemaregistry mdsr_pub  ON mdfr_pub.metadata_schema_id  = mdsr_pub.metadata_schema_id  " +
-    " WHERE item_p.in_archive   = true                                                                      " +
-    "   AND mdsr_pub.short_id   = 'prism'                                                                   " +
-    "   AND mdfr_pub.element    = 'publicationName'                                                         " +
-    "   AND mdv_pub.text_value  = ?                                                                         ";
 
     /**
      * Return count of archived data packages for the journal associated with this object.
@@ -152,11 +84,11 @@ public class DryadJournal {
     public int getArchivedPackagesCount() {
         int count = 0;
         try {
-            PreparedStatement statement = context.getDBConnection().prepareStatement(ARCHIVED_DATAPACKAGE_QUERY_COUNT);
-            statement.setString(1,this.journalConcept.getPreferredLabel());
+            PreparedStatement statement = context.getDBConnection().prepareStatement(archivedPackageCount);
+            statement.setString(1,journalName);
             ResultSet rs = statement.executeQuery();
             if (rs.next()) {
-                count = rs.getInt("total");
+                count = rs.getInt(archivedPackageCountCol);
             }
         } catch (Exception ex) {
             log.error(ex);
@@ -173,11 +105,11 @@ public class DryadJournal {
      * @throws SQLException 
      */
     public List<Item> getArchivedPackagesSortedRecent(int max) throws SQLException {
-        TableRowIterator tri = DatabaseManager.query(this.context, ARCHIVED_DATAPACKAGE_QUERY_IDS, this.journalConcept.getPreferredLabel(), max);
+        TableRowIterator tri = DatabaseManager.query(this.context, archivedDataPackageIds, journalName, max);
         List<Item> dataPackages = new ArrayList<Item>();
         while (tri.hasNext() && dataPackages.size() < max) {
             TableRow row = tri.next();
-            int itemId = row.getIntColumn("item_id");
+            int itemId = row.getIntColumn(archivedDataPackageIdsCol);
             try {
                 Item dso = Item.find(context, itemId);
                 dataPackages.add(dso);

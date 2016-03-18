@@ -7,16 +7,10 @@
  */
 package org.dspace.app.xmlui.aspect.journal.landing;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.Map;
-import org.apache.avalon.framework.parameters.ParameterException;
 import org.apache.avalon.framework.parameters.Parameters;
 import org.apache.cocoon.ProcessingException;
 import org.apache.cocoon.environment.SourceResolver;
 import org.apache.log4j.Logger;
-import static org.dspace.app.xmlui.aspect.journal.landing.Const.*;
 import org.dspace.app.xmlui.utils.UIException;
 import org.dspace.app.xmlui.wing.Message;
 import org.dspace.app.xmlui.wing.WingException;
@@ -25,14 +19,17 @@ import org.dspace.app.xmlui.wing.element.Division;
 import org.dspace.app.xmlui.wing.element.List;
 import org.dspace.app.xmlui.wing.element.ReferenceSet;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.content.authority.Concept;
-import org.xml.sax.SAXException;
-import java.util.LinkedHashMap;
-import org.datadryad.api.DryadJournal;
-import org.dspace.app.xmlui.cocoon.AbstractDSpaceTransformer;
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
 import org.dspace.workflow.DryadWorkflowUtils;
+import org.xml.sax.SAXException;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import static org.dspace.app.xmlui.aspect.journal.landing.Const.*;
 
 /**
  * Cocoon/DSpace transformer to produce a panel for the journal landing page,
