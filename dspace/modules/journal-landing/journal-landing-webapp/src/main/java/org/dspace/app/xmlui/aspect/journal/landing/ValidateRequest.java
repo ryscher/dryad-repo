@@ -7,21 +7,23 @@
  */
 package org.dspace.app.xmlui.aspect.journal.landing;
 
-import java.util.Map;
-import java.util.HashMap;
-
 import org.apache.avalon.framework.parameters.Parameters;
 import org.apache.cocoon.acting.AbstractAction;
 import org.apache.cocoon.environment.Redirector;
 import org.apache.cocoon.environment.SourceResolver;
-
 import org.apache.log4j.Logger;
-import org.dspace.JournalUtils;
-
-import static org.dspace.app.xmlui.aspect.journal.landing.Const.*;
 import org.dspace.app.xmlui.utils.ContextUtil;
 import org.dspace.content.authority.Concept;
 import org.dspace.core.Context;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+import static org.dspace.app.xmlui.aspect.journal.landing.Const.PARAM_CONCEPT_ID;
+import static org.dspace.app.xmlui.aspect.journal.landing.Const.PARAM_JOURNAL_ISSN;
+import static org.dspace.content.authority.Concept.findByConceptMetadata;
 
 /**
  * Cocoon Action to confirm that the requested journal landing page is for 
@@ -32,27 +34,28 @@ import org.dspace.core.Context;
 public class ValidateRequest extends AbstractAction {
 
     private static final Logger log = Logger.getLogger(ValidateRequest.class);
+    private static final Pattern issnPattern = Pattern.compile("\\d{4}-\\d{4}");
 
     @Override
     public Map act(Redirector redirector, SourceResolver resolver, Map objectModel,
                     String source, Parameters parameters) throws Exception
     {
-        String journalAbbr = parameters.getParameter(PARAM_JOURNAL_NAME);
-        if (journalAbbr == null || journalAbbr.length() == 0) return null;
-
-        // verify we have an accurate journal
-        Context context = ContextUtil.obtainContext(objectModel);
-        Concept journalConcept = JournalUtils.getJournalConceptByShortID(context,journalAbbr);
-        if (journalConcept == null) {
+        String journalISSN = parameters.getParameter(PARAM_JOURNAL_ISSN);
+        if (journalISSN == null || journalISSN.length() == 0 || !issnPattern.matcher(journalISSN).matches()) {
             return null;
         }
-        String journalName = JournalUtils.getFullName(journalConcept);        
-        if (journalName != null && journalName.length() != 0) {
+        Context context = ContextUtil.obtainContext(objectModel);
+        ArrayList<Concept> journalConcepts = findByConceptMetadata(context, journalISSN, "journal", "issn");
+        if (journalConcepts.size() == 0) {
+            return null;
+        }
+        Concept journalConcept = journalConcepts.get(0);
+        if (journalConcept != null) {
             Map map = new HashMap();
-            map.put(PARAM_JOURNAL_NAME, journalName);
-            map.put(PARAM_JOURNAL_ABBR, journalAbbr);
+            map.put(PARAM_CONCEPT_ID, journalConcept.getID());
             return map;
         }
         return null;
     }
 }
+

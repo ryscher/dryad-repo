@@ -7,16 +7,10 @@
  */
 package org.dspace.app.xmlui.aspect.journal.landing;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.Map;
-import org.apache.avalon.framework.parameters.ParameterException;
 import org.apache.avalon.framework.parameters.Parameters;
 import org.apache.cocoon.ProcessingException;
 import org.apache.cocoon.environment.SourceResolver;
 import org.apache.log4j.Logger;
-import static org.dspace.app.xmlui.aspect.journal.landing.Const.*;
 import org.dspace.app.xmlui.utils.UIException;
 import org.dspace.app.xmlui.wing.Message;
 import org.dspace.app.xmlui.wing.WingException;
@@ -25,13 +19,17 @@ import org.dspace.app.xmlui.wing.element.Division;
 import org.dspace.app.xmlui.wing.element.List;
 import org.dspace.app.xmlui.wing.element.ReferenceSet;
 import org.dspace.authorize.AuthorizeException;
-import org.xml.sax.SAXException;
-import java.util.LinkedHashMap;
-import org.datadryad.api.DryadJournal;
-import org.dspace.app.xmlui.cocoon.AbstractDSpaceTransformer;
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
 import org.dspace.workflow.DryadWorkflowUtils;
+import org.xml.sax.SAXException;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import static org.dspace.app.xmlui.aspect.journal.landing.Const.*;
 
 /**
  * Cocoon/DSpace transformer to produce a panel for the journal landing page,
@@ -40,13 +38,10 @@ import org.dspace.workflow.DryadWorkflowUtils;
  * 
  * @author Nathan Day
  */
-public abstract class JournalLandingTabbedTransformer extends AbstractDSpaceTransformer {
+public abstract class JournalLandingTabbedTransformer extends JournalLandingTransformer {
 
     private static final Logger log = Logger.getLogger(JournalLandingTabbedTransformer.class);
     private final static SimpleDateFormat fmt = new SimpleDateFormat(fmtDateView);
-
-    private String journalName;
-    private DryadJournal dryadJournal;
 
     protected class DivData {
         public String n;
@@ -71,13 +66,6 @@ public abstract class JournalLandingTabbedTransformer extends AbstractDSpaceTran
             IOException
     {
         super.setup(resolver, objectModel, src, parameters);
-        try {
-            journalName = parameters.getParameter(PARAM_JOURNAL_NAME);
-        } catch (ParameterException ex) {
-            log.error(ex);
-            throw new ProcessingException(ex.getMessage());
-        }
-        dryadJournal = new DryadJournal(this.context, this.journalName);
     }
 
     /**
@@ -114,9 +102,9 @@ public abstract class JournalLandingTabbedTransformer extends AbstractDSpaceTran
             List valsList = vals.addList(t.n, List.TYPE_SIMPLE, t.n);
             valsList.setHead(t.valHead);
             if (t.queryType == QueryType.DOWNLOADS ) {
-                doDownloadsQuery(itemsContainer, valsList, dryadJournal, divData, t);
+                doDownloadsQuery(itemsContainer, valsList, divData, t);
             } else if (t.queryType == QueryType.DEPOSITS ) {
-                doDepositsQuery(itemsContainer, valsList, dryadJournal, divData, t);
+                doDepositsQuery(itemsContainer, valsList, divData, t);
             }
         }
     }
@@ -126,11 +114,10 @@ public abstract class JournalLandingTabbedTransformer extends AbstractDSpaceTran
      * download statistics.
      * @param itemsContainer DRI ReferenceSet element to contain retrieved Items
      * @param countList DRI List element to contain download counts
-     * @param dryadJournal DryadJournal object for the given 
      * @param divData query parameters for the current div
      * @param t query parameters for the current tab
      */
-    private void doDownloadsQuery(ReferenceSet itemsContainer, List countList, DryadJournal dryadJournal, DivData divData, TabData t) {
+    private void doDownloadsQuery(ReferenceSet itemsContainer, List countList, DivData divData, TabData t) {
         LinkedHashMap<Item, String> results = dryadJournal.getRequestsPerJournal(
             t.facetQueryField, t.dateFilter, divData.maxResults
         );
@@ -152,11 +139,10 @@ public abstract class JournalLandingTabbedTransformer extends AbstractDSpaceTran
      * from Postgres.
      * @param itemsContainer DRI ReferenceSet element to contain retrieved Items
      * @param countList DRI List element to contain download counts
-     * @param dryadJournal DryadJournal object for the given 
      * @param divData query parameters for the current div
      * @param t query parameters for the current tab
      */
-    private void doDepositsQuery(ReferenceSet itemsContainer, List countList, DryadJournal dryadJournal, DivData divData, TabData t) {
+    private void doDepositsQuery(ReferenceSet itemsContainer, List countList, DivData divData, TabData t) {
         java.util.List<Item> packages = null;
         try {
             packages = dryadJournal.getArchivedPackagesSortedRecent(divData.maxResults);
