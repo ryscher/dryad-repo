@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 import org.datadryad.rest.models.Manuscript;
 import org.datadryad.rest.models.Author;
 import org.datadryad.rest.models.AuthorsList;
+import org.datadryad.api.DryadJournalConcept;
 import org.dspace.JournalUtils;
 import org.dspace.content.authority.Concept;
 import org.dspace.core.ConfigurationManager;
@@ -130,8 +131,6 @@ public class DryadEmailSubmission extends HttpServlet {
             processMimeMessage(mime);
             toBrowser.close();
         } catch (Exception details) {
-            sendEmailIfConfigured(details);
-
             if (details instanceof SubmissionException) {
                 throw (SubmissionException) details;
             } else {
@@ -152,7 +151,13 @@ public class DryadEmailSubmission extends HttpServlet {
                         processMimeMessage(message);
                     } catch (Exception details) {
                         DryadGmailService.addErrorLabelForMessageWithId(mID);
-                        LOGGER.info("Exception thrown while processing message " + mID + ": " + details.getMessage() + ", " + details.getClass().getName() + details.getStackTrace().toString());
+                        LOGGER.info("Exception thrown while processing message " + mID + ": " + details.getMessage() + ", " + details.getClass().getName());
+                        StringBuilder sb = new StringBuilder();
+                        for (StackTraceElement element : details.getStackTrace()) {
+                            sb.append(element.toString());
+                            sb.append("\n");
+                        }
+                        LOGGER.info(sb.toString());
                     }
                     DryadGmailService.removeJournalLabelForMessageWithId(mID);
                 }
@@ -228,51 +233,6 @@ public class DryadEmailSubmission extends HttpServlet {
         myEmailHarvester.schedule(new DryadEmailSubmissionHarvester(), 0, 1000 * timerInterval);
     }
 
-    /**
-     * If we're running within DSpace (and not the Maven/Jetty test instance),
-     * we can send email through there using their template system.
-     *
-     * @param aException An exception that was thrown in the process of
-     *                   receiving a journal submission
-     * @throws SubmissionException
-     * @throws IOException
-     */
-    private void sendEmailIfConfigured(Exception aException)
-            throws SubmissionException {
-        try {
-            if (ConfigurationManager.isConfigured()) {
-                String exceptionMessage = aException.toString();
-                StringBuilder message = new StringBuilder(exceptionMessage);
-                String admin = ConfigurationManager.getProperty("mail.admin");
-                String logDir = ConfigurationManager.getProperty("log.dir");
-                Email email = ConfigurationManager.getEmail(I18nUtil.getEmailFilename(Locale.getDefault(), EMAIL_TEMPLATE));
-
-                if (logDir == null || admin == null) {
-                    throw new SubmissionException(
-                            "DSpace mail is not properly configured");
-                }
-
-                for (StackTraceElement trace : aException.getStackTrace()) {
-                    message.append(System.getProperty("line.separator"));
-                    message.append("at ").append(trace.getClass()).append("(");
-                    message.append(trace.getFileName()).append(":");
-                    message.append(trace.getLineNumber()).append(")");
-                }
-
-                email.addRecipient(admin);
-                email.addArgument(message);
-                email.addArgument(logDir + "/journal-submit.log");
-                email.send();
-            }
-        } catch (Exception details) {
-            if (details instanceof SubmissionException) {
-                throw (SubmissionException) details;
-            } else {
-                throw new SubmissionException(details);
-            }
-        }
-    }
-
     private void processMimeMessage (MimeMessage mime) throws Exception {
         LOGGER.info("MIME contentType/ID/encoding: " + mime.getContentType()
                 + " " + mime.getContentID() + " " + mime.getEncoding());
@@ -308,8 +268,7 @@ public class DryadEmailSubmission extends HttpServlet {
         EmailParser parser = null;
         Manuscript manuscript = null;
         boolean dryadContentStarted = false;
-        Context context = null;
-        Concept concept = null;
+        DryadJournalConcept journalConcept = null;
         while (emailScanner.hasNextLine()) {
             String line = emailScanner.nextLine().replace("\u00A0",""); // \u00A0 is Unicode nbsp; these should be removed
             line = StringEscapeUtils.unescapeHtml(line);
@@ -319,7 +278,7 @@ public class DryadEmailSubmission extends HttpServlet {
             }
 
             // Stop reading lines if we've run into the sig line
-            if (StringUtils.stripToEmpty(line).equals("--")) {
+            if (StringUtils.stripToEmpty(line).equals("--") && (dryadContentStarted == true)) {
                 break;
             }
 
@@ -332,13 +291,13 @@ public class DryadEmailSubmission extends HttpServlet {
                 continue;
             }
 
-            Matcher journalCodeMatcher = Pattern.compile("^\\s*>*\\s*(Journal Code):\\s*(.+)").matcher(line);
+            Matcher journalCodeMatcher = Pattern.compile("^\\s*>*\\s*(Journal Code):\\s*(.+)", Pattern.CASE_INSENSITIVE).matcher(line);
             if (journalCodeMatcher.find()) {
                 journalCode = JournalUtils.cleanJournalCode(journalCodeMatcher.group(2));
                 dryadContentStarted = true;
             }
 
-            Matcher journalNameMatcher = Pattern.compile("^\\s*>*\\s*(JOURNAL|Journal Name):\\s*(.+)").matcher(line);
+            Matcher journalNameMatcher = Pattern.compile("^\\s*>*\\s*(JOURNAL|Journal Name):\\s*(.+)", Pattern.CASE_INSENSITIVE).matcher(line);
             if (journalNameMatcher.find()) {
                 journalName = journalNameMatcher.group(2);
                 journalName = StringUtils.stripToEmpty(journalName);
@@ -351,104 +310,80 @@ public class DryadEmailSubmission extends HttpServlet {
         }
         // After reading the entire message, attempt to find the journal by
         // Journal Code.  If Journal Code is not present, fall back to Journal Name
-        try {
-            context = new Context();
-            if (journalCode == null) {
-                LOGGER.debug("Journal Code not found in message, trying by journal name: " + journalName);
-                if (journalName != null) {
-                    try {
-                        concept = JournalUtils.getJournalConceptByName(context, journalName);
-                    } catch (SQLException e) {
-                        throw new SubmissionException(e);
-                    }
-                    journalCode = JournalUtils.getJournalShortID(concept);
+        if (journalCode == null) {
+            LOGGER.debug("Journal Code not found in message, trying by journal name: " + journalName);
+            if (journalName != null) {
+                journalConcept = JournalUtils.getJournalConceptByJournalName(journalName);
+                journalCode = journalConcept.getJournalID();
 
-                } else {
-                    throw new SubmissionException("Journal Code not present and Journal Name not found in message");
-                }
-            }
-
-            // if journalCode is still null, throw an exception.
-            if (journalCode == null) {
-                throw new SubmissionException("Journal Name " + journalName + " did not match a known Journal Name");
-            }
-            // find the associated concept and initialize the parser variable.
-            try {
-                concept = JournalUtils.getJournalConceptByShortID(context, journalCode);
-            } catch (SQLException e) {
-                throw new SubmissionException(e);
-	        }
-
-            if (concept == null) {
-                throw new SubmissionException("Concept not found for journal " + journalCode);
-            }
-
-            // at this point, concept is not null.
-            journalName = JournalUtils.getFullName(concept);
-            try {
-                parser = getEmailParser(JournalUtils.getParsingScheme(concept));
-                parser.parseMessage(dryadContent);
-                manuscript = parser.getManuscript();
-                // make sure that the manuscript has the journalCode even if we found the parser by name:
-                manuscript.organization.organizationCode = journalCode;
-            } catch (SubmissionException e) {
-                throw new SubmissionException("Journal " + journalCode + " parsing scheme not found");
-            }
-            if ((manuscript != null) && (manuscript.isValid())) {
-                // edit the manuscript ID to the canonical one:
-                manuscript.manuscriptId = JournalUtils.getCanonicalManuscriptID(context, manuscript);
-                JournalUtils.writeManuscriptToDB(context, manuscript);
-                LOGGER.debug ("this ms has status " + manuscript.getStatus());
-                Boolean approved = null;
-
-                if (manuscript.isAccepted()) {
-                    approved = true;
-                } else if (manuscript.isRejected()) {
-                    approved = false;
-                } else if (manuscript.isNeedsRevision()) {
-                    approved = false;
-                } else if (manuscript.isPublished()) {
-                    approved = true;
-                }
-
-                // if the status was "submitted," approved will still be null and we won't try to process any items.
-                if (approved != null) {
-                    DSpaceKernelImpl kernelImpl = null;
-                    try {
-                        kernelImpl = DSpaceKernelInit.getKernel(null);
-                        if (!kernelImpl.isRunning())
-                        {
-                            kernelImpl.start(ConfigurationManager.getProperty("dspace.dir"));
-                        }
-                    } catch (Exception ex) {
-                        // Failed to start so destroy it and log and throw an exception
-                        try {
-                            if(kernelImpl != null) {
-                                kernelImpl.destroy();
-                            }
-                        } catch (Exception e1) {
-                            // Nothing to do
-                        }
-                        LOGGER.error("Error Initializing DSpace kernel in ManuscriptReviewStatusChangeHandler", ex);
-                    }
-
-                    ApproveRejectReviewItem.reviewManuscript(manuscript);
-                }
             } else {
-                throw new SubmissionException("Parser could not validly parse the message");
+                throw new SubmissionException("Journal Code not present and Journal Name not found in message");
             }
-        } catch (SQLException e) {
-            throw new SubmissionException("Couldn't get context", e);
         }
-        finally {
-            try {
-                if (context != null) {
-                    context.complete();
-                }
-            } catch (SQLException e) {
-                context.abort();
-                throw new RuntimeException("Context.complete threw an exception, aborting instead");
+
+        // if journalCode is still null, throw an exception.
+        if (journalCode == null) {
+            throw new SubmissionException("Journal Name " + journalName + " did not match a known Journal Name");
+        }
+        // find the associated concept and initialize the parser variable.
+        journalConcept = JournalUtils.getJournalConceptByJournalID(journalCode);
+
+        if (journalConcept == null) {
+            throw new SubmissionException("Concept not found for journal " + journalCode);
+        }
+
+        // at this point, concept is not null.
+        journalName = journalConcept.getFullName();
+        try {
+            parser = getEmailParser(journalConcept.getParsingScheme());
+            parser.parseMessage(dryadContent);
+            manuscript = parser.getManuscript();
+            // make sure that the manuscript has the journalCode even if we found the parser by name:
+            manuscript.getOrganization().organizationCode = journalCode;
+        } catch (SubmissionException e) {
+            throw new SubmissionException("Journal " + journalCode + " parsing scheme not found");
+        }
+        if ((manuscript != null) && (manuscript.isValid())) {
+            // edit the manuscript ID to the canonical one:
+            manuscript.setManuscriptId(JournalUtils.getCanonicalManuscriptID(manuscript));
+            JournalUtils.writeManuscriptToDB(manuscript);
+            LOGGER.debug ("this ms has status " + manuscript.getStatus());
+            Boolean approved = null;
+
+            if (manuscript.isAccepted()) {
+                approved = true;
+            } else if (manuscript.isRejected()) {
+                approved = false;
+            } else if (manuscript.isNeedsRevision()) {
+                approved = false;
+            } else if (manuscript.isPublished()) {
+                approved = true;
             }
+
+            // if the status was "submitted," approved will still be null and we won't try to process any items.
+            if (approved != null) {
+                DSpaceKernelImpl kernelImpl = null;
+                try {
+                    kernelImpl = DSpaceKernelInit.getKernel(null);
+                    if (!kernelImpl.isRunning()) {
+                        kernelImpl.start(ConfigurationManager.getProperty("dspace.dir"));
+                    }
+                } catch (Exception ex) {
+                    // Failed to start so destroy it and log and throw an exception
+                    try {
+                        if(kernelImpl != null) {
+                            kernelImpl.destroy();
+                        }
+                    } catch (Exception e1) {
+                        // Nothing to do
+                    }
+                    LOGGER.error("Error Initializing DSpace kernel in ManuscriptReviewStatusChangeHandler", ex);
+                }
+
+                ApproveRejectReviewItem.reviewManuscript(manuscript);
+            }
+        } else {
+            throw new SubmissionException("Parser could not validly parse the message");
         }
     }
 

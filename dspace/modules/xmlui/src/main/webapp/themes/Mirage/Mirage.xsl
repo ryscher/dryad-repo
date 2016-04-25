@@ -238,6 +238,13 @@
                 <div id="dryad-home-carousel" class="ds-static-div primary">
                     <!-- REMINDER: slide publication dates are in the format YEAR-MONTH-DAY, eg, 2013-12-28 -->
                     <div class="bxslider" style="">
+						<div><span class="publication-date">2015-12-16</span>
+						                            <a href="http://blog.datadryad.org/2015/12/15/new-pricing-structure-with-simplified-terms-and-increased-size-limits/">
+						                                <img alt="" src="/themes/Mirage/images/watering-can.png" />
+						                                <p style="width: 450px; color: #363; font-size: 90%; top: 0px; right: 10px; line-height: 1.2em; position: absolute; text-shadow: 1px 2px 2px rgba(33, 33, 33, 0.25);">New Dryad pricing structure for 2016 with simplified terms and increased size limits</p>
+						                                <p style="drop-shadow: 4px 4px; position: absolute; right: 40px; bottom: 80px; font-size: 70%; text-align: right; text-shadow: 1px 2px 2px rgba(33, 33, 33, 0.25);">Learn more &#187;</p>
+						                            </a>
+						                        </div>
                         <div><span class="publication-date">2015-04-14</span>
                             <a href="/pages/submissionIntegration">
                                 <img src="/themes/Mirage/images/integration-slide.jpg" alt="Publishers: Simplify data submission. Strengthen links between articles and data. For free. Integrate your journal with Dryad now" />
@@ -252,13 +259,13 @@
                                 <p style="drop-shadow: 4px 4px; position: absolute; right: 40px; bottom: 6px; font-size: 70%; text-align: right; text-shadow: 1px 2px 2px rgba(33, 33, 33, 0.25);">Learn More &#187;</p>
                             </a>
                         </div>
-                        <div><span class="publication-date">2015-03-23</span>
+                        <!--><div><span class="publication-date">2015-03-23</span>
                             <a href="/pages/membershipOverview">
                                 <img alt="" src="/themes/Mirage/images/watering-can.png" />
                                 <p style="width: 450px; color: #363; font-size: 90%; top: 0px; right: 10px; line-height: 1.2em; position: absolute; text-shadow: 1px 2px 2px rgba(33, 33, 33, 0.25);">Help grow open data at Dryad:<br />Become an organizational member</p>
                                 <p style="drop-shadow: 4px 4px; position: absolute; right: 40px; bottom: 80px; font-size: 70%; text-align: right; text-shadow: 1px 2px 2px rgba(33, 33, 33, 0.25);">Learn more &#187;</p>
                             </a>
-                        </div>
+                        </div>-->
                         <div><span class="publication-date">2013-02-01</span>
                             <p Xid="ds-dryad-is" style="font-size: 88%; line-height: 1.35em;"
                                xmlns:i18n="http://apache.org/cocoon/i18n/2.1" xmlns="http://di.tamu.edu/DRI/1.0/">
@@ -291,12 +298,8 @@
             <div id="submit-data-sidebar-box" class="home-col-2 simple-box" style="padding: 8px 34px; width: 230px; margin: 8px 0 12px;">
                 <div class="ds-static-div primary" id="file_news_div_news" style="height: 75px;">
                     <p class="ds-paragraph">
-                        <a class="submitnowbutton">
-                            <xsl:attribute name="href">
-                                <xsl:value-of select="/dri:document/dri:options/dri:list[@n='submitNow']/dri:item[@n='submitnowitem']/dri:xref[@rend='submitnowbutton']/@target"/>
-                            </xsl:attribute>
-			    <xsl:text>Submit data now</xsl:text>
-                        </a>
+		      <!-- The next line should remain as one piece (without linebreaks) to allow it to be matched and replaced with mod_substitute on read-only servers -->
+                        <a class="submitnowbutton"><xsl:attribute name="href"><xsl:value-of select="/dri:document/dri:options/dri:list[@n='submitNow']/dri:item[@n='submitnowitem']/dri:xref[@rend='submitnowbutton']/@target"/></xsl:attribute><xsl:text>Submit data now</xsl:text></a>
                     </p>
                     <p style="margin: 14px 0 4px;">
                         <a href="/pages/faq#deposit">How and why?</a>
@@ -400,14 +403,16 @@
                 <h1 class="ds-div-head">Recently integrated journals</h1>
                 <div id="recently_integrated_journals" class="ds-static-div primary">
                     <div class="container">
-						<!-- Development -->
-						<a class="single-image-link" href="/discover?field=prism.publicationName_filter&amp;query=&amp;fq=prism.publicationName_filter%3Adevelopment%5C%7C%5C%7C%5C%7CDevelopment"><img class="pub-cover" src="/themes/Mirage/images/recentlyIntegrated-DEVELOPMENT_cover.png" alt="Development" /></a>
-						<!-- American Journal of Botany -->
-						<a class="single-image-link" href="/discover?field=prism.publicationName_filter&amp;query=&amp;fq=prism.publicationName_filter%3Aamerican%5C+journal%5C+of%5C+botany%5C%7C%5C%7C%5C%7CAmerican%5C+Journal%5C+of%5C+Botany"><img class="pub-cover" src="/themes/Mirage/images/recentlyIntegrated-AMJBOTCover.png" alt="American Journal of Botany" /></a>
-                        <!-- International Journal of Plant Sciences -->
-                        <a class="single-image-link" href="/discover?field=prism.publicationName_filter&amp;query=&amp;fq=prism.publicationName_filter%3Ainternational%5C+journal%5C+of%5C+plant%5C+sciences%5C%7C%5C%7C%5C%7CInternational%5C+Journal%5C+of%5C+Plant%5C+Sciences"><img class="pub-cover" src="/themes/Mirage/images/recentlyIntegrated-IJPS_cover.png" alt="International Journal of Plant Sciences" /></a>
-                    	<!-- Physiological and Biochemical Zoology -->
-		  				<a class="single-image-link" href="/discover?field=prism.publicationName_filter&amp;query=&amp;fq=prism.publicationName_filter%3Aphysiological%5C+and%5C+biochemical%5C+zoology%5C%7C%5C%7C%5C%7CPhysiological%5C+and%5C+Biochemical%5C+Zoology"><img class="pub-cover" src="/themes/Mirage/images/recentlyIntegrated-PBZv88n4cover.png" alt="Physiological and Biochemical Zoology" /></a>
+                        <!-- Applications in Plant Sciences -->
+                        <a class="single-image-link" href="/discover?field=prism.publicationName_filter&amp;query=&amp;fq=prism.publicationName_filter%3Aapplications%5C+in%5C+plant%5C+sciences%5C%7C%5C%7C%5C%7CApplications%5C+in%5C+Plant%5C+Sciences"><img class="pub-cover" src="/themes/Mirage/images/recentlyIntegrated-APPS.png" alt="Applications in Plant Sciences" /></a>
+                        <!-- Journal of Systematics and Evolution -->
+                        <a class="single-image-link" href="/discover?field=prism.publicationName_filter&amp;query=&amp;fq=prism.publicationName_filter%3Ajournal%5C+of%5C+systematics%5C+and%5C+evolution%5C%7C%5C%7C%5C%7CJournal%5C+of%5C+Systematics%5C+and%5C+Evolution"><img class="pub-cover" src="/themes/Mirage/images/recentlyIntegrated-JSE_Cover.png" alt="Journal of Systematics and Evolution" /></a>
+                        <!-- Toxicological Sciences -->
+                        <a class="single-image-link" href="/discover?field=prism.publicationName_filter&amp;query=&amp;fq=prism.publicationName_filter%3Atoxicological%5C+sciences%5C%7C%5C%7C%5C%7CToxicological%5C+Sciences"><img class="pub-cover" src="/themes/Mirage/images/recentlyIntegrated-TOXSCICover.png" alt="Toxicological Sciences" /></a>
+                        <!-- Behavioral Ecology -->
+                        <a class="single-image-link" href="/discover?field=prism.publicationName_filter&amp;query=&amp;fq=prism.publicationName_filter%3Abehavioral%5C+ecology%5C%7C%5C%7C%5C%7CBehavioral%5C+Ecology"><img class="pub-cover" src="/themes/Mirage/images/recentlyIntegrated-BEHECOCover.png" alt="Behavioral Ecology" /></a>
+
+
                     </div>
                 </div>
             </div>
@@ -572,13 +577,9 @@
             <h1 class="ds-div-head ds_large_data_package_head" id="ds_large_data_package_head">Large data packages</h1>
             <div id="ds_large_data_package" class="ds-static-div primary" style="font-size: 14px;">
                 <p style="margin-bottom: 0;">
-                    Note that for data packages over 10GB, submitters will
-                    be asked to pay an additional:
+                    Note that for data packages over 20GB, submitters will
+                    be asked to pay $50 for each additional 10GB, or part thereof.
                 </p>
-                <ul>
-                    <li>$15 for the first GB beyond 10, and</li>
-                    <li>$10 for each GB thereafter.</li>
-                </ul> 
             </div>      
         </div>
     </xsl:template>
@@ -603,12 +604,8 @@
         <!-- START DEPOSIT -->
         <div class="ds-static-div primary" id="file_news_div_news">
             <p class="ds-paragraph">
-                <a class="submitnowbutton">
-                    <xsl:attribute name="href">
-                        <xsl:value-of select="/dri:document/dri:options/dri:list[@n='submitNow']/dri:item[@n='submitnowitem']/dri:xref[@rend='submitnowbutton']/@target"/>
-                    </xsl:attribute>
-                    Submit data now
-                </a>
+	      <!-- The next line should remain as one piece (without linebreaks) to allow it to be matched and replaced with mod_substitute on read-only servers -->
+                <a class="submitnowbutton"><xsl:attribute name="href"><xsl:value-of select="/dri:document/dri:options/dri:list[@n='submitNow']/dri:item[@n='submitnowitem']/dri:xref[@rend='submitnowbutton']/@target"/></xsl:attribute>Submit data now</a>
             </p>
             <p style="margin: 1em 0 4px;">
                 <a href="/pages/faq#deposit">How and why?</a>
@@ -779,7 +776,7 @@
                                 <i18n:text><xsl:value-of select="dri:label"/></i18n:text>
                                 <xsl:text>: </xsl:text>
                             </label>
-
+                            <br/>
 
 
                             <xsl:apply-templates select="../dri:field[@id=$currentId]"/>

@@ -1,34 +1,27 @@
 package org.dspace.workflow;
 
 import org.apache.commons.cli.*;
-import org.dspace.authorize.AuthorizeException;
-import org.dspace.content.DSpaceObject;
-import org.dspace.content.Item;
-import org.dspace.content.ItemIterator;
-import org.dspace.content.WorkspaceItem;
-import org.dspace.content.MetadataSchema;
-import org.dspace.content.DCDate;
-import org.dspace.core.Context;
-import org.dspace.core.ConfigurationManager;
-import org.dspace.discovery.SearchService;
-import org.dspace.utils.DSpace;
-import org.dspace.workflow.actions.WorkflowActionConfig;
 import org.apache.log4j.Logger;
+import org.datadryad.api.DryadDataPackage;
+import org.datadryad.rest.models.Manuscript;
+import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.DCDate;
+import org.dspace.content.Item;
+import org.dspace.content.MetadataSchema;
+import org.dspace.content.WorkspaceItem;
+import org.dspace.core.ConfigurationManager;
+import org.dspace.core.Context;
+import org.dspace.discovery.SearchService;
+import org.dspace.eperson.EPerson;
+import org.dspace.utils.DSpace;
+import org.dspace.workflow.WorkflowItem;
+import org.dspace.workflow.actions.WorkflowActionConfig;
 
 import javax.mail.MessagingException;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import org.dspace.core.Constants;
-import org.dspace.identifier.DOIIdentifierProvider;
-import org.dspace.identifier.IdentifierNotFoundException;
-import org.dspace.identifier.IdentifierNotResolvableException;
-import org.dspace.identifier.IdentifierService;
-import org.dspace.eperson.EPerson;
-import org.datadryad.rest.models.Manuscript;
-import org.dspace.workflow.WorkflowItem;
-import org.datadryad.api.DryadDataPackage;
 
 /**
  * User: kevin (kevin at atmire.com)
@@ -80,7 +73,7 @@ public class ApproveRejectReviewItem {
                 System.exit(1);
             }
             Manuscript manuscript = new Manuscript(manuscriptNumber, approved ? Manuscript.STATUS_ACCEPTED : Manuscript.STATUS_REJECTED);
-            manuscript.organization.organizationCode = journalCode;
+            manuscript.getOrganization().organizationCode = journalCode;
             reviewManuscript(manuscript);
         } else if(line.hasOption('i')) {
             // get a WorkflowItem using a workflow ID
@@ -209,7 +202,7 @@ public class ApproveRejectReviewItem {
                     // Add provenance to item
                     String manuscriptNumber = "<null>";
                     if (manuscript != null) {
-                        manuscriptNumber = manuscript.manuscriptId;
+                        manuscriptNumber = manuscript.getManuscriptId();
                     }
                     item.addMetadata(MetadataSchema.DC_SCHEMA, "description", "provenance", "en", "Approved by ApproveRejectReviewItem based on metadata for " + manuscriptNumber + " on " + DCDate.getCurrent().toString() + " (GMT)");
                     item.update();
@@ -261,29 +254,35 @@ public class ApproveRejectReviewItem {
     private static void associateWithManuscript(DryadDataPackage dataPackage, Manuscript manuscript) throws SQLException {
         if (manuscript != null) {
             // set publication DOI
-            if (manuscript.publicationDOI != null) {
-                dataPackage.setPublicationDOI(manuscript.publicationDOI);
+            if (manuscript.getPublicationDOI() != null) {
+                dataPackage.setPublicationDOI(manuscript.getPublicationDOI());
             }
             // set Manuscript ID
-            if (manuscript.manuscriptId != null) {
-                dataPackage.setManuscriptNumber(manuscript.manuscriptId);
+            if (manuscript.getManuscriptId() != null) {
+                dataPackage.setManuscriptNumber(manuscript.getManuscriptId());
             }
             // union keywords
-            if (manuscript.keywords.size() > 0) {
-                List<String> manuscriptKeywords = manuscript.keywords;
-                dataPackage.addKeywords(manuscriptKeywords);
+            if (manuscript.getKeywords().size() > 0) {
+                ArrayList<String> unionKeywords = new ArrayList<String>();
+                unionKeywords.addAll(dataPackage.getKeywords());
+                for (String newKeyword : manuscript.getKeywords()) {
+                    if (!unionKeywords.contains(newKeyword)) {
+                        unionKeywords.add(newKeyword);
+                    }
+                }
+                dataPackage.setKeywords(unionKeywords);
             }
             // set title
-            if (manuscript.title != null) {
-                dataPackage.setTitle(prefixTitle(manuscript.title));
+            if (manuscript.getTitle() != null) {
+                dataPackage.setTitle(prefixTitle(manuscript.getTitle()));
             }
             // set abstract
-            if (manuscript.manuscript_abstract != null) {
-                dataPackage.setAbstract(manuscript.manuscript_abstract);
+            if (manuscript.getAbstract() != null) {
+                dataPackage.setAbstract(manuscript.getAbstract());
             }
             // set publicationDate
-            if (manuscript.publicationDate != null) {
-                dataPackage.setBlackoutUntilDate(manuscript.publicationDate);
+            if (manuscript.getPublicationDate() != null) {
+                dataPackage.setBlackoutUntilDate(manuscript.getPublicationDate());
             }
         }
     }
@@ -296,7 +295,7 @@ public class ApproveRejectReviewItem {
             dataPackage.setManuscriptNumber(null);
             // disjoin keywords
             List<String> packageKeywords = dataPackage.getKeywords();
-            List<String> manuscriptKeywords = manuscript.keywords;
+            List<String> manuscriptKeywords = manuscript.getKeywords();
             List<String> prunedKeywords = subtractList(packageKeywords, manuscriptKeywords);
 
             dataPackage.setKeywords(prunedKeywords);
