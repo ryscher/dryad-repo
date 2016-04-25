@@ -291,12 +291,8 @@
             <div id="submit-data-sidebar-box" class="home-col-2 simple-box" style="padding: 8px 34px; width: 230px; margin: 8px 0 12px;">
                 <div class="ds-static-div primary" id="file_news_div_news" style="height: 75px;">
                     <p class="ds-paragraph">
-                        <a class="submitnowbutton">
-                            <xsl:attribute name="href">
-                                <xsl:value-of select="/dri:document/dri:options/dri:list[@n='submitNow']/dri:item[@n='submitnowitem']/dri:xref[@rend='submitnowbutton']/@target"/>
-                            </xsl:attribute>
-			    <xsl:text>Submit data now</xsl:text>
-                        </a>
+		      <!-- The next line should remain as one piece (without linebreaks) to allow it to be matched and replaced with mod_substitute on read-only servers -->
+                        <a class="submitnowbutton"><xsl:attribute name="href"><xsl:value-of select="/dri:document/dri:options/dri:list[@n='submitNow']/dri:item[@n='submitnowitem']/dri:xref[@rend='submitnowbutton']/@target"/></xsl:attribute><xsl:text>Submit data now</xsl:text></a>
                     </p>
                     <p style="margin: 14px 0 4px;">
                         <a href="/pages/faq#deposit">How and why?</a>
@@ -604,22 +600,6 @@
 	  </div>
     </xsl:template>
 
-    <xsl:template match="dri:options/dri:list[@n='large-data-packages']" priority="3">
-        <div class="NOT-simple-box">
-            <h1 class="ds-div-head ds_large_data_package_head" id="ds_large_data_package_head">Large data packages</h1>
-            <div id="ds_large_data_package" class="ds-static-div primary" style="font-size: 14px;">
-                <p style="margin-bottom: 0;">
-                    Note that for data packages over 10GB, submitters will
-                    be asked to pay an additional:
-                </p>
-                <ul>
-                    <li>$15 for the first GB beyond 10, and</li>
-                    <li>$10 for each GB thereafter.</li>
-                </ul> 
-            </div>      
-        </div>
-    </xsl:template>
-
     <xsl:template match="dri:options/dri:list[@n='human-subjects']" priority="3">
         <!-- note margin space added to top here -->
         <div class="NOT-simple-box ds-margin-top-20">
@@ -640,12 +620,8 @@
         <!-- START DEPOSIT -->
         <div class="ds-static-div primary" id="file_news_div_news">
             <p class="ds-paragraph">
-                <a class="submitnowbutton">
-                    <xsl:attribute name="href">
-                        <xsl:value-of select="/dri:document/dri:options/dri:list[@n='submitNow']/dri:item[@n='submitnowitem']/dri:xref[@rend='submitnowbutton']/@target"/>
-                    </xsl:attribute>
-                    Submit data now
-                </a>
+	      <!-- The next line should remain as one piece (without linebreaks) to allow it to be matched and replaced with mod_substitute on read-only servers -->
+                <a class="submitnowbutton"><xsl:attribute name="href"><xsl:value-of select="/dri:document/dri:options/dri:list[@n='submitNow']/dri:item[@n='submitnowitem']/dri:xref[@rend='submitnowbutton']/@target"/></xsl:attribute>Submit data now</a>
             </p>
             <p style="margin: 1em 0 4px;">
                 <a href="/pages/faq#deposit">How and why?</a>

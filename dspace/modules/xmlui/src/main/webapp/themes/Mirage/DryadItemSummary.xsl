@@ -157,74 +157,36 @@
                     </p>
                     <div class="citation-sample">
                         <xsl:call-template name="make-author-string"/>
-                        <xsl:choose>
-                            <xsl:when test="$meta[@element='date'][@qualifier='issued']">
-                                <xsl:value-of select="$meta[@element='date'][@qualifier='issued']"/>
-                            </xsl:when>
-                            <xsl:when test="$meta[@element='dateIssued'][@qualifier='package']">
-                                <xsl:value-of
-                                        select="$meta[@element='dateIssued'][@qualifier='package']"/>
-                            </xsl:when>
-                        </xsl:choose>
-                        <xsl:text> </xsl:text>
-                        <xsl:variable name="title"
-                                      select="$meta[@element='title'][@qualifier='package']"/>
-                        <xsl:value-of select="$title"/>
-                        <span>
-                            <i18n:text>xmlui.DryadItemSummary.dryadRepo</i18n:text>
-                        </span>
-                        <!-- if Item not_archived don't add the link. -->
-                        <xsl:variable name="id" select="$meta[@element='identifier'][@qualifier='package']"/>
-			<xsl:text> </xsl:text>
-                        <xsl:choose>
-                            <xsl:when
-                                    test="not(/mets:METS/mets:dmdSec/mets:mdWrap/mets:xmlData/dim:dim/dim:field[@mdschema='dc'][@element='date' ][@qualifier='accessioned'])">
+                        <xsl:call-template name="package-citation">
+                            <xsl:with-param name="package_doi">
+                                <xsl:variable name="id" select="$meta[@element='identifier'][@qualifier='package']"/>
                                 <xsl:choose>
                                     <xsl:when test="starts-with($id, 'doi')">
-                                        <xsl:value-of  select="concat('http://dx.doi.org/', substring-after($id, 'doi:'))"/>
+                                        <xsl:value-of
+                                                select="concat('http://dx.doi.org/', substring-after($id, 'doi:'))"/>
                                     </xsl:when>
                                     <xsl:when test="starts-with($id,'http://dx.doi')">
-                                      <xsl:value-of select="$id"/>
+                                        <xsl:value-of select="$id"/>
                                     </xsl:when>
                                     <xsl:otherwise>
                                         <xsl:value-of select="concat('http://hdl.handle.net/', $id)"/>
                                     </xsl:otherwise>
                                 </xsl:choose>
-                            </xsl:when>
-                            <xsl:otherwise>
-                                <a>
-                                    <!-- link -->
-                                    <xsl:attribute name="href">
-                                        <xsl:choose>
-                                            <xsl:when test="starts-with($id, 'doi')">
-                                                <xsl:value-of
-                                                        select="concat('http://dx.doi.org/', substring-after($id, 'doi:'))"/>
-                                            </xsl:when>
-                                            <xsl:when test="starts-with($id,'http://dx.doi')">
-                                               <xsl:value-of select="$id"/>
-                                             </xsl:when>
-                                            <xsl:otherwise>
-                                                <xsl:value-of select="concat('http://hdl.handle.net/', $id)"/>
-                                            </xsl:otherwise>
-                                        </xsl:choose>
-                                    </xsl:attribute>
 
-                                    <!-- text -->
-                                    <xsl:choose>
-                                        <xsl:when test="starts-with($id, 'doi')">
-                                            <xsl:value-of 
-                                                        select="concat('http://dx.doi.org/', substring-after($id, 'doi:'))"/>
-                                        </xsl:when>
-                                        <xsl:when test="starts-with($id,'http://dx.doi')">
-                                           <xsl:value-of select="$id"/>
-                                         </xsl:when>
-                                        <xsl:otherwise>
-                                            <xsl:value-of select="concat('http://hdl.handle.net/', $id)"/>
-                                        </xsl:otherwise>
-                                    </xsl:choose>
-                                </a>
-                            </xsl:otherwise>
-                        </xsl:choose>
+                            </xsl:with-param>
+                            <xsl:with-param name="date">
+                                <xsl:choose>
+                                    <xsl:when test="$meta[@element='date'][@qualifier='issued']">
+                                        <xsl:value-of select="$meta[@element='date'][@qualifier='issued']"/>
+                                    </xsl:when>
+                                    <xsl:when test="$meta[@element='dateIssued'][@qualifier='package']">
+                                        <xsl:value-of select="$meta[@element='dateIssued'][@qualifier='package']"/>
+                                    </xsl:when>
+                                </xsl:choose>
+                            </xsl:with-param>
+                            <xsl:with-param name="title" select="$meta[@element='title'][@qualifier='package']"/>
+                            <xsl:with-param name="date_accessioned" select="/mets:METS/mets:dmdSec/mets:mdWrap/mets:xmlData/dim:dim/dim:field[@mdschema='dc'][@element='date' ][@qualifier='accessioned']"/>
+                        </xsl:call-template>
                     </div>
                     <!-- only show citation/share if viewing from page with real handle (not in process) -->
                     <xsl:if
@@ -437,85 +399,26 @@
                         </p>
                         <div class="citation-sample">
                             <xsl:call-template name="make-author-string"/>
-                            <xsl:choose>
-                                <xsl:when test=".//dim:field[@element='date'][@qualifier='issued']">
-                                    <xsl:text> </xsl:text>
-                                    <xsl:value-of
-                                            select="concat('(', substring(.//dim:field[@element='date'][@qualifier='issued'], 1, 4), ') ')"/>
-                                </xsl:when>
-                                <xsl:otherwise>
-                                    <xsl:text>. </xsl:text>
-                                </xsl:otherwise>
-                            </xsl:choose>
-                            <xsl:choose>
-                                <xsl:when test="not(.//dim:field[@element='title'])">
-                                    <xsl:text> </xsl:text>
-                                </xsl:when>
-                                <xsl:otherwise>
-                                    <xsl:variable name="title"
-                                                  select=".//dim:field[@element='title']/node()"/>
-                                    <xsl:if test="not(starts-with($title, 'Data from: '))">
-                                        <i18n:text>xmlui.DryadItemSummary.dataFrom</i18n:text>
-                                    </xsl:if>
-                                    <xsl:value-of select="$title"/>
-                                    <xsl:variable name="titleEndChar"
-                                                  select="substring($title, string-length($title), 1)"/>
+                            <xsl:call-template name="package-citation">
+                                <xsl:with-param name="date" select=".//dim:field[@element='date'][@qualifier='issued']"/>
+                                <xsl:with-param name="title" select=".//dim:field[@element='title']"/>
+                                <xsl:with-param name="date_accessioned" select="/mets:METS/mets:dmdSec/mets:mdWrap/mets:xmlData/dim:dim/dim:field[@mdschema='dc'][@element='date' ][@qualifier='accessioned']"/>
+                                <xsl:with-param name="package_doi">
                                     <xsl:choose>
-                                        <xsl:when test="$titleEndChar != '.' and $titleEndChar != '?'">
-                                            <xsl:text>. </xsl:text>
+                                        <xsl:when test="$my_doi">
+                                            <xsl:value-of
+                                                    select="concat('http://dx.doi.org/', substring-after($my_doi, 'doi:'))"/>
+                                        </xsl:when>
+                                        <xsl:when test="$my_full_doi">
+                                            <xsl:value-of select="$my_full_doi"/>
                                         </xsl:when>
                                         <xsl:otherwise>
-                                            <xsl:text>&#160;</xsl:text>
+                                            <xsl:value-of select="$my_uri"/>
                                         </xsl:otherwise>
                                     </xsl:choose>
-                                </xsl:otherwise>
-                            </xsl:choose>
-                            <span>
-                                <i18n:text>xmlui.DryadItemSummary.dryadRepo</i18n:text>
-                            </span>
-
-                            <!-- if Item not_archived don't add the link. -->
-                            <xsl:choose>
-                                <xsl:when
-                                        test="not(/mets:METS/mets:dmdSec/mets:mdWrap/mets:xmlData/dim:dim/dim:field[@mdschema='dc'][@element='date' ][@qualifier='accessioned'])">
-                                    <xsl:value-of select="$my_doi"/>
-                                </xsl:when>
-                                <xsl:otherwise>
-                                    <a>
-                                        <!-- href -->
-                                        <xsl:attribute name="href">
-                                            <xsl:choose>
-                                                <xsl:when test="$my_doi">
-                                                    <xsl:value-of
-                                                            select="concat('http://dx.doi.org/', substring-after($my_doi, 'doi:'))"/>
-                                                </xsl:when>
-                                                <xsl:when test="$my_full_doi">
-                                                  <xsl:value-of select="$my_full_doi"/>
-                                                </xsl:when>
-                                                <xsl:otherwise>
-                                                    <xsl:value-of select="$my_uri"/>
-                                                </xsl:otherwise>
-                                            </xsl:choose>
-                                        </xsl:attribute>
-
-                                        <!-- text -->
-                                        <xsl:choose>
-                                            <xsl:when test="$my_doi">
-                                                <xsl:value-of
-                                                            select="concat('http://dx.doi.org/', substring-after($my_doi, 'doi:'))"/>
-                                            </xsl:when>
-                                           <xsl:when test="$my_full_doi">
-                                              <xsl:value-of select="$my_full_doi"/>
-                                            </xsl:when>
-                                            <xsl:otherwise>
-                                                <xsl:value-of select="$my_uri"/>
-                                            </xsl:otherwise>
-                                        </xsl:choose>
-
-                                    </a>
-                                </xsl:otherwise>
-                            </xsl:choose>
-                        </div>
+                                </xsl:with-param>
+                            </xsl:call-template>
+                       </div>
                     </xsl:if>
                     <!-- only show citation/share if viewing from page with real handle (not in process) -->
                     <xsl:if
@@ -1334,30 +1237,97 @@
 
     </xsl:template>
 
+    <xsl:template name="package-citation">
+        <xsl:param name="date"/>
+        <xsl:param name="title"/>
+        <xsl:param name="date_accessioned"/>
+        <xsl:param name="package_doi"/>
+
+        <xsl:choose>
+            <xsl:when test="string-length($date) > 0">
+                <xsl:text> </xsl:text>
+                <xsl:choose>
+                    <xsl:when test="not(starts-with($date, '('))">
+                        <xsl:value-of select="concat('(', substring($date, 1, 4), ')')"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="$date"/>
+                    </xsl:otherwise>
+                </xsl:choose>
+                <xsl:text> </xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:text>. </xsl:text>
+            </xsl:otherwise>
+        </xsl:choose>
+        <xsl:choose>
+            <xsl:when test="not($title)">
+                <xsl:text> </xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:if test="not(starts-with($title, 'Data from: '))">
+                    <i18n:text>xmlui.DryadItemSummary.dataFrom</i18n:text>
+                </xsl:if>
+                <xsl:variable name="clean-title" select="normalize-space($title)"/>
+                <xsl:value-of select="$clean-title"/>
+                <xsl:variable name="titleEndChar" select="substring($clean-title, string-length($clean-title), 1)"/>
+                <xsl:choose>
+                    <xsl:when test="$titleEndChar != '.' and $titleEndChar != '?'">
+                        <xsl:text>. </xsl:text>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:text> </xsl:text>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:otherwise>
+        </xsl:choose>
+        <span>
+            <i18n:text>xmlui.DryadItemSummary.dryadRepo</i18n:text>
+        </span>
+
+        <!-- if Item not_archived don't add the link. -->
+        <xsl:choose>
+            <xsl:when test="not($date_accessioned)">
+                <xsl:value-of select="$package_doi"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <a>
+                    <!-- href -->
+                    <xsl:attribute name="href">
+                        <xsl:value-of select="$package_doi"/>
+                    </xsl:attribute>
+
+                    <!-- text -->
+                    <xsl:value-of select="$package_doi"/>
+                </a>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
+
     <!-- this generates the linked journal image - should find a way to drive this from the DryadJournalSubmission.properties file -->
     <xsl:template name="journal-lookup">
         <xsl:param name="journal-name"/>
         <xsl:param name="article-doi"/>
         <xsl:choose>
         
-        	<xsl:when test='$journal-name = "American Journal of Botany"'>
-            	<a target="_blank">
-                	<xsl:attribute name="href">
-                    	<xsl:choose>
-                        	<xsl:when test="contains($article-doi,'doi:')">
-                            	<xsl:value-of
-                                    	select="concat('http://dx.doi.org/', substring-after($article-doi, 'doi:'))"/>
-                        	</xsl:when>
-                        	<xsl:otherwise>
-                            	<xsl:value-of
-                                    	select="string('http://www.amjbot.org/')"/>
-                        	</xsl:otherwise>
-                    	</xsl:choose>
-                	</xsl:attribute>
-                	<img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/AMJBOTCover.png"
-                    	alt="American Journal of Botany cover"/>
-            	</a>
-        	</xsl:when>        
+          	<xsl:when test='$journal-name = "American Journal of Botany"'>
+              	<a target="_blank">
+                  	<xsl:attribute name="href">
+                      	<xsl:choose>
+                          	<xsl:when test="contains($article-doi,'doi:')">
+                              	<xsl:value-of
+                                      	select="concat('http://dx.doi.org/', substring-after($article-doi, 'doi:'))"/>
+                          	</xsl:when>
+                          	<xsl:otherwise>
+                              	<xsl:value-of
+                                      	select="string('http://www.amjbot.org/')"/>
+                          	</xsl:otherwise>
+                      	</xsl:choose>
+                  	</xsl:attribute>
+                  	<img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/AMJBOTCover.png"
+                      	alt="American Journal of Botany cover"/>
+              	</a>
+          	</xsl:when> 
             <xsl:when test='$journal-name = "The American Naturalist"'>
                 <a target="_blank">
                     <xsl:attribute name="href">
@@ -1373,6 +1343,24 @@
                     </xsl:attribute>
                     <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/amNat.png"
                          alt="The American Naturalist cover"/>
+                </a>
+            </xsl:when>
+                <xsl:when test='$journal-name = "Applications in Plant Sciences"'>
+                <a target="_blank">
+                    <xsl:attribute name="href">
+                        <xsl:choose>
+                            <xsl:when test="contains($article-doi,'doi:')">
+                                <xsl:value-of
+                                        select="concat('http://dx.doi.org/', substring-after($article-doi, 'doi:'))"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:value-of
+                                        select="string('http://www.bioone.org/loi/apps')"/>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:attribute>
+                    <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/APPS.png"
+                         alt="Applications in Plant Sciences cover"/>
                 </a>
             </xsl:when>
             <xsl:when test='$journal-name = "Basic and Applied Ecology"'>
@@ -1393,7 +1381,24 @@
                          alt="Basic and Applied Ecology cover"/>
                 </a>
             </xsl:when>
-            
+            <xsl:when test='$journal-name = "Behavioral Ecology"'>
+                <a target="_blank">
+                    <xsl:attribute name="href">
+                        <xsl:choose>
+                            <xsl:when test="contains($article-doi,'doi:')">
+                                <xsl:value-of
+                                        select="concat('http://dx.doi.org/', substring-after($article-doi, 'doi:'))"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:value-of
+                                        select="string('http://beheco.oxfordjournals.org/')"/>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:attribute>
+                    <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/BEHECOCover.png"
+                         alt="Behavioral Ecology cover"/>
+                </a>
+            </xsl:when>
             <xsl:when test='$journal-name = "Biodiversity Data Journal"'>
             	<a target="_blank">
                 	<xsl:attribute name="href">
@@ -1447,6 +1452,26 @@
                          alt="Biology Letters cover"/>
                 </a>
             </xsl:when>
+            
+			<xsl:when test='$journal-name = "Biology Open"'>
+				<a target="_blank">
+					<xsl:attribute name="href">
+						<xsl:choose>
+							<xsl:when test="contains($article-doi,'doi:')">
+								<xsl:value-of
+										select="concat('http://dx.doi.org/', substring-after($article-doi, 'doi:'))"/>
+							</xsl:when>
+							<xsl:otherwise>
+								<xsl:value-of
+										select="string('http://bio.biologists.org/')"/>
+							</xsl:otherwise>
+						</xsl:choose>
+					</xsl:attribute>
+					<img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/BIOLOPEN_cover.png"
+						 alt="Biology Open cover"/>
+				</a>
+			</xsl:when>
+            
             <xsl:when test='$journal-name = "BioRisk"'>
                 <a target="_blank">
                     <xsl:attribute name="href">
@@ -1462,6 +1487,42 @@
                     </xsl:attribute>
                     <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/biorisk.png"
                          alt="BioRisk cover"/>
+                </a>
+            </xsl:when>
+            <xsl:when test='$journal-name = "Bioscience"'>
+                <a target="_blank">
+                    <xsl:attribute name="href">
+                        <xsl:choose>
+                            <xsl:when test="contains($article-doi,'doi:')">
+                                <xsl:value-of
+                                        select="concat('http://dx.doi.org/', substring-after($article-doi, 'doi:'))"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:value-of
+                                        select="string('http://bioscience.oxfordjournals.org/')"/>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:attribute>
+                    <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/BIOSCICover.png"
+                         alt="Bioscience cover"/>
+                </a>
+            </xsl:when>
+            <xsl:when test='$journal-name = "Biotropica"'>
+                <a target="_blank">
+                    <xsl:attribute name="href">
+                        <xsl:choose>
+                            <xsl:when test="contains($article-doi,'doi:')">
+                                <xsl:value-of
+                                        select="concat('http://dx.doi.org/', substring-after($article-doi, 'doi:'))"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:value-of
+                                        select="string('http://onlinelibrary.wiley.com/journal/10.1111/(ISSN)1744-7429/')"/>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:attribute>
+                    <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/BITRCover.png"
+                         alt="Biotropica cover"/>
                 </a>
             </xsl:when>
             <xsl:when test='$journal-name = "BMC Ecology"'>
@@ -1606,6 +1667,45 @@
                          alt="Deutsche Entomologische Zeitschrift cover"/>
                 </a>
             </xsl:when>
+            
+			<xsl:when test='$journal-name = "Development"'>
+				<a target="_blank">
+					<xsl:attribute name="href">
+						<xsl:choose>
+							<xsl:when test="contains($article-doi,'doi:')">
+								<xsl:value-of
+										select="concat('http://dx.doi.org/', substring-after($article-doi, 'doi:'))"/>
+							</xsl:when>
+							<xsl:otherwise>
+								<xsl:value-of
+										select="string('http://dev.biologists.org/')"/>
+							</xsl:otherwise>
+						</xsl:choose>
+					</xsl:attribute>
+					<img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/DEVELOPMENT_cover.png"
+						 alt="Development cover"/>
+				</a>
+			</xsl:when>
+
+			<xsl:when test='$journal-name = "Disease Models &amp; Mechanisms"'>
+				<a target="_blank">
+					<xsl:attribute name="href">
+						<xsl:choose>
+							<xsl:when test="contains($article-doi,'doi:')">
+								<xsl:value-of
+										select="concat('http://dx.doi.org/', substring-after($article-doi, 'doi:'))"/>
+							</xsl:when>
+							<xsl:otherwise>
+								<xsl:value-of
+										select="string('http://dmm.biologists.org/')"/>
+							</xsl:otherwise>
+						</xsl:choose>
+					</xsl:attribute>
+					<img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/DMM_cover.png"
+						 alt="Disease Models &amp; Mechanisms cover"/>
+				</a>
+			</xsl:when>
+            
             <xsl:when test='$journal-name = "Ecography"'>
                 <a target="_blank">
                     <xsl:attribute name="href">
@@ -1739,12 +1839,31 @@
                             </xsl:when>
                             <xsl:otherwise>
                                 <xsl:value-of
-                                        select="string('http://http://www.elifesciences.org/the-journal/')"/>
+                                        select="string('http://www.elifesciences.org/the-journal/')"/>
                             </xsl:otherwise>
                         </xsl:choose>
                     </xsl:attribute>
                     <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/eLifeCover.png"
                          alt="eLife logo"/>
+                </a>
+            </xsl:when>
+
+            <xsl:when test='$journal-name = "Environmental Epigenetics"'>
+                <a target="_blank">
+                    <xsl:attribute name="href">
+                        <xsl:choose>
+                            <xsl:when test="contains($article-doi,'doi:')">
+                                <xsl:value-of
+                                        select="concat('http://dx.doi.org/', substring-after($article-doi, 'doi:'))"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:value-of
+                                        select="string('http://eep.oxfordjournals.org/')"/>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:attribute>
+                    <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/ENVEPICover.png"
+                         alt="Environmental Epigenetics cover"/>
                 </a>
             </xsl:when>
             
@@ -1851,7 +1970,7 @@
                             </xsl:otherwise>
                         </xsl:choose>
                     </xsl:attribute>
-                    <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/gms_ejournal.png"
+                    <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/GMSCover.png"
                          alt="German Medical Science cover"/>
                 </a>
             </xsl:when>
@@ -1869,7 +1988,7 @@
                             </xsl:otherwise>
                         </xsl:choose>
                     </xsl:attribute>
-                    <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/GMSMIBEcover.gif"
+                    <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/GMSCover.png"
                          alt="Cover of GMS Medizinische Informatik, Biometrie und Epidemiologie"/>
                 </a>
             </xsl:when>
@@ -1887,7 +2006,7 @@
                             </xsl:otherwise>
                         </xsl:choose>
                     </xsl:attribute>
-                    <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/logo_gpras.png"
+                    <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/GMSCover.png"
                          alt="GMS German Plastic, Reconstructive and Aesthetic Surgery cover"/>
                 </a>
             </xsl:when>
@@ -1905,7 +2024,7 @@
                             </xsl:otherwise>
                         </xsl:choose>
                     </xsl:attribute>
-                    <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/logo_id.png"
+                    <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/GMSCover.png"
                          alt="GMS Infectious Diseases cover"/>
                 </a>
             </xsl:when>
@@ -1923,7 +2042,7 @@
                             </xsl:otherwise>
                         </xsl:choose>
                     </xsl:attribute>
-                    <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/logo_iprs_klein.png"
+                    <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/GMSCover.png"
                          alt="GMS Interdisciplinary Plastic and Reconstructive Surgery DGPW cover"/>
                 </a>
             </xsl:when>
@@ -1941,7 +2060,7 @@
                             </xsl:otherwise>
                         </xsl:choose>
                     </xsl:attribute>
-                    <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/logo_dgho.png"
+                    <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/GMSCover.png"
                          alt="GMS Onkologische Rehabilitation und Sozialmedizin cover"/>
                 </a>
             </xsl:when>
@@ -1959,7 +2078,7 @@
                             </xsl:otherwise>
                         </xsl:choose>
                     </xsl:attribute>
-                    <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/logo_gma_klein.png"
+                    <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/GMSCover.png"
                          alt="GMS Zeitschrift für Medizinische Ausbildung cover"/>
                 </a>
             </xsl:when>
@@ -1977,7 +2096,7 @@
                             </xsl:otherwise>
                         </xsl:choose>
                     </xsl:attribute>
-                    <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/logo_lab.png"
+                    <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/GMSCover.png"
                          alt="GMS Zeitschrift zur Förderung der Qualitätssicherung in medizinischen Laboratorien cover"/>
                 </a>
             </xsl:when>
@@ -2083,6 +2202,26 @@
                          alt="Journal of Avian Biology cover"/>
                 </a>
             </xsl:when>
+            
+			<xsl:when test='$journal-name = "Journal of Cell Science"'>
+				<a target="_blank">
+					<xsl:attribute name="href">
+						<xsl:choose>
+							<xsl:when test="contains($article-doi,'doi:')">
+								<xsl:value-of
+										select="concat('http://dx.doi.org/', substring-after($article-doi, 'doi:'))"/>
+							</xsl:when>
+							<xsl:otherwise>
+								<xsl:value-of
+										select="string('http://jcs.biologists.org/')"/>
+							</xsl:otherwise>
+						</xsl:choose>
+					</xsl:attribute>
+					<img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/JOCES_cover.png"
+						 alt="Journal of Cell Science cover"/>
+				</a>
+			</xsl:when>
+            
             <xsl:when test='$journal-name = "Journal of Ecology"'>
                 <a target="_blank">
                     <xsl:attribute name="href">
@@ -2203,6 +2342,43 @@
                          alt="Journal of Paleontology cover"/>
                 </a>
             </xsl:when>
+            <xsl:when test='$journal-name = "Journal of Systematics and Evolution"'>
+                <a target="_blank">
+                    <xsl:attribute name="href">
+                        <xsl:choose>
+                            <xsl:when test="contains($article-doi,'doi:')">
+                                <xsl:value-of
+                                        select="concat('http://dx.doi.org/', substring-after($article-doi, 'doi:'))"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:value-of
+                                        select="string('http://onlinelibrary.wiley.com/journal/10.1111/(ISSN)1759-6831 JSE_Cover.png')"/>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:attribute>
+                    <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/JSE_Cover.png"
+                         alt="Journal of Systematics and Evolution cover"/>
+                </a>
+            </xsl:when>
+            <xsl:when test='$journal-name = "Journal of Urban Ecology"'>
+                <a target="_blank">
+                    <xsl:attribute name="href">
+                        <xsl:choose>
+                            <xsl:when test="contains($article-doi,'doi:')">
+                                <xsl:value-of
+                                        select="concat('http://dx.doi.org/', substring-after($article-doi, 'doi:'))"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:value-of
+                                        select="string('http://jue.oxfordjournals.org/')"/>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:attribute>
+                    <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/JUECOLCover.png"
+                         alt="Journal of Urban Ecology cover"/>
+                </a>
+            </xsl:when>
+
             <xsl:when test='$journal-name = "Methods in Ecology and Evolution"'>
                 <a target="_blank">
                     <xsl:attribute name="href">
@@ -2747,6 +2923,64 @@
                          alt="Systematic Botany cover"/>
                 </a>
             </xsl:when>
+
+            <xsl:when test='$journal-name = "Toxicological Sciences"'>
+                <a target="_blank">
+                    <xsl:attribute name="href">
+                        <xsl:choose>
+                            <xsl:when test="contains($article-doi,'doi:')">
+                                <xsl:value-of
+                                        select="concat('http://dx.doi.org/', substring-after($article-doi, 'doi:'))"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:value-of
+                                        select="string('http://toxsci.oxfordjournals.org/')"/>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:attribute>
+                    <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/TOXSCICover.png"
+                         alt="Toxicological Sciences cover"/>
+                </a>
+            </xsl:when>
+
+            <xsl:when test='$journal-name = "Virus Evolution"'>
+                <a target="_blank">
+                    <xsl:attribute name="href">
+                        <xsl:choose>
+                            <xsl:when test="contains($article-doi,'doi:')">
+                                <xsl:value-of
+                                        select="concat('http://dx.doi.org/', substring-after($article-doi, 'doi:'))"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:value-of
+                                        select="string('http://ve.oxfordjournals.org/')"/>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:attribute>
+                    <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/VEVOLUCover.png"
+                         alt="Virus Evolution cover"/>
+                </a>
+            </xsl:when>
+
+            <xsl:when test='$journal-name = "Work, Aging and Retirement"'>
+                <a target="_blank">
+                    <xsl:attribute name="href">
+                        <xsl:choose>
+                            <xsl:when test="contains($article-doi,'doi:')">
+                                <xsl:value-of
+                                        select="concat('http://dx.doi.org/', substring-after($article-doi, 'doi:'))"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:value-of
+                                        select="string('http://workar.oxfordjournals.org/')"/>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:attribute>
+                    <img class="pub-cover" id="journal-logo" src="/themes/Dryad/images/coverimages/WORKARCover.png"
+                         alt="Work, Aging and Retirement cover"/>
+                </a>
+            </xsl:when>
+
             <xsl:when test='$journal-name = "ZooKeys"'>
                 <a target="_blank">
                     <xsl:attribute name="href">
