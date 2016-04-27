@@ -43,7 +43,7 @@ import java.util.Date;
  */
 public class FinalPaymentAction extends ProcessingAction {
 
-    private static Logger log = Logger.getLogger(DryadReviewAction.class);
+    private static Logger log = Logger.getLogger(FinalPaymentAction.class);
 
 
 
