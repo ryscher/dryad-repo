@@ -4,23 +4,13 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.datadryad.rest.models.Manuscript;
-import org.datadryad.rest.models.Author;
-import org.datadryad.rest.models.AuthorsList;
 import org.datadryad.api.DryadJournalConcept;
+import org.datadryad.rest.storage.StorageException;
 import org.dspace.JournalUtils;
-import org.dspace.content.authority.Concept;
 import org.dspace.core.ConfigurationManager;
-import org.dspace.core.Context;
-import org.dspace.core.Email;
-import org.dspace.core.I18nUtil;
 import org.dspace.workflow.ApproveRejectReviewItem;
-import org.dspace.workflow.ApproveRejectReviewItemException;
 import org.dspace.servicemanager.DSpaceKernelImpl;
 import org.dspace.servicemanager.DSpaceKernelInit;
-import org.dspace.workflow.WorkflowItem;
-import org.dspace.content.Item;
-import org.dspace.content.ItemIterator;
-import org.dspace.content.DCValue;
 
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -33,10 +23,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.lang.Runtime;
 import java.lang.RuntimeException;
-import java.lang.reflect.Array;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -338,49 +325,52 @@ public class DryadEmailSubmission extends HttpServlet {
             parser = getEmailParser(journalConcept.getParsingScheme());
             parser.parseMessage(dryadContent);
             manuscript = parser.getManuscript();
-            // make sure that the manuscript has the journalCode even if we found the parser by name:
-            manuscript.getOrganization().organizationCode = journalCode;
         } catch (SubmissionException e) {
             throw new SubmissionException("Journal " + journalCode + " parsing scheme not found");
         }
         if ((manuscript != null) && (manuscript.isValid())) {
             // edit the manuscript ID to the canonical one:
             manuscript.setManuscriptId(JournalUtils.getCanonicalManuscriptID(manuscript));
-            JournalUtils.writeManuscriptToDB(manuscript);
-            LOGGER.debug ("this ms has status " + manuscript.getStatus());
-            Boolean approved = null;
+            try {
+                JournalUtils.writeManuscriptToDB(manuscript);
+                LOGGER.debug("this ms has status " + manuscript.getStatus());
+                Boolean approved = null;
 
-            if (manuscript.isAccepted()) {
-                approved = true;
-            } else if (manuscript.isRejected()) {
-                approved = false;
-            } else if (manuscript.isNeedsRevision()) {
-                approved = false;
-            } else if (manuscript.isPublished()) {
-                approved = true;
-            }
-
-            // if the status was "submitted," approved will still be null and we won't try to process any items.
-            if (approved != null) {
-                DSpaceKernelImpl kernelImpl = null;
-                try {
-                    kernelImpl = DSpaceKernelInit.getKernel(null);
-                    if (!kernelImpl.isRunning()) {
-                        kernelImpl.start(ConfigurationManager.getProperty("dspace.dir"));
-                    }
-                } catch (Exception ex) {
-                    // Failed to start so destroy it and log and throw an exception
-                    try {
-                        if(kernelImpl != null) {
-                            kernelImpl.destroy();
-                        }
-                    } catch (Exception e1) {
-                        // Nothing to do
-                    }
-                    LOGGER.error("Error Initializing DSpace kernel in ManuscriptReviewStatusChangeHandler", ex);
+                if (manuscript.isAccepted()) {
+                    approved = true;
+                } else if (manuscript.isRejected()) {
+                    approved = false;
+                } else if (manuscript.isNeedsRevision()) {
+                    approved = false;
+                } else if (manuscript.isPublished()) {
+                    approved = true;
                 }
 
-                ApproveRejectReviewItem.reviewManuscript(manuscript);
+                // if the status was "submitted," approved will still be null and we won't try to process any items.
+                if (approved != null) {
+                    DSpaceKernelImpl kernelImpl = null;
+                    try {
+                        kernelImpl = DSpaceKernelInit.getKernel(null);
+                        if (!kernelImpl.isRunning()) {
+                            kernelImpl.start(ConfigurationManager.getProperty("dspace.dir"));
+                        }
+                    } catch (Exception ex) {
+                        // Failed to start so destroy it and log and throw an exception
+                        try {
+                            if (kernelImpl != null) {
+                                kernelImpl.destroy();
+                            }
+                        } catch (Exception e1) {
+                            // Nothing to do
+                        }
+                        LOGGER.error("Error Initializing DSpace kernel in ManuscriptReviewStatusChangeHandler", ex);
+                    }
+
+                    ApproveRejectReviewItem.reviewManuscript(manuscript);
+                }
+            } catch (StorageException e) {
+                LOGGER.error("failed to write ms " + manuscript.getManuscriptId());
+                throw new SubmissionException("failed to write ms " + manuscript.getManuscriptId(), e);
             }
         } else {
             throw new SubmissionException("Parser could not validly parse the message");

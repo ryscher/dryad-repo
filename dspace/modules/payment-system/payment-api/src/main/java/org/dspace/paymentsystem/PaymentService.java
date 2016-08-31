@@ -35,7 +35,7 @@ import java.util.Date;
  * @author Fabio Bolognesi, fabio at atmire.com
  * @author Lantian Gai, lantian at atmire.com
  */
-public interface PaypalService
+public interface PaymentService
 {
     public String getSecureTokenId();
 
@@ -48,8 +48,6 @@ public interface PaypalService
     public boolean chargeCard(Context c, WorkflowItem wfi, HttpServletRequest request, ShoppingCart shoppingCart);
 
     public void generatePaypalForm(Division mandiv, ShoppingCart shoppingCart, String actionURL, String type,Context context) throws WingException, SQLException;
-
-    public void generateVoucherForm(Division form, String voucherCode, String actionURL, String knotId) throws WingException;
 
     public void generateNoCostForm(Division actionsDiv, ShoppingCart transaction, org.dspace.content.Item item, PaymentSystemConfigurationManager manager, PaymentSystemService paymentSystemService) throws WingException, SQLException;
 

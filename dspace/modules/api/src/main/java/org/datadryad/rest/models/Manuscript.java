@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.dspace.JournalUtils;
@@ -86,6 +87,7 @@ public class Manuscript {
 
     public static final List<String> SUBMITTED_STATUSES = Arrays.asList(
             STATUS_SUBMITTED,
+            STATUS_NEEDS_REVISION,
             "revision in review",
             "revision under review",
             "in review"
@@ -97,7 +99,6 @@ public class Manuscript {
 
     public static final List<String> REJECTED_STATUSES = Arrays.asList(
             STATUS_REJECTED,
-            STATUS_NEEDS_REVISION,
             "transferred",
             "rejected w/o review"
     );
@@ -121,7 +122,7 @@ public class Manuscript {
     private CorrespondingAuthor correspondingAuthor = new CorrespondingAuthor();
     private String dryadDataDOI;
     private String manuscriptId = "";
-    private String status = STATUS_ACCEPTED; // STATUS_ACCEPTED is the default
+    private String status = "";
     private String title = "";
     private String publicationDOI = "";
     private Date publicationDate;
@@ -159,9 +160,6 @@ public class Manuscript {
     @JsonIgnore
     private static final Logger log = Logger.getLogger(Manuscript.class);
 
-    @JsonIgnore
-    private Organization organization = new Organization();
-
     static {
         journalMetadata = new Properties();
 
@@ -189,13 +187,11 @@ public class Manuscript {
 
     public Manuscript(DryadJournalConcept journalConcept) {
         this.journalConcept = journalConcept;
-        this.setOrganization(new Organization(journalConcept));
     }
 
     public Manuscript(LegacyManuscript legacyManuscript) {
         DryadJournalConcept journalConcept = JournalUtils.getJournalConceptByJournalID(legacyManuscript.Journal_Code);
         this.setJournalConcept(journalConcept);
-        this.setOrganization(new Organization(journalConcept));
         // Required fields are: manuscriptID, status, authors (though author identifiers are optional), and title. All other fields are optional.
         this.manuscriptId = legacyManuscript.Submission_Metadata.Manuscript;
         this.title = legacyManuscript.Submission_Metadata.Article_Title;
@@ -251,14 +247,6 @@ public class Manuscript {
 
     public void setManuscriptId(String manuscriptId) {
         this.manuscriptId = manuscriptId;
-    }
-
-    public Organization getOrganization() {
-        return organization;
-    }
-
-    public void setOrganization(Organization organization) {
-        this.organization = organization;
     }
 
     public String getAbstract() {
@@ -667,7 +655,7 @@ public class Manuscript {
             } else {
                 citation.append(", online in advance of print.");
             }
-            fullCitation = citation.toString();
+            fullCitation = StringEscapeUtils.unescapeHtml(citation.toString());
         }
         return fullCitation;
     }

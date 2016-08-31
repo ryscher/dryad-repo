@@ -9,7 +9,6 @@ import org.datadryad.api.DryadJournalConcept;
 import org.datadryad.rest.converters.ManuscriptToLegacyXMLConverter;
 import org.datadryad.rest.models.Author;
 import org.datadryad.rest.models.Manuscript;
-import org.datadryad.rest.models.Organization;
 import org.datadryad.rest.storage.StorageException;
 import org.datadryad.rest.storage.StoragePath;
 import org.datadryad.rest.storage.rdbms.ManuscriptDatabaseStorageImpl;
@@ -48,6 +47,7 @@ public class JournalUtils {
     }
 
     public final static String crossRefApiRoot = "http://api.crossref.org/";
+    public final static String nsfApiRoot = "http://api.nsf.gov/services/v1/awards/";
 
     private static HashMap<String, DryadJournalConcept> journalConceptHashMapByConceptIdentifier = new HashMap<String, DryadJournalConcept>();
 
@@ -190,18 +190,30 @@ public class JournalUtils {
     }
 
     public static DryadJournalConcept getJournalConceptByJournalID(String journalID) {
+        if (journalID == null) {
+            return null;
+        }
         return journalConceptHashMapByJournalID.get(journalID.toUpperCase());
     }
 
     public static DryadJournalConcept getJournalConceptByJournalName(String fullName) {
+        if (fullName == null) {
+            return null;
+        }
         return journalConceptHashMapByJournalName.get(fullName.toUpperCase());
     }
 
     public static DryadJournalConcept getJournalConceptByCustomerID(String customerID) {
+        if (customerID == null) {
+            return null;
+        }
         return journalConceptHashMapByCustomerID.get(customerID);
     }
 
     public static DryadJournalConcept getJournalConceptByISSN(String ISSN) {
+        if (ISSN == null) {
+            return null;
+        }
         return journalConceptHashMapByISSN.get(ISSN);
     }
 
@@ -325,12 +337,14 @@ public class JournalUtils {
                 manuscriptStorage.create(storagePath, manuscript);
             } catch (StorageException ex) {
                 log.error("Exception creating manuscript", ex);
+                throw ex;
             }
         } else {
             try {
                 manuscriptStorage.update(storagePath, manuscript);
             } catch (StorageException ex) {
                 log.error("Exception updating manuscript", ex);
+                throw ex;
             }
         }
         return manuscript;
@@ -501,7 +515,6 @@ public class JournalUtils {
         }
 
         if (dryadJournalConcept != null) {
-            manuscript.setOrganization(new Organization(dryadJournalConcept));
             manuscript.setJournalConcept(dryadJournalConcept);
         }
         manuscript.setStatus(Manuscript.STATUS_PUBLISHED);
@@ -509,6 +522,43 @@ public class JournalUtils {
             manuscript.optionalProperties.put("crossref-score", String.valueOf(jsonNode.path("score").floatValue()));
         }
         return manuscript;
+    }
+
+    public static boolean isValidNSFGrantNumber(String grantInfo) {
+        if ("".equals(StringUtils.stripToEmpty(grantInfo))) {
+            return false;
+        }
+        Matcher matcher = Pattern.compile("^.*?(\\d+).*$").matcher(grantInfo);
+        if (matcher.find()) {
+            grantInfo = matcher.group(1);
+        }
+
+        String nsfAPIURL = nsfApiRoot + grantInfo + ".json";
+        log.error("checking " + nsfAPIURL);
+        try {
+            URL url = new URL(nsfAPIURL.replaceAll("\\s+", ""));
+            ObjectMapper m = new ObjectMapper();
+            JsonNode responseNode = m.readTree(url.openStream()).path("response");
+            if (responseNode != null) {
+                JsonNode awardNode = responseNode.path("award");
+                if (awardNode != null && awardNode.isArray()) {
+                    Iterator<JsonNode> awards = awardNode.elements();
+                    while (awards.hasNext()) {
+                        JsonNode award = awards.next();
+                        if (award.has("agency") && "NSF".equals(award.get("agency").textValue())) {
+                            if (award.has("id") && grantInfo.equals(award.get("id").textValue())) {
+                                log.error("valid grant number");
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.debug("Couldn't find JSON matching URL " + nsfAPIURL);
+
+        }
+        return false;
     }
 
 

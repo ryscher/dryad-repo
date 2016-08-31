@@ -403,7 +403,7 @@ public class PaymentSystemImpl implements PaymentSystemService {
                 payerName = "Country";
                 break;
             case ShoppingCart.JOUR_WAIVER:
-                payerName = "Journal";
+                payerName = "Sponsor";
                 break;
             case ShoppingCart.VOUCHER_WAIVER:
                 payerName = "Voucher";
@@ -470,7 +470,7 @@ public class PaymentSystemImpl implements PaymentSystemService {
                     format("Waiver Details", "Data Publishing Charge has been waived due to submitter's association with " + shoppingCart.getCountry() + ".");
                     break;
                 case ShoppingCart.JOUR_WAIVER:
-                    format("Waiver Details", "Data Publishing Charges are covered for all submissions to " + shoppingCart.getJournal() + ".");
+                    format("Waiver Details", "Your Data Publishing Charge is covered by " + shoppingCart.getJournal() + ".");
                     break;
                 case ShoppingCart.VOUCHER_WAIVER:
                     format("Waiver Details", "Voucher code applied to Data Publishing Charge.");
@@ -666,7 +666,7 @@ public class PaymentSystemImpl implements PaymentSystemService {
                 waiverMessage = "Data Publishing Charge has been waived due to submitter's association with " + shoppingCart.getCountry() + ".";
                 break;
             case ShoppingCart.JOUR_WAIVER:
-                waiverMessage = "Data Publishing Charges are covered for all submissions to " + shoppingCart.getJournal() + ".";
+                waiverMessage = "Your Data Publishing Charge is covered by " + shoppingCart.getJournal() + ".";
                 break;
             case ShoppingCart.VOUCHER_WAIVER:
                 waiverMessage = "Voucher code applied to Data Publishing Charge.";
@@ -727,7 +727,7 @@ public class PaymentSystemImpl implements PaymentSystemService {
         try {
             Email email = ConfigurationManager.getEmail(I18nUtil.getEmailFilename(c.getCurrentLocale(), "payment_error"));
             // only send result of shopping cart errors to administrators
-            email.addRecipient(ConfigurationManager.getProperty("payment-system", "dryad.paymentsystem.alert.recipient"));
+            email.addRecipient(ConfigurationManager.getProperty("payment-system", "dryad.paymentsystem.help.email"));
             email.addArgument(wfi.getItem().getName());
             email.addArgument(wfi.getItem().getID());
             email.addArgument(error);
@@ -769,7 +769,7 @@ public class PaymentSystemImpl implements PaymentSystemService {
             Email email = ConfigurationManager.getEmail(I18nUtil.getEmailFilename(c.getCurrentLocale(), "payment_rejected"));
             // temporarily only send result of shopping cart errors to administrators
             email.addRecipient(wfi.getSubmitter().getEmail());
-            email.addRecipient(ConfigurationManager.getProperty("payment-system", "dryad.paymentsystem.alert.recipient"));
+            email.addRecipient(ConfigurationManager.getProperty("payment-system", "dryad.paymentsystem.help.email"));
             email.addArgument(wfi.getItem().getName());
 
             email.addArgument(wfi.getSubmitter().getFullName() + " (" + wfi.getSubmitter().getEmail() + ")");
