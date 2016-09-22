@@ -2,10 +2,9 @@ package org.datadryad.submission;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.datadryad.rest.models.Address;
-import org.datadryad.rest.models.Author;
-import org.datadryad.rest.models.CorrespondingAuthor;
-import org.datadryad.rest.models.Manuscript;
+import org.datadryad.api.DryadJournalConcept;
+import org.datadryad.rest.models.*;
+import org.dspace.JournalUtils;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -159,8 +158,11 @@ public class EmailParser {
         manuscript.setStatus(dataForXML.remove(Manuscript.ARTICLE_STATUS).toLowerCase());
         manuscript.setTitle((String) dataForXML.remove(Manuscript.ARTICLE_TITLE));
 
-        manuscript.getOrganization().organizationCode = dataForXML.remove(Manuscript.JOURNAL_CODE);
-        manuscript.getOrganization().organizationName = dataForXML.remove(Manuscript.JOURNAL);
+        DryadJournalConcept journalConcept = JournalUtils.getJournalConceptByJournalID(dataForXML.remove(Manuscript.JOURNAL_CODE));
+        if (journalConcept == null) {
+            journalConcept = JournalUtils.getJournalConceptByJournalName(dataForXML.remove(Manuscript.JOURNAL));
+        }
+        manuscript.setJournalConcept(journalConcept);
 
         CorrespondingAuthor correspondingAuthor = manuscript.getCorrespondingAuthor();
         correspondingAuthor.author = new Author((String) dataForXML.remove(Manuscript.CORRESPONDING_AUTHOR));

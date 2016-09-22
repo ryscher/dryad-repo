@@ -8,11 +8,8 @@ import org.dspace.app.util.SubmissionInfo;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.*;
 import org.dspace.content.authority.Choices;
-import org.dspace.content.authority.Concept;
 import org.dspace.content.crosswalk.IngestionCrosswalk;
-import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
-import org.dspace.core.LogManager;
 import org.dspace.core.PluginManager;
 import org.dspace.submit.AbstractProcessingStep;
 import org.dspace.usagelogging.EventLogger;
@@ -45,6 +42,7 @@ public class SelectPublicationStep extends AbstractProcessingStep {
     public static final int ERROR_PUBMED_DOI = 8;
     public static final int ERROR_GENERIC = 9;
     public static final int ERROR_PUBMED_NAME = 11;
+    public static final int ERROR_INVALID_GRANT = 12;
 
     public static final int DISPLAY_MANUSCRIPT_NUMBER = 5;
     public static final int DISPLAY_CONFIRM_MANUSCRIPT_ACCEPTANCE = 6;
@@ -76,6 +74,21 @@ public class SelectPublicationStep extends AbstractProcessingStep {
             return ERROR_SELECT_JOURNAL;
         }
 
+        String fundingStatus = request.getParameter("funding-status");
+        String grantInfo = request.getParameter("grant-info");
+        int confidence = 0;
+        if (grantInfo != null && !grantInfo.equals("")) {
+            if (!JournalUtils.isValidNSFGrantNumber(grantInfo)) {
+//                return ERROR_INVALID_GRANT;
+                log.error("invalid grant");
+                confidence = Choices.CF_REJECTED;
+            } else {
+                log.error("valid grant");
+                confidence = Choices.CF_ACCEPTED;
+            }
+            item.addMetadata("dryad.fundingEntity", null, grantInfo, "NSF", confidence);
+            item.update();
+        }
         EventLogger.log(context, "submission-select-publication", "status=complete");
         return STATUS_COMPLETE;
     }
@@ -167,7 +180,7 @@ public class SelectPublicationStep extends AbstractProcessingStep {
         String identifier = request.getParameter("article_doi");
         if (identifier!=null && !identifier.equals("")) {
             // normalize and validate the identifier
-            Matcher doiMatcher = Pattern.compile("(doi:)*(.+\\/.+)").matcher(identifier);
+            Matcher doiMatcher = Pattern.compile("(doi:)*(.+/.+)").matcher(identifier);
             Matcher pmidMatcher = Pattern.compile("(\\d+)").matcher(identifier);
             if (doiMatcher.find()) {
                 identifier = doiMatcher.group(2);
@@ -189,44 +202,47 @@ public class SelectPublicationStep extends AbstractProcessingStep {
         }
 
         // Find the journal concept:
-        String journal = null;
-        // look in the item's metadata, in case the journal name was loaded by a crosswalk.
-        DCValue[] dcValues = item.getMetadata("prism.publicationName");
-        if (dcValues.length > 0) {
-            journal = dcValues[0].value;
-            item.clearMetadata("prism.publicationName");
-        }
-
-        // then look in the request parameter for publication name.
-        if (journal == null || "".equals(journal)) {
-            journal = request.getParameter("prism_publicationName");
-        }
-
-        // then look in the unknown_doi parameter.
-        if (journal == null || "".equals(journal)) {
-            journal = request.getParameter("unknown_doi");
-        }
-
-        // clean the name
-        if (journal != null) {
-            journal=journal.replace("*", "");
-            journal=journal.trim();
-        }
-
         DryadJournalConcept journalConcept = null;
 
-        if (journalConcept==null && journal != null && journal.length() > 0) {
-            journalConcept = JournalUtils.getJournalConceptByJournalName(journal);
+        // Look for a journal ID, if it's in review
+        if (Integer.parseInt(articleStatus)==ARTICLE_STATUS_IN_REVIEW) {
+            String journalID = request.getParameter("journalIDStatusInReview");
+            if (journalID != null && journalID.length() > 0) {
+                journalConcept = JournalUtils.getJournalConceptByJournalID(journalID);
+            }
         }
 
-        // Look for a journal ID
-        String journalID = request.getParameter("journalIDStatusInReview");
-
-        if (journalConcept==null && journalID != null && journalID.length() > 0) {
-            journalConcept = JournalUtils.getJournalConceptByJournalID(journalID);
-        }
-
+        String journal = null;
         if (journalConcept == null) {
+            // look in the item's metadata, in case the journal name was loaded by a crosswalk.
+            DCValue[] dcValues = item.getMetadata("prism.publicationName");
+            if (dcValues.length > 0) {
+                journal = dcValues[0].value;
+                item.clearMetadata("prism.publicationName");
+            }
+
+            // then look in the request parameter for publication name.
+            if (journal == null || "".equals(journal)) {
+                journal = request.getParameter("prism_publicationName");
+            }
+
+            // then look in the unknown_doi parameter.
+            if (journal == null || "".equals(journal)) {
+                journal = request.getParameter("unknown_doi");
+            }
+
+            // clean the name
+            if (journal != null) {
+                journal = journal.replace("*", "");
+                journal = journal.trim();
+            }
+
+            if (journal != null && journal.length() > 0) {
+                journalConcept = JournalUtils.getJournalConceptByJournalName(journal);
+            }
+        }
+
+        if (journalConcept == null && journal != null) {
             // if article is PUBLISHED or ACCEPTED, can be any journal, so we should make a temp journal.
             if ((Integer.parseInt(articleStatus)==ARTICLE_STATUS_ACCEPTED) || (Integer.parseInt(articleStatus)==ARTICLE_STATUS_PUBLISHED)) {
                 try {
@@ -247,16 +263,14 @@ public class SelectPublicationStep extends AbstractProcessingStep {
 
         // Look for a manuscript number
         String manuscriptNumber = request.getParameter("manu");
-        if (Integer.parseInt(articleStatus)==ARTICLE_STATUS_ACCEPTED) {
-            String manuscriptNumberAcc = request.getParameter("manu-number-status-accepted");
-            manuscriptNumber = manuscriptNumberAcc;
+        if (manuscriptNumber != null) {
             manuscriptNumber = manuscriptNumber.trim();
         }
 
         request.getSession().setAttribute("submit_error", "");
         if (journalConcept.getIntegrated()) {
             addEmailsAndEmbargoSettings(journalConcept, item);
-            if (manuscriptNumber != null && manuscriptNumber.trim().equals("")) {
+            if (manuscriptNumber != null && manuscriptNumber.equals("")) {
                 // we just use this empty manuscript with the journal only.
                 log.debug("manuscript number is empty or nonexistent");
             } else {
@@ -269,25 +283,17 @@ public class SelectPublicationStep extends AbstractProcessingStep {
                     }
 
                     if (articleStatus != null) {
-                        boolean manuscriptNumberInvalid = true;
                         // the Article Status chosen must match the specified manuscript's status. Otherwise, it's invalid.
                         if (Integer.parseInt(articleStatus) == ARTICLE_STATUS_ACCEPTED) {
                             if (manuscript.isAccepted() || manuscript.isPublished()) {
                                 item.clearMetadata(WorkflowRequirementsManager.WORKFLOW_SCHEMA, "submit", "skipReviewStage", Item.ANY);
                                 item.addMetadata(WorkflowRequirementsManager.WORKFLOW_SCHEMA, "submit", "skipReviewStage", Item.ANY, "true");
-                                manuscriptNumberInvalid = false;
                             }
                         } else if (Integer.parseInt(articleStatus) == ARTICLE_STATUS_IN_REVIEW) {
                             if (manuscript.isSubmitted() || manuscript.isNeedsRevision()) {
                                 item.clearMetadata(WorkflowRequirementsManager.WORKFLOW_SCHEMA, "submit", "skipReviewStage", Item.ANY);
                                 item.addMetadata(WorkflowRequirementsManager.WORKFLOW_SCHEMA, "submit", "skipReviewStage", Item.ANY, "false");
-                                manuscriptNumberInvalid = false;
                             }
-                        }
-
-                        if (manuscriptNumberInvalid) {
-                            request.getSession().setAttribute("submit_error", "This manuscript is not in the status you selected.");
-                            return false;
                         }
                     }
                 } else if (manuscript.getMessage().equals("Invalid manuscript number")) {

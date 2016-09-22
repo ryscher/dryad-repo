@@ -15,7 +15,6 @@ import org.dspace.app.xmlui.wing.element.Item;
 import org.dspace.app.xmlui.wing.element.List;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
-import org.dspace.content.*;
 import org.dspace.content.Collection;
 import org.dspace.content.authority.*;
 import org.dspace.core.ConfigurationManager;
@@ -82,7 +81,16 @@ public class SelectPublicationStep extends AbstractSubmissionStep {
     protected static final Message T_Country_help= message("xmlui.submit.select.country.help");
     protected static final Message T_Country_error= message("xmlui.submit.select.country.error");
 
+    private static final Message T_funding_head = message("xmlui.submit.select.funding.head");
+    private static final Message T_funding_help = message("xmlui.submit.select.funding.help");
+    private static final Message T_funding_desc1 = message("xmlui.submit.select.funding.desc1");
+    private static final Message T_funding_desc2 = message("xmlui.submit.select.funding.desc2");
+    private static final Message T_funding_status_yes = message("xmlui_submit_funding_status_yes");
+    private static final Message T_funding_status_no = message("xmlui_submit_funding_status_no");
+    private static final Message T_funding_error = message("xmlui.submit.select.funding.error");
 
+    private static final Message T_select_yes = message("xmlui.Submission.submit.ReviewStep.yes");
+    private static final Message T_select_no = message("xmlui.Submission.submit.ReviewStep.no");
 
     private static final Message T_article_status = message("xmlui.submit.publication.article_status");
     private static final Message T_article_status_help = message("xmlui.submit.publication.article_status_help");
@@ -97,6 +105,7 @@ public class SelectPublicationStep extends AbstractSubmissionStep {
 
     private static final Message T_asterisk_explanation = message("xmlui.submit.publication.journal.manu.acc.asterisk_explanation");
 
+    protected static final Message T_license_head = message("xmlui.submit.select.license.head");
 
     public void addPageMeta(PageMeta pageMeta) throws SAXException,
             WingException, SQLException, IOException,
@@ -111,7 +120,6 @@ public class SelectPublicationStep extends AbstractSubmissionStep {
 
     public void addBody(Body body) throws SAXException, WingException, SQLException, IOException, AuthorizeException
     {
-        log.debug("hi");
         Request request = ObjectModelHelper.getRequest(objectModel);
         Collection collection = submission.getCollection();
         String actionURL = contextPath + "/handle/"+collection.getHandle() + "/submit/" + knot.getId() + ".continue";
@@ -126,8 +134,6 @@ public class SelectPublicationStep extends AbstractSubmissionStep {
         addSubmissionProgressList(div);
 
         List form = div.addList("submit-create-publication", List.TYPE_FORM);
-
-        generateCountryList(form,request);
 
         boolean submitExisting = ConfigurationManager.getBooleanProperty("submit.dataset.existing-datasets", true);
 
@@ -178,22 +184,21 @@ public class SelectPublicationStep extends AbstractSubmissionStep {
         // case B: (radio selected ==> accepted)
         addfieldsStatusAccepted(newItem, request, manuscript);
 
-        // case C: (radio selected ==> Not Yet Submitted)
-        //addJournalSelectStatusNotYetSubmitted(selectedJournalId, newItem);
-
         // case D: (radio selected ==>  In Review)
         addJournalSelectStatusInReview(selectedJournalName, newItem, manuscript, request);
 
         // hidden select fields that populate integrated journals
         addJournalSelectStatusIntegrated(selectedJournalName, newItem);
 
-        // Add manuscriptNumber in any case
-        addManuscriptNumber(request, newItem, manuscriptNumber);
-
         addPublicationNumberIfSubmitExisting(form, submitExisting, pubIdError, pubColl);
 
+        addManuscriptNumber(request, newItem, manuscriptNumber);
+
+        generateCountryList(form,request);
+        generateFundingInfo(form,request);
+
         // add License checkbox.
-        addLicence(form);
+        addLicense(form);
 
         //add "Next" button
 	    Item actions = form.addItem();
@@ -213,6 +218,10 @@ public class SelectPublicationStep extends AbstractSubmissionStep {
 
         doi.addItem().addContent("OR");
         Text cb = doi.addItem().addText("unknown_doi");
+        String pubName = request.getParameter("unknown_doi");
+        if (pubName != null) {
+            cb.setValue(pubName);
+        }
         cb.setHelp(T_unknown_doi);
 
 
@@ -228,7 +237,7 @@ public class SelectPublicationStep extends AbstractSubmissionStep {
 
     private void addArticleStatusRadios(Request request, List form, Manuscript manuscript) throws WingException {
         // add "article status" radios
-        Item articleStatus = form.addItem("article_status", "");
+        Item articleStatus = form.addItem("jquery_radios", "");
         articleStatus.addContent(T_article_status);
         Radio accessRadios = articleStatus.addRadio("article_status");
         accessRadios.setHelp(T_article_status_help);
@@ -247,10 +256,6 @@ public class SelectPublicationStep extends AbstractSubmissionStep {
         } else {
             accessRadios.setOptionSelected(request.getParameter("article_status"));
         }
-
-
-
-
     }
 
 
@@ -281,61 +286,37 @@ public class SelectPublicationStep extends AbstractSubmissionStep {
         Text journalField = addJournalAuthorityControlled("prism_publicationName", optionsList, "prism_publicationName");
 	    journalField.setHelp(T_asterisk_explanation);
 
-        // MANUSCRIPT NUMBER
-        Text manuText = newItem.addText("manu-number-status-accepted");
-        if (request.getParameter("manu-number-status-accepted") != null) {
-            manuText.setValue(request.getParameter("manu-number-status-accepted"));
-        }
-        manuText.setLabel(T_MANU_LABEL_NEW);
-        manuText.setHelp(T_MANU_HELP);
-        //Add an error message should our manuscript be invalid
-        if (this.errorFlag == org.dspace.submit.step.SelectPublicationStep.ENTER_MANUSCRIPT_NUMBER) {
-            //Show the error coming from our manuscript !
-            manuText.addError(String.valueOf(request.getSession().getAttribute("submit_error")));
-            //We are done clear it
-            request.getSession().setAttribute("submit_error", null);
-        }
-
         // CHECKBOX: CONFIRM MANUSCRIPT NUMBER ACCEPTANCE
         CheckBox checkBox = newItem.addCheckBox("manu_accepted-cb");
         checkBox.addOption(String.valueOf(Boolean.TRUE), T_MANU_ACC_LABEL);
 
         if (manuscript!=null && manuscript.isAccepted()) {
             journalField.setValue(manuscript.getJournalName());
-            if (manuscript.getManuscriptId() != null) {
-                manuText.setValue(manuscript.getManuscriptId());
-            }
         } else {
             journalField.setValue(request.getParameter("prism_publicationName"));
         }
-
-
     }
 
     private void addJournalSelectStatusInReview(String selectedJournalName, Item newItem, Manuscript manuscript, Request request) throws WingException,SQLException {
         Composite optionsList = newItem.addComposite("journalID_status_in_review");
         Select journalID = optionsList.addSelect("journalIDStatusInReview");
         journalID.addOption("", "Please select a valid journal");
-        if (selectedJournalName == null || "".equals(selectedJournalName)) {
-            java.util.List<DryadJournalConcept> journalConcepts = Arrays.asList((DryadJournalConcept[]) JournalUtils.getAllJournalConcepts());
-            for (DryadJournalConcept journalConcept : journalConcepts) {
-                String val = journalConcept.getJournalID();
-                String name = journalConcept.getFullName();
-
-                // add only journal with allowReviewWorkflow=true;
-                if (journalConcept.getAllowReviewWorkflow() && journalConcept.getIntegrated()) {
-                    // select journal only if status is "In Review"
-                    if (manuscript != null && manuscript.isSubmitted()) {
-                        journalID.addOption(name.equals(selectedJournalName), val, name);
-                    } else if (request.getParameter("journalIDStatusInReview") != null && !request.getParameter("journalIDStatusInReview").equals("")) {
-                        journalID.addOption(name.equals(selectedJournalName), val, name);
-                    } else {
-                        journalID.addOption(val, name);
-                    }
-                }
+        java.util.List<DryadJournalConcept> journalConcepts = Arrays.asList((DryadJournalConcept[]) JournalUtils.getAllJournalConcepts());
+        for (DryadJournalConcept journalConcept : journalConcepts) {
+            String val = journalConcept.getJournalID();
+            String name = journalConcept.getFullName();
+            // add only journal with allowReviewWorkflow=true;
+            if (journalConcept.getAllowReviewWorkflow() && journalConcept.getIntegrated()) {
+                journalID.addOption(val, name);
             }
-        } else {
-            journalID.addOption(selectedJournalName, selectedJournalName);
+        }
+        String selectedJournalID = request.getParameter("journalIDStatusInReview");
+        if (selectedJournalID == null && manuscript != null) {
+            selectedJournalID = manuscript.getJournalConcept().getJournalID();
+        }
+        log.error("selected journal is " + selectedJournalID);
+        if (!"".equals(selectedJournalID)) {
+            journalID.setOptionSelected(selectedJournalID);
         }
         journalID.setLabel(T_SELECT_LABEL);
         journalID.setHelp(T_SELECT_HELP_IN_REVIEW);
@@ -356,7 +337,8 @@ public class SelectPublicationStep extends AbstractSubmissionStep {
                 }
             }
         } else {
-            journalID.addOption(selectedJournalName, selectedJournalName);
+            log.error("journal was " + selectedJournalName);
+            journalID.setOptionSelected(selectedJournalName);
         }
     }
 
@@ -444,8 +426,10 @@ public class SelectPublicationStep extends AbstractSubmissionStep {
        }
 
 
-    private void addLicence(List form) throws WingException {
-        CheckBox licensebox = form.addItem("license_accepted","license_accepted").addCheckBox("license_accept");
+    private void addLicense(List form) throws WingException {
+        Item licenseItem = form.addItem("license_accepted","license_accepted");
+        licenseItem.addContent(T_license_head);
+        CheckBox licensebox = licenseItem.addCheckBox("license_accept");
         licensebox.addOption(String.valueOf(Boolean.TRUE), T_PUB_LICENSE);
         if(this.errorFlag == org.dspace.submit.step.SelectPublicationStep.STATUS_LICENSE_NOT_ACCEPTED)
             licensebox.addError(T_PUB_LICENSE_ERROR);
@@ -515,5 +499,23 @@ public class SelectPublicationStep extends AbstractSubmissionStep {
         }
         }catch (Exception e)
         {}
+    }
+
+    private void generateFundingInfo(List form, Request request) throws WingException {
+        Item fundingInfo = form.addItem("funding-info","");
+        fundingInfo.addContent(T_funding_head);
+        fundingInfo.addContent(T_funding_help);
+//
+//        Radio fundingRadio = fundingInfo.addRadio("funding-status");
+//        fundingRadio.addOption("1", T_funding_status_yes);
+//        fundingRadio.addOption("0", T_funding_status_no);
+//
+        Text grantInfoText = form.addItem("grant-info","grant-info").addText("grant-info");
+        grantInfoText.setLabel(T_funding_desc1);
+//        if (this.errorFlag == org.dspace.submit.step.SelectPublicationStep.ERROR_INVALID_GRANT) {
+//            fundingRadio.setOptionSelected("1");
+//            grantInfoText.setValue(request.getParameter("grant-info"));
+//            grantInfoText.addError(T_funding_error);
+//        }
     }
 }

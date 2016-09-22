@@ -49,11 +49,6 @@
 
     <dc-type>
         <schema>journal</schema>
-        <element>subscriptionPaid</element>
-    </dc-type>
-
-    <dc-type>
-        <schema>journal</schema>
         <element>sponsorName</element>
     </dc-type>
 
@@ -78,7 +73,7 @@
 
     <dc-type>
         <schema>journal</schema>
-        <element>customerId</element>
+        <element>customerID</element>
     </dc-type>
 
     <dc-type>
@@ -99,5 +94,20 @@
     <dc-type>
         <schema>journal</schema>
         <element>issn</element>
+    </dc-type>
+
+    <dc-type>
+        <schema>journal</schema>
+        <element>hasJournalPage</element>
+    </dc-type>
+
+    <dc-type>
+        <schema>journal</schema>
+        <element>website</element>
+    </dc-type>
+
+    <dc-type>
+        <schema>journal</schema>
+        <element>coverImage</element>
     </dc-type>
 </dspace-dc-types>

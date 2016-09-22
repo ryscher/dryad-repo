@@ -18,8 +18,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.dspace.core.ConfigurationManager;
+import org.dspace.JournalUtils;
 import org.dspace.identifier.DOIIdentifierProvider;
 import org.datadryad.rest.legacymodels.LegacyManuscript;
 import org.datadryad.api.DryadJournalConcept;
@@ -79,8 +81,13 @@ public class Manuscript {
     public static final String STATUS_PUBLISHED = "published";
     public static final String STATUS_INVALID = "invalid";
 
+    public static final List<String> VALID_STATUSES = Arrays.asList(
+            STATUS_SUBMITTED, STATUS_ACCEPTED, STATUS_REJECTED, STATUS_NEEDS_REVISION, STATUS_PUBLISHED, STATUS_INVALID
+    );
+
     public static final List<String> SUBMITTED_STATUSES = Arrays.asList(
             STATUS_SUBMITTED,
+            STATUS_NEEDS_REVISION,
             "revision in review",
             "revision under review",
             "in review"
@@ -92,7 +99,6 @@ public class Manuscript {
 
     public static final List<String> REJECTED_STATUSES = Arrays.asList(
             STATUS_REJECTED,
-            STATUS_NEEDS_REVISION,
             "transferred",
             "rejected w/o review"
     );
@@ -122,7 +128,7 @@ public class Manuscript {
     private Date publicationDate;
     private String dataReviewURL = "";
     private String dataAvailabilityStatement = "";
-    public Map<String, String> optionalProperties;
+    public Map<String, String> optionalProperties = new LinkedHashMap<String, String>();
 
     // indicates whether the metadata for this publication was obtained directly from the journal
     @JsonIgnore
@@ -132,11 +138,12 @@ public class Manuscript {
     private DryadJournalConcept journalConcept;
 
     private List<String> keywords = new ArrayList<String>();
-    // from PublicationBean, but not currently used
+    // from PublicationBean
     private String journalVolume = "";
     private String journalNumber = "";
     private String publisher = "";
     private String fullCitation = "";
+    private String pages = "";
     @JsonIgnore
     private String message = "";
 
@@ -152,9 +159,6 @@ public class Manuscript {
 
     @JsonIgnore
     private static final Logger log = Logger.getLogger(Manuscript.class);
-
-    @JsonIgnore
-    private Organization organization = new Organization();
 
     static {
         journalMetadata = new Properties();
@@ -181,19 +185,13 @@ public class Manuscript {
 
     public Manuscript() {} // JAXB needs this
 
-    public Manuscript(String manuscriptId, String status) {
-        this.manuscriptId = manuscriptId;
-        this.status = status;
-    }
-
     public Manuscript(DryadJournalConcept journalConcept) {
         this.journalConcept = journalConcept;
     }
 
     public Manuscript(LegacyManuscript legacyManuscript) {
-        this.organization = new Organization();
-        this.organization.organizationName = legacyManuscript.Journal;
-        this.organization.organizationCode = legacyManuscript.Journal_Code;
+        DryadJournalConcept journalConcept = JournalUtils.getJournalConceptByJournalID(legacyManuscript.Journal_Code);
+        this.setJournalConcept(journalConcept);
         // Required fields are: manuscriptID, status, authors (though author identifiers are optional), and title. All other fields are optional.
         this.manuscriptId = legacyManuscript.Submission_Metadata.Manuscript;
         this.title = legacyManuscript.Submission_Metadata.Article_Title;
@@ -241,19 +239,14 @@ public class Manuscript {
     }
 
     public String getManuscriptId() {
+        if (manuscriptId == null) {
+            manuscriptId = "";
+        }
         return manuscriptId;
     }
 
     public void setManuscriptId(String manuscriptId) {
         this.manuscriptId = manuscriptId;
-    }
-
-    public Organization getOrganization() {
-        return organization;
-    }
-
-    public void setOrganization(Organization organization) {
-        this.organization = organization;
     }
 
     public String getAbstract() {
@@ -290,11 +283,20 @@ public class Manuscript {
     }
 
     public String getPublicationDOI() {
+        if (publicationDOI == null) {
+            publicationDOI = "";
+        }
         return publicationDOI;
     }
 
     public void setPublicationDOI(String doi) {
-        this.publicationDOI = doi;
+        if (doi == null || "".equals(doi)) {
+            this.publicationDOI = "";
+        } else if (doi.startsWith("doi:")) {
+            this.publicationDOI = doi;
+        } else {
+            this.publicationDOI = "doi:" + doi;
+        }
     }
 
     public Date getPublicationDate() {
@@ -325,6 +327,7 @@ public class Manuscript {
         return authors;
     }
 
+    @JsonIgnore
     public List<Author> getAuthorList() {
         return this.authors.author;
     }
@@ -333,6 +336,7 @@ public class Manuscript {
         this.authors = authorsList;
     }
 
+    @JsonIgnore
     public void setAuthorsFromList(List<Author> authorList) {
         if (this.authors == null) {
             this.authors = new AuthorsList();
@@ -340,6 +344,7 @@ public class Manuscript {
         this.authors.author.addAll(authorList);
     }
 
+    @JsonIgnore
     public void addAuthor(Author author) {
         if (this.authors == null) {
             this.authors = new AuthorsList();
@@ -443,11 +448,13 @@ public class Manuscript {
 
     @JsonIgnore
     public Boolean isValid() {
-        // Required fields are: manuscriptID, status, authors (though author identifiers are optional), and title. All other fields are optional.
-        if ((manuscriptId == null) || (manuscriptId.length() == 0)) {
-            log.debug("Manuscript is invalid: Manuscript ID not available");
-            return false;
-        }
+        // Required fields are: status, authors (though author identifiers are optional), and title. All other fields are optional.
+
+        // Updated 04/28/16: Manuscripts can come from CrossRef API, which means that they don't have a manuscript ID.
+//        if ((manuscriptId == null) || (manuscriptId.length() == 0)) {
+//            log.debug("Manuscript is invalid: Manuscript ID not available");
+//            return false;
+//        }
 
         if ((status == null) || (status.length() == 0)) {
             log.debug("Manuscript is invalid: Article Status not available");
@@ -471,6 +478,14 @@ public class Manuscript {
 
         // TODO: if corresponding author present, must be one of the authors
         return true;
+    }
+
+    @JsonIgnore
+    public static Boolean statusIsValid(String status) {
+        if (status == null) {
+            return false;
+        }
+        return VALID_STATUSES.contains(status);
     }
 
     private static String findDryadDOI(String searchString) {
@@ -580,14 +595,69 @@ public class Manuscript {
         }
     }
 
-    public String getFullCitation() {
-        return fullCitation;
+    public void setPages(String pages) {
+        this.pages = pages;
     }
 
-    public void setFullCitation(String fullCitation) {
-        if(fullCitation != null) {
-            this.fullCitation = fullCitation.trim();
+    public String getPages() {
+        return this.pages;
+    }
+
+    public String getFullCitation() {
+        if ("".equals(fullCitation)) {
+            // there won't be a full citation to make if there is no year of publication.
+            if (publicationDate == null) {
+                return "";
+            }
+            // Authors (Year) Title. Journal Volume: Pages. URL.
+            StringBuilder citation = new StringBuilder();
+            // prepare the authors
+            ArrayList<String> authorStrings = new ArrayList<String>();
+            for (Author a : authors.author) {
+                StringBuilder authorString = new StringBuilder();
+                String authorFamilyName = a.familyName;
+                if (authorFamilyName == null) {
+                    authorFamilyName = "";
+                }
+                authorString.append(authorFamilyName);
+                authorString.append(" ");
+                String authorGivenName = a.givenNames;
+                if (authorGivenName == null) {
+                    authorGivenName = "";
+                }
+                for (String givenName : StringUtils.split(authorGivenName, " ")) {
+                    authorString.append(StringUtils.left(givenName,1));
+                }
+                authorStrings.add(authorString.toString());
+            }
+            citation.append(StringUtils.join(authorStrings.toArray(),", "));
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy");
+            String year = dateFormat.format(getPublicationDate());
+
+            citation.append(" (");
+            citation.append(year);
+            citation.append(") ");
+            citation.append(getTitle().trim());
+            citation.append(". ");
+            citation.append(getJournalName().trim());
+            if (!"".equals(getJournalVolume())) {
+                citation.append(" ");
+                citation.append(getJournalVolume());
+                if (!"".equals(getJournalNumber())) {
+                    citation.append("(");
+                    citation.append(getJournalNumber());
+                    citation.append(")");
+                }
+                citation.append(": ");
+                citation.append(getPages());
+                citation.append(".");
+            } else {
+                citation.append(", online in advance of print.");
+            }
+            fullCitation = StringEscapeUtils.unescapeHtml(citation.toString());
         }
+        return fullCitation;
     }
 
     public boolean isSkipReviewStep() {

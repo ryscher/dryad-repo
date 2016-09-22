@@ -3,11 +3,9 @@ package org.dspace.workflow;
 import org.apache.log4j.Logger;
 import org.datadryad.rest.models.Author;
 import org.datadryad.rest.models.Manuscript;
-import org.datadryad.api.DryadJournalConcept;
 import org.dspace.JournalUtils;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.*;
-import org.dspace.content.authority.Concept;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -22,7 +20,6 @@ import org.dspace.utils.DSpace;
 
 import java.io.IOException;
 import java.lang.Boolean;
-import java.lang.RuntimeException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -189,6 +186,11 @@ public class WorkflowItem implements InProgressSubmission {
         return findAllByJournalName(c, journalName);
     }
 
+    public static WorkflowItem[] findAllByISSN(Context c, String ISSN) throws SQLException, AuthorizeException, IOException {
+        String journalName = JournalUtils.getJournalConceptByISSN(ISSN).getFullName();
+        return findAllByJournalName(c, journalName);
+    }
+
     public static WorkflowItem[] findAllByJournalName(Context c, String journalName) throws SQLException, AuthorizeException, IOException {
         List<WorkflowItem> wfItems = new ArrayList<WorkflowItem>();
 
@@ -268,7 +270,7 @@ public class WorkflowItem implements InProgressSubmission {
     }
 
     public static List<WorkflowItem> findAllByManuscript(Context context, Manuscript manuscript) throws ApproveRejectReviewItemException {
-        String journalCode = manuscript.getOrganization().organizationCode;
+        String journalCode = manuscript.getJournalConcept().getJournalID();
         WorkflowItem[] workflowItems = null;
         ArrayList<WorkflowItem> matchingItems = new ArrayList<WorkflowItem>();
 
@@ -281,7 +283,6 @@ public class WorkflowItem implements InProgressSubmission {
                 // check to see if this matches by msid:
                 DCValue[] msids = item.getMetadata("dc", "identifier", "manuscriptNumber", Item.ANY);
                 for (int j=0; j<msids.length; j++) {
-                    String canonicalMsID = JournalUtils.getCanonicalManuscriptID(msids[j].value,manuscript.getOrganization().organizationCode);
                     if (manuscript.getManuscriptId().equals(msids[j].value)) {
                         log.debug("matched " + item.getID() + " by msid");
                         matched = true;

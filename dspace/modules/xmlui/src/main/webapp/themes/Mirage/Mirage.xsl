@@ -238,13 +238,6 @@
                 <div id="dryad-home-carousel" class="ds-static-div primary">
                     <!-- REMINDER: slide publication dates are in the format YEAR-MONTH-DAY, eg, 2013-12-28 -->
                     <div class="bxslider" style="">
-						<div><span class="publication-date">2015-12-16</span>
-						                            <a href="http://blog.datadryad.org/2015/12/15/new-pricing-structure-with-simplified-terms-and-increased-size-limits/">
-						                                <img alt="" src="/themes/Mirage/images/watering-can.png" />
-						                                <p style="width: 450px; color: #363; font-size: 90%; top: 0px; right: 10px; line-height: 1.2em; position: absolute; text-shadow: 1px 2px 2px rgba(33, 33, 33, 0.25);">New Dryad pricing structure for 2016 with simplified terms and increased size limits</p>
-						                                <p style="drop-shadow: 4px 4px; position: absolute; right: 40px; bottom: 80px; font-size: 70%; text-align: right; text-shadow: 1px 2px 2px rgba(33, 33, 33, 0.25);">Learn more &#187;</p>
-						                            </a>
-						                        </div>
                         <div><span class="publication-date">2015-04-14</span>
                             <a href="/pages/submissionIntegration">
                                 <img src="/themes/Mirage/images/integration-slide.jpg" alt="Publishers: Simplify data submission. Strengthen links between articles and data. For free. Integrate your journal with Dryad now" />
@@ -403,15 +396,14 @@
                 <h1 class="ds-div-head">Recently integrated journals</h1>
                 <div id="recently_integrated_journals" class="ds-static-div primary">
                     <div class="container">
+                        <!-- ERJ Open Research -->
+                        <a class="single-image-link" href="/discover?field=prism.publicationName_filter&amp;query=&amp;fq=prism.publicationName_filter%3Aerj%5C+open%5C+research%5C%7C%5C%7C%5C%7CERJ%5C+Open%5C+Research"><img class="pub-cover" src="/themes/Mirage/images/recentlyIntegrated-ERJOR.png" alt="ERJ Open Research" /></a>
+                        <!-- European Respiratory Journal -->
+                        <a class="single-image-link" href="/discover?field=prism.publicationName_filter&amp;query=&amp;fq=prism.publicationName_filter%3Aeuropean%5C+respiratory%5C+journal%5C%7C%5C%7C%5C%7CEuropean%5C+Respiratory%5C+Journal"><img class="pub-cover" src="/themes/Mirage/images/recentlyIntegrated-ERJ.png" alt="European Respiratory Journal" /></a>
                         <!-- Applications in Plant Sciences -->
                         <a class="single-image-link" href="/discover?field=prism.publicationName_filter&amp;query=&amp;fq=prism.publicationName_filter%3Aapplications%5C+in%5C+plant%5C+sciences%5C%7C%5C%7C%5C%7CApplications%5C+in%5C+Plant%5C+Sciences"><img class="pub-cover" src="/themes/Mirage/images/recentlyIntegrated-APPS.png" alt="Applications in Plant Sciences" /></a>
                         <!-- Journal of Systematics and Evolution -->
                         <a class="single-image-link" href="/discover?field=prism.publicationName_filter&amp;query=&amp;fq=prism.publicationName_filter%3Ajournal%5C+of%5C+systematics%5C+and%5C+evolution%5C%7C%5C%7C%5C%7CJournal%5C+of%5C+Systematics%5C+and%5C+Evolution"><img class="pub-cover" src="/themes/Mirage/images/recentlyIntegrated-JSE_Cover.png" alt="Journal of Systematics and Evolution" /></a>
-                        <!-- Toxicological Sciences -->
-                        <a class="single-image-link" href="/discover?field=prism.publicationName_filter&amp;query=&amp;fq=prism.publicationName_filter%3Atoxicological%5C+sciences%5C%7C%5C%7C%5C%7CToxicological%5C+Sciences"><img class="pub-cover" src="/themes/Mirage/images/recentlyIntegrated-TOXSCICover.png" alt="Toxicological Sciences" /></a>
-                        <!-- Behavioral Ecology -->
-                        <a class="single-image-link" href="/discover?field=prism.publicationName_filter&amp;query=&amp;fq=prism.publicationName_filter%3Abehavioral%5C+ecology%5C%7C%5C%7C%5C%7CBehavioral%5C+Ecology"><img class="pub-cover" src="/themes/Mirage/images/recentlyIntegrated-BEHECOCover.png" alt="Behavioral Ecology" /></a>
-
 
                     </div>
                 </div>
@@ -652,7 +644,7 @@
     <!-- First submission form: added and rewrote some templates to manage the form using jquery, to lead the user through the submission -->
 
     <!-- First submission form: Article Status Radios -->
-    <xsl:template match="dri:body/dri:div/dri:list/dri:item[@n='article_status']/dri:field[@n='article_status']">
+    <xsl:template match="dri:body/dri:div/dri:list/dri:item[@n='jquery_radios']/dri:field">
 
         <br/>
         <span>
