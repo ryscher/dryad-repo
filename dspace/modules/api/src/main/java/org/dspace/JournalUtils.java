@@ -12,6 +12,7 @@ import org.datadryad.rest.models.Manuscript;
 import org.datadryad.rest.storage.StorageException;
 import org.datadryad.rest.storage.StoragePath;
 import org.datadryad.rest.storage.rdbms.ManuscriptDatabaseStorageImpl;
+import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
@@ -20,12 +21,9 @@ import org.dspace.content.authority.Scheme;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.workflow.DryadWorkflowUtils;
-import org.dspace.authorize.AuthorizeException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.lang.*;
-import java.lang.Exception;
 import java.net.URL;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -467,6 +465,16 @@ public class JournalUtils {
             }
             String s = sb.toString();
             log.error("Exception of type " + e.getClass().getName() + ": url is " + crossRefURL + "\n" + s);
+        }
+
+        // sanity check:
+        if (matchedManuscript != null) {
+            double matchScore = getHamrScore(queryManuscript.getTitle(), matchedManuscript.getTitle());
+            if (matchScore < 0.5) {
+                log.error(queryManuscript.getTitle() + " matched " + matchedManuscript.getTitle() + " with score " + matchScore);
+                log.error("crossref url was " + crossRefURL);
+                return null;
+            }
         }
         return matchedManuscript;
     }

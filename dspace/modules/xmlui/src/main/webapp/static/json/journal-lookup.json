@@ -19,6 +19,15 @@
         "hidden" : "N"
      },
      {
+        "sponsor" : "$120",
+        "title" : "Annals of the Entomological Society of America",
+        "integrated" : "Y",
+        "hidden" : "Y",
+        "issn" : "0013-8746",
+        "embargo" : "N",
+        "submission" : "R"
+     },
+     {
         "integrated" : "N",
         "embargo" : "N",
         "issn" : "2168-0450",
@@ -132,8 +141,8 @@
         "embargo" : "Y",
         "hidden" : "Y",
         "integrated" : "Y",
-        "title" : "The Bone &amp; Joint Journal",
-        "sponsor" : "British Editorial Society of Bone &amp; Joint Surgery"
+        "title" : "The Bone & Joint Journal",
+        "sponsor" : "British Editorial Society of Bone & Joint Surgery"
      },
      {
         "integrated" : "Y",
@@ -141,8 +150,8 @@
         "submission" : "A",
         "issn" : "2046-3758",
         "embargo" : "Y",
-        "sponsor" : "British Editorial Society of Bone &amp; Joint Surgery",
-        "title" : "Bone &amp; Joint Research"
+        "sponsor" : "British Editorial Society of Bone & Joint Surgery",
+        "title" : "Bone & Joint Research"
      },
      {
         "hidden" : "Y",
@@ -150,8 +159,8 @@
         "embargo" : "Y",
         "submission" : "A",
         "integrated" : "Y",
-        "sponsor" : "British Editorial Society of Bone &amp; Joint Surgery",
-        "title" : "Bone &amp; Joint360"
+        "sponsor" : "British Editorial Society of Bone & Joint Surgery",
+        "title" : "Bone & Joint360"
      },
      {
         "sponsor" : "Pensoft",
@@ -186,7 +195,7 @@
         "submission" : "R",
         "embargo" : "N",
         "hidden" : "N",
-        "title" : "Disease Models &amp; Mechanisms",
+        "title" : "Disease Models & Mechanisms",
         "sponsor" : "$120"
      },
      {
@@ -262,6 +271,15 @@
         "title" : "eLife"
      },
      {
+        "sponsor" : "$120",
+        "title" : "Environmental Entomology",
+        "integrated" : "Y",
+        "hidden" : "Y",
+        "issn" : "0046-225X",
+        "embargo" : "N",
+        "submission" : "R"
+     },
+     {
         "title" : "Environmental Epigenetics",
         "sponsor" : "$120",
         "issn" : "2058-5888",
@@ -302,7 +320,7 @@
         "title" : "Evolution",
         "integrated" : "Y",
         "hidden" : "N",
-        "issn" : "1936-6426",
+        "issn" : "0014-3820",
         "submission" : "A",
         "embargo" : "Y"
      },
@@ -505,6 +523,15 @@
         "integrated" : "Y"
      },
      {
+        "sponsor" : "$120",
+        "title" : "Journal of Economic Entomology",
+        "integrated" : "Y",
+        "hidden" : "Y",
+        "issn" : "0022-0493",
+        "embargo" : "N",
+        "submission" : "R"
+     },
+     {
         "title" : "Journal of Evolutionary Biology",
         "sponsor" : "European Society for Evolutionary Biology",
         "integrated" : "Y",
@@ -520,6 +547,15 @@
         "issn" : "0022-0949",
         "submission" : "R",
         "embargo" : "N",
+        "integrated" : "Y"
+     },
+     {
+        "sponsor" : "Journal of Experimental Botany",
+        "title" : "Journal of Experimental Botany",
+        "hidden" : "Y",
+        "issn" : "0022-0957",
+        "submission" : "R",
+        "embargo" : "Y",
         "integrated" : "Y"
      },
      {
@@ -550,10 +586,37 @@
         "title" : "Journal of Hymenoptera Research"
      },
      {
+        "sponsor" : "$120",
+        "title" : "Journal of Insect Science",
+        "integrated" : "Y",
+        "hidden" : "Y",
+        "issn" : "1536-2442",
+        "embargo" : "N",
+        "submission" : "R"
+     },
+     {
+        "sponsor" : "$120",
+        "title" : "Journal of Medical Entomology",
+        "integrated" : "Y",
+        "hidden" : "Y",
+        "issn" : "0022-2585",
+        "embargo" : "N",
+        "submission" : "R"
+     },
+     {
         "title" : "Journal of Paleontology",
         "sponsor" : "The Paleontological Society",
         "submission" : "R",
         "issn" : "0022-3360",
+        "embargo" : "Y",
+        "hidden" : "N",
+        "integrated" : "Y"
+     },
+     {
+        "title" : "Journal of Systematics and Evolution",
+        "sponsor" : "Journal of Systematics and Evolution",
+        "submission" : "R",
+        "issn" : "1674-4918",
         "embargo" : "Y",
         "hidden" : "N",
         "integrated" : "Y"
@@ -640,6 +703,15 @@
         "integrated" : "Y"
      },
      {
+        "integrated" : "N",
+        "embargo" : "N",
+        "issn" : "0078-1304",
+        "submission" : "A",
+        "hidden" : "N",
+        "title" : "North American Fauna",
+        "sponsor" : "US Fish & Wildlife Service"
+     },
+     {
         "sponsor" : "Pensoft",
         "title" : "Nota Lepidopterologica",
         "integrated" : "Y",
@@ -656,15 +728,6 @@
         "issn" : "0030-1299",
         "submission" : "A",
         "hidden" : "N"
-     },
-     {
-        "integrated" : "N",
-        "embargo" : "N",
-        "issn" : "0078-1304",
-        "submission" : "A",
-        "hidden" : "N",
-        "title" : "North American Fauna",
-        "sponsor" : "US Fish & Wildlife Service"
      },
      {
         "title" : "Open Biology",
@@ -862,7 +925,7 @@
         "embargo" : "Y",
         "hidden" : "Y",
         "title" : "Scientific Data",
-        "sponsor" : "Nature Publishing Group"
+        "sponsor" : "$120"
      },
      {
         "integrated" : "Y",
@@ -889,6 +952,15 @@
         "hidden" : "Y",
         "integrated" : "N",
         "title" : "Systematic Botany",
+        "sponsor" : "American Society of Plant Taxonomists"
+     },
+     {
+        "issn" : "0737-8211",
+        "embargo" : "Y",
+        "submission" : "A",
+        "hidden" : "N",
+        "integrated" : "N",
+        "title" : "Systematic Botany Monographs",
         "sponsor" : "American Society of Plant Taxonomists"
      },
      {
