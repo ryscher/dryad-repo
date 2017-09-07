@@ -14,6 +14,7 @@ import org.dspace.core.I18nUtil;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;
+import org.dspace.workflow.ApproveRejectReviewItem;
 import org.dspace.workflow.ClaimedTask;
 import org.dspace.workflow.DryadWorkflowUtils;
 import org.dspace.workflow.WorkflowItem;
@@ -251,6 +252,10 @@ public class PublicationUpdater extends HttpServlet {
                                 if (updateItemMetadataFromManuscript(item, databaseManuscript, context, provenance)) {
                                     message = provenance;
                                 }
+                                if (databaseManuscript.isAccepted()) {
+                                    // see if this can be pushed out of review
+                                    ApproveRejectReviewItem.processWorkflowItemWithManuscript(context, wfi, databaseManuscript);
+                                }
                             }
                         }
                     } catch (ParseException e) {
@@ -318,25 +323,17 @@ public class PublicationUpdater extends HttpServlet {
             } else {
                 LOGGER.debug("Item \"" + queryManuscript.getTitle() + "\" matched a title \"" + matchedManuscript.getTitle() + "\" with score " + score);
                 LOGGER.debug("matched publication DOI is " + matchedManuscript.getPublicationDOI());
-                if (Double.valueOf(score) < 1.0) {
-                    // does the matched manuscript have the same authors?
-                    StringBuilder authormatches = new StringBuilder();
-                    if (JournalUtils.compareItemAuthorsToManuscript(item, matchedManuscript, authormatches)) {
-                        LOGGER.debug("same authors");
-                        // update the item's metadata
-                        StringBuilder provenance = new StringBuilder("Associated publication (match score " + score + ") was found: \"" + matchedManuscript.getTitle() + "\".");
-                        if (updateItemMetadataFromManuscript(item, matchedManuscript, context, provenance)) {
-                            message = provenance;
-                        }
-                    } else {
-                        LOGGER.debug("different authors: " + authormatches);
-                    }
-                } else {
-                    LOGGER.debug("perfect title match");
-                    StringBuilder provenance = new StringBuilder("Associated publication with perfect title match was found: \"" + matchedManuscript.getTitle() + "\".");
+                // does the matched manuscript have the same authors?
+                StringBuilder authormatches = new StringBuilder();
+                if (matchedManuscript.getAuthorList().size() == JournalUtils.compareItemAuthorsToManuscript(item, matchedManuscript, authormatches)) {
+                    LOGGER.debug("same authors");
+                    // update the item's metadata
+                    StringBuilder provenance = new StringBuilder("Associated publication (match score " + score + ") was found: \"" + matchedManuscript.getTitle() + "\".");
                     if (updateItemMetadataFromManuscript(item, matchedManuscript, context, provenance)) {
                         message = provenance;
                     }
+                } else {
+                    LOGGER.debug("different authors: " + authormatches);
                 }
             }
         } else {
@@ -352,7 +349,7 @@ public class PublicationUpdater extends HttpServlet {
         // Find metadata field for publication name:
         MetadataField pubNameField = null;
         try {
-            pubNameField = MetadataField.findByElement(context, PUBLICATION_NAME);
+            pubNameField = MetadataField.findByElement(PUBLICATION_NAME);
         } catch (SQLException e) {
             LOGGER.error("couldn't find " + PUBLICATION_NAME);
             return items;
@@ -361,7 +358,7 @@ public class PublicationUpdater extends HttpServlet {
         // Find metadata field for citation:
         MetadataField citationField = null;
         try {
-            citationField = MetadataField.findByElement(context, FULL_CITATION);
+            citationField = MetadataField.findByElement(FULL_CITATION);
         } catch (SQLException e) {
             LOGGER.error("couldn't find " + FULL_CITATION);
             return items;
@@ -397,7 +394,7 @@ public class PublicationUpdater extends HttpServlet {
         // Look for items with a FULL_CITATION && CITATION_IN_PROGRESS exists && CITATION_IN_PROGRESS == TRUE
         MetadataField citationInProgressField = null;
         try {
-            citationInProgressField = MetadataField.findByElement(context, CITATION_IN_PROGRESS);
+            citationInProgressField = MetadataField.findByElement(CITATION_IN_PROGRESS);
         } catch (SQLException e) {
             LOGGER.error("couldn't find " + CITATION_IN_PROGRESS);
         }
