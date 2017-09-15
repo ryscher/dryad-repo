@@ -77,6 +77,7 @@
          <modules>
             <module>dspace-api</module>
             <module>dspace-stats</module>
+            <module>dspace-services</module>
             <module>dspace-discovery</module>
             <module>dspace-jspui</module>
             <module>dspace-xmlui</module>
@@ -95,6 +96,21 @@
          <modules>
              <module>dspace-xoai</module>
          </modules>
+      </profile>
+
+      <!--                                                                                                                                        
+           Builds Services for DSpace 
+      -->
+      <profile>
+	<id>dspace-services</id>
+	<activation>
+	  <file>
+	    <exists>dspace-services/pom.xml</exists>
+	  </file>
+	</activation>
+	<modules>
+	  <module>dspace-services</module>
+	</modules>
       </profile>
 
       <!--
@@ -269,7 +285,12 @@
             <artifactId>dspace-xmlui-wing</artifactId>
             <version>1.7.3-SNAPSHOT</version>
          </dependency>
-         <dependency>
+	 <dependency>
+	   <groupId>org.dspace</groupId>
+	   <artifactId>dspace-services</artifactId>
+	   <version>7.0-SNAPSHOT</version>
+	 </dependency>
+<!--         <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-services-impl</artifactId>
             <version>2.0.5-SNAPSHOT</version>
@@ -284,6 +305,7 @@
             <artifactId>dspace-services-utils</artifactId>
             <version>2.0.5-SNAPSHOT</version>
          </dependency>
+-->
          <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-stats</artifactId>
