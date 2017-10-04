@@ -368,6 +368,7 @@
 
 	<command>
 		<name>doi-util</name>
+		<description>DOI utility</description>
 		<step>
 			<class>org.dspace.doi.Minter</class>
 		</step>
@@ -380,6 +381,14 @@
             <class>org.dspace.workflow.ApproveRejectReviewItem</class>
         </step>
     </command>
+
+	<command>
+		<name>purge-review-item</name>
+		<description>Returns old items in review to their submitters' workspaces</description>
+		<step>
+			<class>org.dspace.workflow.AutoReturnReviewItem</class>
+		</step>
+	</command>
 
     <command>
         <name>pending-delete</name>

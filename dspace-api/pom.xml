@@ -42,7 +42,6 @@
 		<encoding>UTF-8</encoding>
 		<debug>true</debug>
 		<fork>true</fork>
-		<!--<showDeprecation>true</showDeprecation>-->
 	      </configuration>
             </plugin>
             <plugin>

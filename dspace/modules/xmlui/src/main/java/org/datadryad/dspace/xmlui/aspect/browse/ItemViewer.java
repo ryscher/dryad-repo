@@ -298,7 +298,7 @@ public class ItemViewer extends AbstractDSpaceTransformer implements
 
                         if (!identifierSet) {
                             for (DCValue value : values) {
-                                if (value.value.startsWith("http://dx.doi.org/")) {
+                                if (value.value.startsWith("https://doi.org/")) {
                                     pageMeta.addMetadata("identifier", "package")
                                             .addContent(value.value.substring(18));
                                     identifierSet = true;
@@ -372,15 +372,8 @@ public class ItemViewer extends AbstractDSpaceTransformer implements
 
                 id = metadata.value.substring(skip); // skip host name
 
-                if (id.startsWith("doi:") || id.startsWith("http://dx.doi.org/")) {
-                    if (id.startsWith("http://dx.doi.org/")) {
-                        id = id.substring("http://dx.doi.org/".length());
-
-                        // service with resolve with or without the "doi:" prepended
-                        if (!id.startsWith("doi:")) {
-                            id = "doi:" + id;
-                        }
-                    }
+                if (id.startsWith("doi:") || id.contains("doi.org/")) {
+                    id = DOIIdentifierProvider.getShortDOI(id);
 
                     DOIIdentifierProvider doiService = new DSpace().getSingletonService(DOIIdentifierProvider.class);
                     Item file = null;
@@ -497,17 +490,11 @@ public class ItemViewer extends AbstractDSpaceTransformer implements
         DOIIdentifierProvider dis = new DSpace().getSingletonService(DOIIdentifierProvider.class);
         org.dspace.app.xmlui.wing.element.Reference itemRef = referenceSet.addReference(item);
         if ( AuthorizeManager.isAdmin(context)) {
-            // run duplicate checker
-            item.checkForDuplicateItems(context);
-
-            DCValue[] dupItemIDs = item.getMetadata("dryad.duplicateItem");
-            if (dupItemIDs != null && dupItemIDs.length > 0) {
+            List<Item> dupItems = DryadWorkflowUtils.getDuplicateWorkflowItems(context, item, true);
+            if (dupItems.size() > 0) {
                 ReferenceSet duplicateItems = itemRef.addReferenceSet("embeddedView", null, "duplicateItems");
-                for (DCValue dupItemID : dupItemIDs) {
-                    Item dupItem = Item.find(context, Integer.valueOf(dupItemID.value));
-                    if (dupItem != null && !item.equals(dupItem)) {
-                        duplicateItems.addReference(dupItem);
-                    }
+                for (Item dupItem : dupItems) {
+                    duplicateItems.addReference(dupItem);
                 }
             }
         }
