@@ -980,52 +980,11 @@
       <plugins>
          <plugin>
             <artifactId>maven-javadoc-plugin</artifactId>
+	    <version>2.10.3</version>
             <configuration>
-               <links>
-                  <link>http://projects.dspace.org/dspace/apidocs</link>
-                  <link>
-                     http://projects.dspace.org/dspace-api/apidocs
-                  </link>
-                  <link>
-                     http://projects.dspace.org/dspace-jspui/apidocs
-                  </link>
-                  <link>
-                     http://projects.dspace.org/dspace-oai/apidocs
-                  </link>
-                  <link>http://java.sun.com/j2se/6/docs/api</link>
-                  <link>
-                     http://jakarta.apache.org/commons/collections/apidocs-COLLECTIONS_3_0/
-                  </link>
-                  <link>
-                     http://jakarta.apache.org/commons/dbcp/apidocs/
-                  </link>
-                  <link>
-                     http://jakarta.apache.org/commons/fileupload/apidocs/
-                  </link>
-                  <link>
-                     http://jakarta.apache.org/commons/httpclient/apidocs/
-                  </link>
-                  <link>
-                     http://jakarta.apache.org/commons/logging/api/
-                  </link>
-                  <link>
-                     http://jakarta.apache.org/commons/pool/apidocs/
-                  </link>
-                  <link>http://www.junit.org/junit/javadoc/</link>
-                  <link>http://logging.apache.org/log4j/docs/api/</link>
-                  <link>http://jakarta.apache.org/regexp/apidocs/</link>
-                  <link>http://jakarta.apache.org/velocity/api/</link>
-               </links>
+	      <!-- Never fail a build based on Javadoc errors -->
+	      <failOnError>false</failOnError>
             </configuration>
-         </plugin>
-         <plugin>
-            <artifactId>maven-jxr-plugin</artifactId>
-            <configuration>
-               <aggregate>true</aggregate>
-            </configuration>
-         </plugin>
-         <plugin>
-            <artifactId>maven-site-plugin</artifactId>
          </plugin>
          <plugin>
             <groupId>org.codehaus.mojo</groupId>
