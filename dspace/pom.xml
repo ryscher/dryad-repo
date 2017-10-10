@@ -798,11 +798,11 @@
 
 	<!--
        Builds Overlay Modules for DSpace
-    -->
+
 	<modules>
 		<module>modules</module>
 	</modules>
-
+    -->
 	<build>
 		<plugins>
 			<!--  overall project assembly -->
@@ -933,13 +933,7 @@
 	      <groupId>net.sf.ehcache</groupId>
 	    </exclusion>
 	  </exclusions>
-        </dependency><!--
-			 <dependency>
-			<groupId>org.dspace.modules</groupId>
-			<artifactId>dataone-mn-api</artifactId>
-			<version>0.0.1</version>
-		</dependency>
-		-->
+        </dependency>
 	<dependency>
 	  <groupId>xom</groupId>
 	  <artifactId>xom</artifactId>

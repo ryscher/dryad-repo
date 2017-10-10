@@ -3,7 +3,7 @@
    <groupId>org.dspace</groupId>
    <artifactId>dspace-parent</artifactId>
    <packaging>pom</packaging>
-   <version>1.7.3-SNAPSHOT</version>
+   <version>7.0-SNAPSHOT</version>
    <name>DSpace Parent Project</name>
    <url>http://projects.dspace.org</url>
 
@@ -32,27 +32,50 @@
     </properties>
 
    <build>
-      <plugins>
-         <plugin>
-            <artifactId>maven-release-plugin</artifactId>
-            <!-- Because of below bug, we are forced to use version 2.0-beta-9
-                 http://jira.codehaus.org/browse/MRELEASE-620 -->
-            <version>2.0-beta-9</version>
-            <configuration>
-                <!-- During release:perform, enable the "addons" profile -->
-                <releaseProfiles>addons</releaseProfiles>
-                <goals>deploy</goals>
-                <!-- Auto-Version all modules the same as the parent module -->
-                <autoVersionSubmodules>true</autoVersionSubmodules>
-            </configuration>
-         </plugin>
+     <!-- Define Maven Plugin Settings that should be inherited to ALL submodule POMs. NOTE: individual POMs can override specific settings). -->                 
+     <pluginManagement>                                                              
+       <plugins>                                                                   
+	 <!-- Use to enforce a particular version of Java -->
+	 <plugin>                                                                
+	   <groupId>org.apache.maven.plugins</groupId>                         
+	   <artifactId>maven-enforcer-plugin</artifactId>                      
+	   <version>1.4.1</version>                                            
+	   <executions>                                                        
+	     <execution>                                                     
+	       <id>enforce-java</id>                                       
+	       <goals>                                                     
+		 <goal>enforce</goal>                                    
+	       </goals>                                                    
+	       <configuration>                                             
+		 <rules>                                                 
+		   <requireJavaVersion>                                
+		     <version>${java.version}</version>              
+		   </requireJavaVersion>                               
+		 </rules>                                                
+	       </configuration>                                            
+	     </execution>          
+	   </executions>
+	 </plugin>
 	 <plugin>
 	   <groupId>org.apache.maven.plugins</groupId>
 	   <artifactId>maven-compiler-plugin</artifactId>
 	   <version>3.0</version>
 	   <configuration>
-	     <source>1.8</source>
-	     <target>1.8</target>
+	     <source>${java.version}</source>
+	     <target>${java.version}</target>
+	   </configuration>
+	 </plugin>
+	 <plugin>
+	   <groupId>org.apache.maven.plugins</groupId>
+	   <artifactId>maven-jar-plugin</artifactId>
+	   <version>2.6</version>
+	   <configuration>
+	     <archive>
+	       <manifest>
+		 <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+		 <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+	       </manifest>
+	     </archive>
 	   </configuration>
 	 </plugin>
 	 <plugin>
@@ -60,8 +83,7 @@
 	   <artifactId>maven-surefire-plugin</artifactId>
 	   <version>2.19.1</version>
 	   <configuration>
-	     <!-- Allow for the ability to pass JVM memory flags for Unit Tests. Since                                                   
-		  maven-surefire-plugin forks a new JVM, it ignores MAVEN_OPTS.-->
+	     <!-- Allow for the ability to pass JVM memory flags for Unit Tests. Since                 maven-surefire-plugin forks a new JVM, it ignores MAVEN_OPTS.-->
 	     <argLine>${test.argLine}</argLine>
 	     <excludes>
 	       <!-- tests whose name starts by Abstract will be ignored -->
@@ -69,27 +91,217 @@
 	       <!-- The MetadataSchemaTest fails randomly on Travis -->
 	       <exclude>org/dspace/content/MetadataSchemaTest.java</exclude>
 	     </excludes>
-	   <!-- Detailed logs in reportsDirectory/testName-output.txt instead of stdout -->
+	     <!-- Detailed logs in reportsDirectory/testName-output.txt instead of stdout -->
 	   <redirectTestOutputToFile>true</redirectTestOutputToFile>
-	   <!--                                                                                                                        
-		Enable to debug Maven Surefire tests in remote proces                                                                       
-		<debugForkedProcess>true</debugForkedProcess>                                                                               
-	   -->
+	   </configuration>
+	 </plugin>
+	 <!-- Used to run Integration tests (when -Dskipits=false) -->
+	 <plugin>
+	   <artifactId>maven-failsafe-plugin</artifactId>
+	   <version>2.19.1</version>
+	   <configuration>
+	     <!-- Allow for the ability to pass JVM memory flags for Unit 
+		  Tests. Since maven-failsafe-plugin forks a new JVM, it ignores MAVEN_OPTS.-->
+	     <argLine>${test.argLine}</argLine>
+	     <excludes>
+	       <exclude>**/Abstract*</exclude>
+	     </excludes>
+	     <redirectTestOutputToFile>true</redirectTestOutputToFile>
+	   </configuration>
+	   <executions>
+	     <execution>
+	       <id>integration-test</id>
+	       <goals>
+		 <goal>integration-test</goal>
+		 <goal>verify</goal>
+	       </goals>
+	     </execution>
+	   </executions>
+	 </plugin>
+	 <plugin>
+	   <groupId>org.codehaus.mojo</groupId>
+	   <artifactId>findbugs-maven-plugin</artifactId>
+	   <version>3.0.3</version>
+	   <configuration>
+	     <effort>Max</effort>
+	     <threshold>Low</threshold>
+	     <xmlOutput>true</xmlOutput>
+	   </configuration>
+	   <executions>
+	     <execution>
+	       <phase>compile</phase>
+	       <goals>
+		 <goal>check</goal>
+	       </goals>
+	     </execution>
+	   </executions>
+	 </plugin>
+	 <plugin>
+	   <artifactId>maven-antrun-plugin</artifactId>
+	   <version>1.8</version>
+	 </plugin>
+	 <plugin>
+	   <artifactId>maven-assembly-plugin</artifactId>
+	   <version>2.6</version>
+	 </plugin>
+	 <plugin>
+	   <groupId>org.apache.maven.plugins</groupId>
+	   <artifactId>maven-dependency-plugin</artifactId>
+	   <version>2.10</version>
+	 </plugin>
+	 <plugin>
+	   <groupId>org.apache.maven.plugins</groupId>
+	   <artifactId>maven-resources-plugin</artifactId>
+	   <version>2.7</version>
+	 </plugin>
+	 <!-- Used to validate License Headers (see build process) -->
+	 <plugin>
+	   <groupId>com.mycila</groupId>
+	   <artifactId>license-maven-plugin</artifactId>
+	   <version>2.11</version>
+	 </plugin>
+	 <!-- Used to validate License Headers (see build process) -->
+	 <plugin>
+	   <groupId>com.mycila</groupId>
+	   <artifactId>license-maven-plugin</artifactId>
+	   <version>2.11</version>
+	 </plugin>
+	 <!-- Used to generate a new release via Sonatype (see release profile) -->
+	 <plugin>
+	   <groupId>org.sonatype.plugins</groupId>
+	   <artifactId>nexus-staging-maven-plugin</artifactId>
+	   <version>1.6.7</version>
+	 </plugin>
+	 <!-- Used to generate JavaDocs for new releases (see release profile) -->
+	 <plugin>
+	   <groupId>org.apache.maven.plugins</groupId>
+	   <artifactId>maven-javadoc-plugin</artifactId>
+	   <version>2.10.3</version>
+	   <configuration>
+	     <!-- Never fail a build based on Javadoc errors -->
+	     <failOnError>false</failOnError>
+	   </configuration>
+	 </plugin>
+	 <!-- Used to generate source JARs for new releases (see release profile) -->
+	 <plugin>
+	   <groupId>org.apache.maven.plugins</groupId>
+	   <artifactId>maven-source-plugin</artifactId>
+	   <version>2.4</version>
+	 </plugin>
+	 <!-- Used to sign new releases via GPG (see release profile). -->
+	 <plugin>
+	   <groupId>org.apache.maven.plugins</groupId>
+	   <artifactId>maven-gpg-plugin</artifactId>
+	   <version>1.6</version>
+	 </plugin>
+       </plugins>
+     </pluginManagement>
+
+     <!-- These plugin settings only apply to this single POM and are not inherited  
+            to any submodules. -->
+     <plugins>
+       <!-- Specify our settings for new releases via 'mvn release:*' -->
+       <plugin>
+	 <artifactId>maven-release-plugin</artifactId>
+	 <version>2.5.3</version>
+	 <configuration>
+	   <!-- During release:perform, enable the "release" profile (see below) -->
+	   <releaseProfiles>release</releaseProfiles>
+	   <goals>deploy</goals>
+	   <!-- Suggest tagging the release in SCM as "dspace-[version]" -->
+	   <tagNameFormat>dspace-@{project.version}</tagNameFormat>
+	   <!-- Auto-Version all modules the same as the parent module -->
+	   <autoVersionSubmodules>true</autoVersionSubmodules>
 	 </configuration>
        </plugin>
-         <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <!-- We'd rather this be an open-ended range of versions.
-                     But, because of a Maven bug, we must force a specific version:
-                     http://jira.codehaus.org/browse/MNG-2742
-                     Once the bug is fixed, we should put open-ended range in dspace-pom -->
-                <version>2.1.1</version>
-         </plugin>
+       <!-- Check license headers in all files using LICENSE_HEADER template -->
+       <plugin>
+	 <groupId>com.mycila</groupId>
+	 <artifactId>license-maven-plugin</artifactId>
+	 <configuration>
+	   <!-- License header file (can be a URL, but that's less stable if e\
+		xternal site is down on occasion) -->
+	   <header>${root.basedir}/LICENSE_HEADER</header>
+	   <!--Just check headers of everything in the /src directory -->
+	   <includes>
+	     <include>src/**</include>
+	   </includes>
+	   <!--Use all default exclusions for IDE files & Maven files, see:    
+	       http://code.google.com/p/maven-license-plugin/wiki/Configuratio\
+	       n#Default_excludes -->
+	   <useDefaultExcludes>true</useDefaultExcludes>
+	   <!-- Add some default DSpace exclusions not covered by <useDefaultE\
+		xcludes>                                                                                
+		Individual Maven projects may choose to override these default\
+		s. -->
+	   <excludes>
+	     <exclude>**/src/test/resources/**</exclude>
+	     <exclude>**/src/test/data/**</exclude>
+	     <exclude>**/src/main/license/**</exclude>
+	     <exclude>**/test.cfg</exclude>
+	     <exclude>**/META-INF/**</exclude>
+	     <exclude>**/robots.txt</exclude>
+	     <exclude>**/*.LICENSE</exclude>
+	     <exclude>**/LICENSE*</exclude>
+	     <exclude>**/README*</exclude>
+	     <exclude>**/readme*</exclude>
+	     <exclude>**/.gitignore</exclude>
+	   </excludes>
+	   <mapping>
+	     <!-- Custom DSpace file extensions which are not recognized by \
+		  maven-release-plugin:                                                                   
+		  *.xmap, *.xslt, *.wsdd, *.wsdl, *.ttl, *.LICENSE -->
+	     <xmap>XML_STYLE</xmap>
+	     <xslt>XML_STYLE</xslt>
+	     <wsdd>XML_STYLE</wsdd>
+	     <wsdl>XML_STYLE</wsdl>
+	     <ttl>SCRIPT_STYLE</ttl>
+	     <LICENSE>TEXT</LICENSE>
+	   </mapping>
+	   <encoding>UTF-8</encoding>
+	   <!-- maven-license-plugin recommends a strict check (e.g. check spa\
+		ces/tabs too) -->
+	   <strictCheck>true</strictCheck>
+	 </configuration>
+	 <executions>
+	   <execution>
+	     <id>check-headers</id>
+	     <phase>verify</phase>
+	     <goals>
+	       <goal>check</goal>
+	     </goals>
+	   </execution>
+	 </executions>
+       </plugin>
+       <!-- Enforce our version of Java, Maven, dependencies, etc. -->
+       <plugin>
+	 <groupId>org.apache.maven.plugins</groupId>
+	 <artifactId>maven-enforcer-plugin</artifactId>
+       </plugin>
       </plugins>
    </build>
 
+     <!-- ===========================================  --> 
+     <!-- Making like the dspace pom from here on down -->
+     <!-- ===========================================  --> 
+
    <profiles>
+     <!-- Skip Unit Tests by default, but allow override on command line             
+	  by setting property "-Dmaven.test.skip=false" -->
+     <profile>
+       <id>skiptests</id>
+       <activation>
+	 <!-- This profile should be active at all times, unless the user        
+	      specifies a different value for "maven.test.skip" -->
+	 <property>
+	   <name>!maven.test.skip</name>
+	 </property>
+       </activation>
+       <properties>
+	 <maven.test.skip>true</maven.test.skip>
+       </properties>
+     </profile>
+
 
       <!--
          =========================================================
@@ -1028,15 +1240,7 @@
                 <targetJdk>${dspace.java.target}</targetJdk>
             </configuration>
          </plugin>
-         <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>findbugs-maven-plugin</artifactId>
-            <version>2.3</version>
-            <configuration>
-                    <xmlOutput>true</xmlOutput>
-                    <effort>Max</effort>
-            </configuration>
-        </plugin>
+
         <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>taglist-maven-plugin</artifactId>
