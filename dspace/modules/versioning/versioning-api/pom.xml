@@ -63,7 +63,7 @@
             <artifactId>servlet-api</artifactId>            
             <scope>provided</scope>
         </dependency>
-       
+      <!--
         <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-services-api</artifactId>           
@@ -79,7 +79,7 @@
             <groupId>org.dspace</groupId>
             <artifactId>dspace-services-impl</artifactId>            
         </dependency>
-
+-->
 	</dependencies>
 
 </project>

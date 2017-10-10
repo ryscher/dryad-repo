@@ -3,7 +3,8 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.dspace</groupId>
     <artifactId>dspace-services</artifactId>
-    <packaging>jar</packaging>
+    <version>1.7.3-SNAPSHOT</version>
+    <packaging>pom</packaging>
     <name>DSpace Services Framework :: API and Implementation</name>
     
     <parent>

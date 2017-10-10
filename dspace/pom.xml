@@ -67,6 +67,21 @@
         -->
 
 		<!--
+           Builds central services for DSpace
+        -->
+		<profile>
+			<id>dspace-services</id>
+			<activation>
+				<file>
+					<exists>../dspace-services/pom.xml</exists>
+				</file>
+			</activation>
+			<modules>
+				<module>../dspace-services</module>
+			</modules>
+		</profile>
+
+		<!--
            Builds central API for DSpace
         -->
 		<profile>
@@ -742,8 +757,6 @@
                     <artifactId>atmire-responselogging-api</artifactId>
                     <version>1.10.0</version>
                 </dependency>
-
-
             </dependencies>
 
             <build>
@@ -813,7 +826,7 @@
 		</plugins>
 	</build>
 
-    <dependencyManagement>
+<!--    <dependencyManagement>
             <dependencies>
 
                 <dependency>
@@ -834,7 +847,7 @@
 
     </dependencies>
     </dependencyManagement>
-
+-->
     <dependencies>
 
         <dependency>
@@ -868,6 +881,10 @@
 	</dependency>
 	<dependency>
 	  <groupId>org.dspace</groupId>
+	  <artifactId>dspace-services</artifactId>
+	</dependency>
+	<dependency>
+	  <groupId>org.dspace</groupId>
 	  <artifactId>dspace-api</artifactId>
 	</dependency>
 	<dependency>
@@ -883,7 +900,7 @@
 	  <groupId>org.dspace</groupId>
 	  <artifactId>dspace-api-lang</artifactId>
 	</dependency>
-        <dependency>
+<!--        <dependency>
 	  <groupId>org.dspace</groupId>
 	  <artifactId>dspace-services-api</artifactId>
 	  <version>2.0.5-SNAPSHOT</version>
@@ -896,6 +913,7 @@
 	  <groupId>org.dspace</groupId>
 	  <artifactId>dspace-services-utils</artifactId>
 	</dependency>
+-->
 	<dependency>
 	  <groupId>javax.servlet</groupId>
 	  <artifactId>servlet-api</artifactId>

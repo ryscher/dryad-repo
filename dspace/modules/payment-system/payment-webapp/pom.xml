@@ -121,6 +121,7 @@
             <scope>provided</scope>
         </dependency>
 
+<!--
         <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-services-api</artifactId>
@@ -136,7 +137,7 @@
             <groupId>org.dspace</groupId>
             <artifactId>dspace-services-impl</artifactId>
         </dependency>
-
+-->
         <dependency>
             <artifactId>dspace-cocoon-servlet-service-impl</artifactId>
             <groupId>org.dspace.dependencies.cocoon</groupId>

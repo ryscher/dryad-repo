@@ -103,6 +103,7 @@
             <artifactId>identifier-services</artifactId>
         </dependency>
 
+<!--
         <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-services-api</artifactId>
@@ -117,7 +118,7 @@
             <groupId>org.dspace</groupId>
             <artifactId>dspace-services-utils</artifactId>
         </dependency>
-
+-->
         <dependency>
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
