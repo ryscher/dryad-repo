@@ -160,12 +160,6 @@
 	   <artifactId>license-maven-plugin</artifactId>
 	   <version>2.11</version>
 	 </plugin>
-	 <!-- Used to validate License Headers (see build process) -->
-	 <plugin>
-	   <groupId>com.mycila</groupId>
-	   <artifactId>license-maven-plugin</artifactId>
-	   <version>2.11</version>
-	 </plugin>
 	 <!-- Used to generate a new release via Sonatype (see release profile) -->
 	 <plugin>
 	   <groupId>org.sonatype.plugins</groupId>
@@ -770,63 +764,85 @@
      </profile>
      
    </profiles>
+
+   <!--
+       Dependency management provides a means to control which
+       versions of dependency jars are used for compilation
+       and packaging into the distribution.  Rather than placing
+       a version in your dependencies, look here first to see if
+       its already strongly defined in dspace-pom and dspace-api.
+   -->
+   <dependencyManagement>
+     <dependencies>
+       <!-- DSpace core and endorsed Addons -->
+       <dependency>
+	 <groupId>org.dspace</groupId>
+	 <artifactId>dspace-api</artifactId>
+	 <version>7.0-SNAPSHOT</version>
+       </dependency>
+       
+       <dependency>
+	 <groupId>org.dspace</groupId>
+	 <artifactId>dspace-sword-api</artifactId>
+	 <version>7.0-SNAPSHOT</version>
+       </dependency>
+       <dependency>
+	 <groupId>org.dspace</groupId>
+	 <artifactId>dspace-sword-webapp</artifactId>
+	 <version>7.0-SNAPSHOT</version>
+	 <type>war</type>
+       </dependency>
+       <dependency>
+	 <groupId>org.dspace</groupId>
+	 <artifactId>dspace-sword</artifactId>
+	 <version>7.0-SNAPSHOT</version>
+	 <type>jar</type>
+	 <classifier>classes</classifier>
+       </dependency>
+       <dependency>
+	 <groupId>org.dspace</groupId>
+	 <artifactId>dspace-sword</artifactId>
+	 <version>7.0-SNAPSHOT</version>
+	 <type>war</type>
+       </dependency>
+
+<!--       <dependency>
+	 <groupId>org.dspace</groupId>
+	 <artifactId>dspace-oai-api</artifactId>
+	 <version>7.0-SNAPSHOT</version>
+       </dependency>
+       <dependency>
+	 <groupId>org.dspace</groupId>
+	 <artifactId>dspace-oai-webapp</artifactId>
+	 <version>7.0-SNAPSHOT</version>
+	 <type>war</type>
+       </dependency>
+-->   
+    <dependency>
+	 <groupId>org.dspace</groupId>
+	 <artifactId>dspace-oai</artifactId>
+	 <version>7.0-SNAPSHOT</version>
+	 <type>jar</type>
+	 <classifier>classes</classifier>
+       </dependency>
+       <dependency>
+	 <groupId>org.dspace</groupId>
+	 <artifactId>dspace-oai</artifactId>
+	 <version>7.0-SNAPSHOT</version>
+	 <type>war</type>
+       </dependency>
+
 <!-- ===========================================  --> 
 <!-- Making like the dspace pom from here on down -->
 <!-- ===========================================  --> 
 
-   <!--
-      Dependency management provides a means to control which
-      versions of dependency jars are used for compilation
-      and packaging into the distribution.  Rather than placing
-      a version in your dependencies, look here first to see if
-      its already strongly defined in dspace-pom and dspace-api.
-   -->
-   <dependencyManagement>
-      <dependencies>
-         <!-- DSpace core and endorsed Addons -->
 	 <dependency>
 	   <groupId>org.dspace</groupId>
 	   <artifactId>dspace-services</artifactId>
 	   <version>1.7.3-SNAPSHOT</version>
 	 </dependency>
-         <dependency>
-            <groupId>org.dspace</groupId>
-            <artifactId>dspace-api</artifactId>
-            <version>1.7.3-SNAPSHOT</version>
-         </dependency>
-          <dependency>
-              <groupId>org.dspace</groupId>
-              <artifactId>dspace-sword-api</artifactId>
-              <version>1.7.3-SNAPSHOT</version>
-          </dependency>
-          <dependency>
-              <groupId>org.dspace</groupId>
-              <artifactId>dspace-sword-webapp</artifactId>
-              <version>1.7.3-SNAPSHOT</version>
-              <type>war</type>
-          </dependency>
-         <dependency>
-            <groupId>org.dspace</groupId>
-            <artifactId>dspace-jspui-api</artifactId>
-            <version>1.7.3-SNAPSHOT</version>
-         </dependency>
-         <dependency>
-            <groupId>org.dspace</groupId>
-            <artifactId>dspace-jspui-webapp</artifactId>
-            <version>1.7.3-SNAPSHOT</version>
-            <type>war</type>
-         </dependency>
-         <dependency>
-            <groupId>org.dspace</groupId>
-            <artifactId>dspace-oai-api</artifactId>
-            <version>1.7.3-SNAPSHOT</version>
-         </dependency>
-         <dependency>
-            <groupId>org.dspace</groupId>
-            <artifactId>dspace-oai-webapp</artifactId>
-            <version>1.7.3-SNAPSHOT</version>
-            <type>war</type>
-         </dependency>
+
+
          <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-lni-core</artifactId>
