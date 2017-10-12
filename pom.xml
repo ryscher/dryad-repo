@@ -615,6 +615,30 @@
        </modules>
      </profile>
 
+     <profile>
+       <id>dspace-discovery</id>
+       <activation>
+	 <file>
+	   <exists>dspace-discovery/pom.xml</exists>
+	 </file>
+       </activation>
+       <modules>
+	 <module>dspace-discovery</module>
+       </modules>
+     </profile>
+
+     <profile>
+       <id>dspace-stats</id>
+       <activation>
+	 <file>
+	   <exists>dspace-stats/pom.xml</exists>
+	 </file>
+       </activation>
+       <modules>
+	 <module>dspace-stats</module>
+       </modules>
+     </profile>
+
      <!--                                                                            
 	  Builds SWORDv2 WAR for DSpace                                                
      -->
@@ -630,6 +654,7 @@
        </modules>
      </profile>
      
+
      <profile>
        <id>dspace-spring-rest</id>
        <activation>
@@ -639,6 +664,18 @@
        </activation>
        <modules>
 	 <module>dspace-spring-rest</module>
+       </modules>
+     </profile>
+
+     <profile>
+       <id>dspace-xmlui</id>
+       <activation>
+	 <file>
+	   <exists>dspace-xmlui/pom.xml</exists>
+	 </file>
+       </activation>
+       <modules>
+	 <module>dspace-xmlui</module>
        </modules>
      </profile>
 
@@ -658,10 +695,13 @@
        <modules>
 	 <module>dspace-api</module>
 	 <module>dspace-oai</module>
+	 <module>dspace-xoai</module>
 	 <module>dspace-rdf</module>
 	 <module>dspace-rest</module>
 	 <module>dspace-services</module>
 	 <module>dspace-solr</module>
+	 <module>dspace-stats</module>
+	 <module>dspace-discovery</module>
 	 <module>dspace-sword</module>
 	 <module>dspace-swordv2</module>
 	 <module>dspace-spring-rest</module>
@@ -733,91 +773,6 @@
 <!-- ===========================================  --> 
 <!-- Making like the dspace pom from here on down -->
 <!-- ===========================================  --> 
-
-      <!--
-         =========================================================
-         These are administrative profiles used by release manager
-         to complete release tasks.
-         =========================================================
-
-         Use 'mvn release:prepare -Pall' for tagging the release.
-      -->
-      <profile>
-         <id>all</id>
-         <activation>
-            <activeByDefault>true</activeByDefault>
-         </activation>
-         <modules>
-     	    <module>dspace-stats</module>
-            <module>dspace-discovery</module>
-            <module>dspace-jspui</module>
-            <module>dspace-xmlui</module>
-            <module>dspace-lni</module>
-	 </modules>
-      </profile>
-
-
-      <!--
-         Use 'mvn deploy -Paddons' while doing Continuous Integration
-         and deploying addons to the Maven repository.
-       -->
-      <profile>
-         <id>addons</id>
-         <activation>
-            <activeByDefault>false</activeByDefault>
-         </activation>
-         <modules>
-            <module>dspace-stats</module>
-            <module>dspace-discovery</module>
-            <module>dspace-jspui</module>
-            <module>dspace-xmlui</module>
-            <module>dspace-lni</module>
-         </modules>
-      </profile>
-
-      
-      <!--
-         Use 'mvn package -Pdistributions' to create distributions
-         to upload to S.F.
-       -->
-      <profile>
-         <id>distributions</id>
-         <activation>
-            <activeByDefault>false</activeByDefault>
-         </activation>
-         <build>
-            <plugins>
-               <plugin>
-                  <artifactId>maven-assembly-plugin</artifactId>
-                  <inherited>false</inherited>
-                  <executions>
-                     <execution>
-                        <inherited>false</inherited>
-                        <configuration>
-                           <descriptorRefs>
-                              <descriptorRef>release</descriptorRef>
-                              <descriptorRef>src-release</descriptorRef>
-                           </descriptorRefs>
-                           <tarLongFileMode>gnu</tarLongFileMode>
-                           <finalName>dspace-${pom.version}</finalName>
-                        </configuration>
-                        <phase>package</phase>
-                        <goals>
-                           <goal>single</goal>
-                        </goals>
-                     </execution>
-                  </executions>
-                  <dependencies>
-                     <dependency>
-                        <groupId>org.dspace.maven.plugins</groupId>
-                        <artifactId>dspace-assembly-plugin</artifactId>
-                        <version>1.1</version>
-                     </dependency>
-                  </dependencies>
-               </plugin>
-            </plugins>
-         </build>
-      </profile>
 
    <!--
       Dependency management provides a means to control which
