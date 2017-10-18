@@ -238,6 +238,7 @@
 	<dependency>
 	  <groupId>org.dspace</groupId>
 	  <artifactId>dspace-services</artifactId>
+	  <version>7.0-SNAPSHOT</version>
 	</dependency>
 <!--
          <dependency>

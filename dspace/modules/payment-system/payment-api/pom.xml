@@ -7,11 +7,11 @@
     <packaging>jar</packaging>
     <name>DSpace Payment :: API</name>
     <description>DSpace Payment API</description>
-       <version>1.7.3-SNAPSHOT</version>
+    <version>7.0-SNAPSHOT</version>
     <parent>
         <groupId>org.dspace.modules</groupId>
         <artifactId>payment-system</artifactId>
-        <version>1.7.3-SNAPSHOT</version>
+        <version>7.0-SNAPSHOT</version>
     </parent>
 
     <profiles>
