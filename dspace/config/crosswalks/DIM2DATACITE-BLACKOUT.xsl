@@ -69,7 +69,7 @@
 
 			<!-- ************ Publication Year ************** -->
 			<publicationYear>
-				<xsl:text>0000</xsl:text>
+				<xsl:text><xsl:value-of  select="year-from-date(current-date())"/></xsl:text>
 			</publicationYear>
 
 			<!-- ************ Subjects ************** -->
