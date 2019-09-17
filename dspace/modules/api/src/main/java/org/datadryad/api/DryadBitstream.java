@@ -65,7 +65,9 @@ public class DryadBitstream {
                 readmeFilename = "README_for_" + baseFilename + ".txt";
             } else {
                 String readmeExtension = origReadmeName.substring(origReadmeName.lastIndexOf('.'), origReadmeName.length());
-                baseFilename = baseFilename.substring(0, baseFilename.lastIndexOf('.'));
+                if(baseFilename.lastIndexOf('.') > 0) {
+                    baseFilename = baseFilename.substring(0, baseFilename.lastIndexOf('.'));
+                }
                 readmeFilename = "README_for_" + baseFilename + readmeExtension;
             }
         }
