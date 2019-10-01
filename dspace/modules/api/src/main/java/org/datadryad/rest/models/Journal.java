@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.IOException;
 import java.lang.Object;
 import java.lang.Override;
+import java.util.ArrayList;
 
 /**
  *
@@ -29,6 +30,7 @@ public class Journal {
     public String paymentPlanType = "";
     public String paymentContact = "";
     public String stripeCustomerID = "";
+    public String notifyContacts = "";
     public Boolean allowReviewWorkflow;
     public Boolean allowEmbargo;
     public Boolean allowBlackout;
@@ -46,12 +48,30 @@ public class Journal {
         paymentPlanType = dryadJournalConcept.getPaymentPlanType();
         paymentContact = dryadJournalConcept.getPaymentContact();
         stripeCustomerID = dryadJournalConcept.getStripeCustomerID();
+        notifyContacts = arrayListToString(dryadJournalConcept.getEmailsToNotifyOnArchive());
         allowReviewWorkflow = dryadJournalConcept.getAllowReviewWorkflow();
         allowEmbargo = dryadJournalConcept.getAllowEmbargo();
         allowBlackout = dryadJournalConcept.getPublicationBlackout();
         this.dryadJournalConcept = dryadJournalConcept;
     }
 
+    private String arrayListToString(ArrayList<String> list) {
+        String result = "[";
+        
+        for(String item : list) {
+            result = result + item + ", ";
+        }
+        
+        // remove any trailing comma and space
+        if(list.size() > 0) {
+            result = result.substring(0, result.length() - 2);
+        }
+
+        
+        result = result + "]";
+        return result;
+    }
+    
     @JsonIgnore
     public Boolean isValid() {
         return (fullName != null && fullName.length() > 0 && issn != null && issn.length() > 0);
