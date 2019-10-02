@@ -77,7 +77,7 @@ public class DryadJournalConcept extends DryadOrganizationConcept {
         defaultMetadataValues.setProperty(metadataProperties.getProperty(SPONSOR_NAME), "");
         defaultMetadataValues.setProperty(metadataProperties.getProperty(PARSING_SCHEME), "");
         defaultMetadataValues.setProperty(metadataProperties.getProperty(METADATADIR), "");
-        defaultMetadataValues.setProperty(metadataProperties.getProperty(ALLOW_REVIEW_WORKFLOW), "false");
+        defaultMetadataValues.setProperty(metadataProperties.getProperty(ALLOW_REVIEW_WORKFLOW), "true");
         defaultMetadataValues.setProperty(metadataProperties.getProperty(EMBARGO_ALLOWED), "true");
         defaultMetadataValues.setProperty(metadataProperties.getProperty(INTEGRATED), "false");
         defaultMetadataValues.setProperty(metadataProperties.getProperty(NOTIFY_ON_ARCHIVE), "");
@@ -88,7 +88,7 @@ public class DryadJournalConcept extends DryadOrganizationConcept {
         defaultMetadataValues.setProperty(metadataProperties.getProperty(MEMBERNAME), "");
         defaultMetadataValues.setProperty(metadataProperties.getProperty(COVER_IMAGE), "");
         defaultMetadataValues.setProperty(metadataProperties.getProperty(HASJOURNALPAGE), "");
-        defaultMetadataValues.setProperty(metadataProperties.getProperty(ALLOW_DATAFIRST_WORKFLOW), "false");
+        defaultMetadataValues.setProperty(metadataProperties.getProperty(ALLOW_DATAFIRST_WORKFLOW), "true");
         defaultMetadataValues.setProperty(metadataProperties.getProperty(RECENTLY_INTEGRATED), "false");
     }
 
