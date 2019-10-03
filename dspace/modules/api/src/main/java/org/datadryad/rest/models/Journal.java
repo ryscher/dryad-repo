@@ -30,7 +30,7 @@ public class Journal {
     public String paymentPlanType = "";
     public String paymentContact = "";
     public String stripeCustomerID = "";
-    public String notifyContacts = "";
+    public String[] notifyContacts = null;
     public Boolean allowReviewWorkflow;
     public Boolean allowEmbargo;
     public Boolean allowBlackout;
@@ -48,11 +48,20 @@ public class Journal {
         paymentPlanType = dryadJournalConcept.getPaymentPlanType();
         paymentContact = dryadJournalConcept.getPaymentContact();
         stripeCustomerID = dryadJournalConcept.getStripeCustomerID();
-        notifyContacts = arrayListToString(dryadJournalConcept.getEmailsToNotifyOnArchive());
+        notifyContacts = arrayListToStringArray(dryadJournalConcept.getEmailsToNotifyOnArchive());
         allowReviewWorkflow = dryadJournalConcept.getAllowReviewWorkflow();
         allowEmbargo = dryadJournalConcept.getAllowEmbargo();
         allowBlackout = dryadJournalConcept.getPublicationBlackout();
         this.dryadJournalConcept = dryadJournalConcept;
+    }
+
+    private String[] arrayListToStringArray(ArrayList<String> list) {
+        String result[] = null;
+        if(list != null) {
+            result = new String[list.size()];
+            result = list.toArray(result);
+        }
+        return result;
     }
 
     private String arrayListToString(ArrayList<String> list) {
