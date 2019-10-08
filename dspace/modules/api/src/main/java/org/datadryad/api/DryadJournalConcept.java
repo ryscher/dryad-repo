@@ -83,7 +83,7 @@ public class DryadJournalConcept extends DryadOrganizationConcept {
         defaultMetadataValues.setProperty(metadataProperties.getProperty(NOTIFY_ON_ARCHIVE), "");
         defaultMetadataValues.setProperty(metadataProperties.getProperty(NOTIFY_ON_REVIEW), "");
         defaultMetadataValues.setProperty(metadataProperties.getProperty(NOTIFY_WEEKLY), "");
-        defaultMetadataValues.setProperty(metadataProperties.getProperty(PUBLICATION_BLACKOUT), "true");
+        defaultMetadataValues.setProperty(metadataProperties.getProperty(PUBLICATION_BLACKOUT), "false");
         defaultMetadataValues.setProperty(metadataProperties.getProperty(ISSN), "");
         defaultMetadataValues.setProperty(metadataProperties.getProperty(MEMBERNAME), "");
         defaultMetadataValues.setProperty(metadataProperties.getProperty(COVER_IMAGE), "");
