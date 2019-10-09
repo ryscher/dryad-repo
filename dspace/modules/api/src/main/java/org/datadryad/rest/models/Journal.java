@@ -31,6 +31,7 @@ public class Journal {
     public String paymentContact = "";
     public String stripeCustomerID = "";
     public String[] notifyContacts = null;
+    public String[] reviewContacts = null;
     public Boolean allowReviewWorkflow;
     public Boolean allowEmbargo;
     public Boolean allowBlackout;
@@ -49,6 +50,7 @@ public class Journal {
         paymentContact = dryadJournalConcept.getPaymentContact();
         stripeCustomerID = dryadJournalConcept.getStripeCustomerID();
         notifyContacts = arrayListToStringArray(dryadJournalConcept.getEmailsToNotifyOnArchive());
+        reviewContacts = arrayListToStringArray(dryadJournalConcept.getEmailsToNotifyOnReview());
         allowReviewWorkflow = dryadJournalConcept.getAllowReviewWorkflow();
         allowEmbargo = dryadJournalConcept.getAllowEmbargo();
         allowBlackout = dryadJournalConcept.getPublicationBlackout();
