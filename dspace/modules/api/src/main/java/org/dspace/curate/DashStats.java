@@ -264,7 +264,7 @@ public class DashStats extends AbstractCurationTask {
                 int numSeenViews = 0;
                 int totalPackageViews = 1; // starts at 1, but will be reset when an actual number comes in
                 while(totalPackageViews > numSeenViews) {
-                    URL pageviewsURL = new URL("http://datadryad.org/solr/statistics/select/?rows=" + STATS_PAGE_SIZE +
+                    URL pageviewsURL = new URL("http://v1.datadryad.org/solr/statistics/select/?rows=" + STATS_PAGE_SIZE +
                                                "&q=id:" + item.getID() +
                                                "&start=" + numSeenViews);
 
