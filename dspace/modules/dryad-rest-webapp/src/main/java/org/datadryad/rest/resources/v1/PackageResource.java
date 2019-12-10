@@ -45,10 +45,12 @@ public class PackageResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getJournals(@DefaultValue("20") @QueryParam("count") Integer countParam,
                                 @DefaultValue("0") @QueryParam("cursor") Integer cursorParam) {
+        log.info("listing journals: count=" + countParam + ", cursor=" + cursorParam);
         try {
             ArrayList<DryadJournalConcept> journalConcepts = new ArrayList<DryadJournalConcept>();
             ResultSet resultSet = null;
             resultSet = journalStorage.getResults(new StoragePath(), journalConcepts, Concept.Status.ACCEPTED.name(), countParam, cursorParam);
+            log.info("found concepts: " + journalConcepts.size());
             ArrayList<Journal> journals = new ArrayList<Journal>();
             for (DryadJournalConcept journalConcept : journalConcepts) {
                 journals.add(new Journal(journalConcept));
@@ -73,6 +75,57 @@ public class PackageResource {
         }
     }
 
+    @Path("/search")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response searchJournal(@QueryParam("query") String query,
+                                  @DefaultValue("40") @QueryParam("count") Integer countParam,
+                                  @DefaultValue("0") @QueryParam("cursor") Integer cursorParam) {
+        log.info("searching journals: query=" + query + ", count=" + countParam + ", cursor=" + cursorParam);
+        try {
+            ArrayList<DryadJournalConcept> journalConcepts = new ArrayList<DryadJournalConcept>();
+            ResultSet resultSet = null;
+            resultSet = journalStorage.getResultsWithMatch(new StoragePath(), journalConcepts, Concept.Status.ACCEPTED.name(),
+                                                           query, countParam, cursorParam);
+            log.info("found concepts: " + journalConcepts.size());
+            ArrayList<Journal> journalsWithFrontMatch = new ArrayList<Journal>();
+            ArrayList<Journal> journalsWithMidMatch = new ArrayList<Journal>();
+            ArrayList<Journal> journalsWithOtherMatch = new ArrayList<Journal>();
+            query = query.toLowerCase();
+            for (DryadJournalConcept journalConcept : journalConcepts) {
+                String journalName = journalConcept.getFullName().toLowerCase();
+                if (journalName.startsWith(query)) {
+                    journalsWithFrontMatch.add(new Journal(journalConcept));
+                } else if (journalName.contains(query)) {
+                    journalsWithMidMatch.add(new Journal(journalConcept));
+                } else {
+                    journalsWithOtherMatch.add(new Journal(journalConcept));
+                }
+            }
+            ArrayList<Journal> journals = new ArrayList<Journal>();
+            journals.addAll(journalsWithFrontMatch);
+            journals.addAll(journalsWithMidMatch);
+            journals.addAll(journalsWithOtherMatch);
+
+            URI firstLink = uriInfo.getRequestUriBuilder().replaceQueryParam("cursor",resultSet.getFirstCursor()).build();
+            URI lastLink = uriInfo.getRequestUriBuilder().replaceQueryParam("cursor",resultSet.getLastCursor()).build();
+            int total = resultSet.itemList.size();
+            Response.ResponseBuilder responseBuilder = Response.ok(journals).link(firstLink, "first").link(lastLink, "last").header("X-Total-Count", total);
+            if (resultSet.getNextCursor() > 0) {
+                URI nextLink = uriInfo.getRequestUriBuilder().replaceQueryParam("cursor", resultSet.getNextCursor()).build();
+                responseBuilder.link(nextLink, "next");
+            }
+            if (resultSet.getPreviousCursor() > 0) {
+                URI prevLink = uriInfo.getRequestUriBuilder().replaceQueryParam("cursor", resultSet.getPreviousCursor()).build();
+                responseBuilder.link(prevLink, "prev");
+            }
+            return responseBuilder.build();
+        } catch (StorageException ex) {
+            ErrorsResponse error = ResponseFactory.makeError(ex.getMessage(), "Unable to list journals", uriInfo, Status.INTERNAL_SERVER_ERROR.getStatusCode());
+            return error.toResponse().build();
+        }
+    }
+    
     @Path("/{journalRef}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)

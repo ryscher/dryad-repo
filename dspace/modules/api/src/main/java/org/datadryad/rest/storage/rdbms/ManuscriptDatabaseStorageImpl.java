@@ -383,6 +383,14 @@ public class ManuscriptDatabaseStorageImpl extends AbstractManuscriptStorage {
         return resultSet;
     }
 
+    /* This is just a placeholder -- we don't need an extra match for manuscripts, but since the default searchParam for journals is
+       the status of the concept, we had to add a second matchParam, which is really only used in the journal implementation.
+    */
+    protected ResultSet addResultsWithMatch(StoragePath path, List<Manuscript> resultManuscripts, String searchParam,
+                                            String matchParam, Integer limit, Integer cursor) throws StorageException {
+        return null;
+    }
+
     @Override
     protected void createObject(StoragePath path, Manuscript manuscript) throws StorageException {
         if(objectExists(path, manuscript)) {

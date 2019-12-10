@@ -86,6 +86,15 @@ public class PackageDatabaseStorageImpl extends AbstractPackageStorage {
         return resultSet;
     }
 
+    /* This is just a placeholder -- we don't need an extra match for packages, but since the default searchParam for journals is
+              the status of the concept, we had to add a second matchParam, which is really only used in the journal implementation.
+    */
+    protected ResultSet addResultsWithMatch(StoragePath path, List<Package> packageList, String searchParam,
+                                            String matchParam, Integer limit, Integer cursor) throws StorageException {
+        return null;
+    }
+    
+
     @Override
     public ResultSet addResultsInDateRange(StoragePath path, List<Package> packageList, Date dateFrom, Date dateTo, Integer limit, Integer cursor) throws StorageException {
         Context context = null;

@@ -20,6 +20,8 @@ public abstract class AbstractStorage<T> implements StorageInterface<T> {
     protected abstract T readObject(StoragePath path) throws StorageException;
     protected abstract void deleteObject(StoragePath path) throws StorageException;
     protected abstract ResultSet addResults(StoragePath path, List<T> objects, String searchParam, Integer limit, Integer cursor) throws StorageException;
+    protected abstract ResultSet addResultsWithMatch(StoragePath path, List<T> objects, String searchParam,
+                                                     String matchParam, Integer limit, Integer cursor) throws StorageException;
 
     final void checkPath(StoragePath path, List<String> expectedKeyPath) throws StorageException {
         if(path == null) {
@@ -65,6 +67,14 @@ public abstract class AbstractStorage<T> implements StorageInterface<T> {
             objects = new ArrayList<T>();
         }
         return addResults(path, objects, searchParam, limit, cursor);
+    }
+
+    public ResultSet getResultsWithMatch(StoragePath path, List<T> objects, String searchParam,
+                                         String matchParam, Integer limit, Integer cursor) throws StorageException {
+        if (objects == null) {
+            objects = new ArrayList<T>();
+        }
+        return addResultsWithMatch(path, objects, searchParam, matchParam, limit, cursor);
     }
 
     public ResultSet addResultsInDateRange(StoragePath path, List<T> objects, Date dateFrom, Date dateTo, Integer limit, Integer cursor) throws StorageException {
