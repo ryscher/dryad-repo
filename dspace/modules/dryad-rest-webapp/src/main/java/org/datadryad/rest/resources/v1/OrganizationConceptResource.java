@@ -60,6 +60,7 @@ public class OrganizationConceptResource {
         }
     }
 
+
     @Path("/{journalRef}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)

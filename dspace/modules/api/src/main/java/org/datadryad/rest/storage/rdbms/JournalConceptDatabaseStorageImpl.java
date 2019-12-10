@@ -143,6 +143,41 @@ public class JournalConceptDatabaseStorageImpl extends AbstractOrganizationConce
         return resultSet;
     }
 
+    protected ResultSet addResultsWithMatch(StoragePath path, List<DryadJournalConcept> journalConcepts, String statusParam,
+                                            String titleMatch, Integer limit, Integer cursor) throws StorageException {
+        Context context = null;
+        ResultSet resultSet = null;
+        ArrayList<Integer> conceptIDs = new ArrayList<Integer>();
+        try {
+            ArrayList<DryadJournalConcept> allJournalConcepts = new ArrayList<DryadJournalConcept>();
+            context = getContext();
+            DryadJournalConcept[] dryadJournalConcepts = JournalUtils.getAllJournalConcepts();
+            allJournalConcepts.addAll(Arrays.asList(dryadJournalConcepts));
+            for (DryadJournalConcept journalConcept : allJournalConcepts) {
+                if (titleMatch == null || journalConcept.getFullName().toLowerCase().contains(titleMatch.toLowerCase())) {
+                    if (statusParam == null) {
+                        // add all concepts
+                        conceptIDs.add(journalConcept.getConceptID());
+                    } else {
+                        if (journalConcept.getStatus().equalsIgnoreCase(statusParam)) {
+                            conceptIDs.add(journalConcept.getConceptID());
+                        }
+                    }
+                }
+            }
+            resultSet = new ResultSet(conceptIDs, limit, cursor);
+
+            for (Integer conceptID : resultSet.getCurrentSet(cursor)) {
+                journalConcepts.add(DryadJournalConcept.getJournalConceptMatchingConceptID(context, conceptID));
+            }
+            completeContext(context);
+        } catch (SQLException ex) {
+            abortContext(context);
+            throw new StorageException("Exception reading journals", ex);
+        }
+        return resultSet;
+    }
+
     @Override
     protected void createObject(StoragePath path, DryadJournalConcept journalConcept) throws StorageException {
         // if this object is the same as an existing one, delete this temporary one and throw an exception.
