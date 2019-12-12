@@ -103,7 +103,7 @@ public class ResultSet {
         nextCursor = -1;
         if (currentIndex < itemList.size()) {
             // we have a valid next page
-            if (currentIndex + pageSize <= itemList.size()) {
+            if (currentIndex + pageSize <= itemList.size() - 1) {
                  nextCursor = itemList.get(currentIndex + pageSize);
             } else {
                 nextCursor = itemList.get(itemList.size() - 1);
