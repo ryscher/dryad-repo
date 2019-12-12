@@ -225,8 +225,36 @@ public class JournalUtils {
         return null;
     }
 
+    
+    public static ArrayList<DryadJournalConcept> getJournalConceptsByMatch(String query) {
+        log.info("getting journals by match -- query=" + query);
+        Context context = null;
+        ArrayList<DryadJournalConcept> resultConcepts = new ArrayList<DryadJournalConcept>();
+        try {
+            context = new Context();
+            Scheme scheme = Scheme.findByIdentifier(context, ConfigurationManager.getProperty("solrauthority.searchscheme.prism_publicationName"));
+            Concept[] concepts = Concept.search(context, query, -1, -1, scheme.getID() + "");
+            log.info("concepts returned = " + concepts.length);
+            for (Concept newConcept : concepts) {
+                DryadJournalConcept journalConcept = new DryadJournalConcept(context, newConcept);
+                resultConcepts.add(journalConcept);
+            }
+            context.complete();
+        } catch (Exception e) {
+            if (context!=null) {
+                context.abort();
+            }
+            log.error("Error while loading journal properties", e);
+        }
+        return resultConcepts;
+    }
+
+    
     public static DryadJournalConcept[] getAllJournalConcepts() {
-        initializeJournalConcepts();
+        // shouldn't need this, since it should be initilaized when loaded, and it's
+        // too expensive anyway... would be better to just do SQL to get them all and build them once
+        // initializeJournalConcepts();
+        
         ArrayList<DryadJournalConcept> journalConcepts = new ArrayList<DryadJournalConcept>();
         journalConcepts.addAll(journalConceptHashMapByConceptIdentifier.values());
         Collections.sort(journalConcepts);

@@ -145,26 +145,25 @@ public class JournalConceptDatabaseStorageImpl extends AbstractOrganizationConce
 
     protected ResultSet addResultsWithMatch(StoragePath path, List<DryadJournalConcept> journalConcepts, String statusParam,
                                             String titleMatch, Integer limit, Integer cursor) throws StorageException {
+        log.info("addResultsWithMatch, titleMatch=" + titleMatch);
         Context context = null;
         ResultSet resultSet = null;
         ArrayList<Integer> conceptIDs = new ArrayList<Integer>();
         try {
-            ArrayList<DryadJournalConcept> allJournalConcepts = new ArrayList<DryadJournalConcept>();
             context = getContext();
-            DryadJournalConcept[] dryadJournalConcepts = JournalUtils.getAllJournalConcepts();
-            allJournalConcepts.addAll(Arrays.asList(dryadJournalConcepts));
-            for (DryadJournalConcept journalConcept : allJournalConcepts) {
-                if (titleMatch == null || journalConcept.getFullName().toLowerCase().contains(titleMatch.toLowerCase())) {
-                    if (statusParam == null) {
-                        // add all concepts
+            ArrayList<DryadJournalConcept> matchingJournalConcepts = JournalUtils.getJournalConceptsByMatch(titleMatch);
+            log.info("matchingJournalConcepts: " + matchingJournalConcepts.size());
+            for (DryadJournalConcept journalConcept : matchingJournalConcepts) {
+                if (statusParam == null) {
+                    // add all concepts
+                    conceptIDs.add(journalConcept.getConceptID());
+                } else {
+                    if (journalConcept.getStatus().equalsIgnoreCase(statusParam)) {
                         conceptIDs.add(journalConcept.getConceptID());
-                    } else {
-                        if (journalConcept.getStatus().equalsIgnoreCase(statusParam)) {
-                            conceptIDs.add(journalConcept.getConceptID());
-                        }
                     }
                 }
             }
+        
             resultSet = new ResultSet(conceptIDs, limit, cursor);
 
             for (Integer conceptID : resultSet.getCurrentSet(cursor)) {
@@ -175,6 +174,7 @@ public class JournalConceptDatabaseStorageImpl extends AbstractOrganizationConce
             abortContext(context);
             throw new StorageException("Exception reading journals", ex);
         }
+        log.info("resultSet: " + resultSet.itemList.size());
         return resultSet;
     }
 
