@@ -119,7 +119,7 @@ public class PackageResource {
                 URI prevLink = uriInfo.getRequestUriBuilder().replaceQueryParam("cursor", resultSet.getPreviousCursor()).build();
                 responseBuilder.link(prevLink, "prev");
             }
-            return responseBuilder.build();
+            return responseBuilder.header("Access-Control-Allow-Origin", "*").build();
         } catch (StorageException ex) {
             ErrorsResponse error = ResponseFactory.makeError(ex.getMessage(), "Unable to list journals", uriInfo, Status.INTERNAL_SERVER_ERROR.getStatusCode());
             return error.toResponse().build();
