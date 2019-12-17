@@ -226,14 +226,14 @@ public class JournalUtils {
     }
 
     
-    public static ArrayList<DryadJournalConcept> getJournalConceptsByMatch(String query) {
+    public static ArrayList<DryadJournalConcept> getJournalConceptsByMatch(String query, Integer limit) {
         log.info("getting journals by match -- query=" + query);
         Context context = null;
         ArrayList<DryadJournalConcept> resultConcepts = new ArrayList<DryadJournalConcept>();
         try {
             context = new Context();
             Scheme scheme = Scheme.findByIdentifier(context, ConfigurationManager.getProperty("solrauthority.searchscheme.prism_publicationName"));
-            Concept[] concepts = Concept.search(context, query, -1, -1, scheme.getID() + "");
+            Concept[] concepts = Concept.search(context, query, -1, limit.intValue(), scheme.getID() + "");
             log.info("concepts returned = " + concepts.length);
             for (Concept newConcept : concepts) {
                 DryadJournalConcept journalConcept = new DryadJournalConcept(context, newConcept);
