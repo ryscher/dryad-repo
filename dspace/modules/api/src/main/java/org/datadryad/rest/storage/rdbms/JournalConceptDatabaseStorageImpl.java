@@ -151,7 +151,7 @@ public class JournalConceptDatabaseStorageImpl extends AbstractOrganizationConce
         ArrayList<Integer> conceptIDs = new ArrayList<Integer>();
         try {
             context = getContext();
-            ArrayList<DryadJournalConcept> matchingJournalConcepts = JournalUtils.getJournalConceptsByMatch(titleMatch);
+            ArrayList<DryadJournalConcept> matchingJournalConcepts = JournalUtils.getJournalConceptsByMatch(titleMatch, limit);
             log.info("matchingJournalConcepts: " + matchingJournalConcepts.size());
             for (DryadJournalConcept journalConcept : matchingJournalConcepts) {
                 if (statusParam == null) {
