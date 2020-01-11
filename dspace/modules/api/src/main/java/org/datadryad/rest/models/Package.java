@@ -232,9 +232,11 @@ public class Package {
             if(ddp.getItem().isArchived()) {
                 ShoppingCart sc = ddp.getShoppingCart();
                 if(sc == null) {
-                    jGen.writeStringField("invoiceId", "classic-dryad:old-item-" + ddp.getItem().getID());
+                    jGen.writeStringField("paymentType", "classic-dryad");
+                    jGen.writeStringField("paymentId", "old-item-" + ddp.getItem().getID());
                 } else {
-                    jGen.writeStringField("invoiceId", "classic-dryad:" + sc.getID());
+                    jGen.writeStringField("paymentType", "classic-dryad");
+                    jGen.writeStringField("paymentId", sc.getID());
                 }
             }
             
