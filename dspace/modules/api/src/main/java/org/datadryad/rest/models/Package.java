@@ -236,7 +236,7 @@ public class Package {
                     jGen.writeStringField("paymentId", "old-item-" + ddp.getItem().getID());
                 } else {
                     jGen.writeStringField("paymentType", "classic-dryad");
-                    jGen.writeStringField("paymentId", sc.getID());
+                    jGen.writeStringField("paymentId", "" + sc.getID());
                 }
             }
             
