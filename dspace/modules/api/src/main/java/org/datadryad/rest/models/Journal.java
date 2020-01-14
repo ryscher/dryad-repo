@@ -29,6 +29,7 @@ public class Journal {
     public String description = "";
     public String paymentPlanType = "";
     public String paymentContact = "";
+    public String sponsorName = "";
     public String stripeCustomerID = "";
     public String[] notifyContacts = null;
     public String[] reviewContacts = null;
@@ -48,6 +49,7 @@ public class Journal {
         description = dryadJournalConcept.getDescription();
         paymentPlanType = dryadJournalConcept.getPaymentPlanType();
         paymentContact = dryadJournalConcept.getPaymentContact();
+        sponsorName = dryadJournalConcept.getSponsorName();
         stripeCustomerID = dryadJournalConcept.getStripeCustomerID();
         notifyContacts = arrayListToStringArray(dryadJournalConcept.getEmailsToNotifyOnArchive());
         reviewContacts = arrayListToStringArray(dryadJournalConcept.getEmailsToNotifyOnReview());
