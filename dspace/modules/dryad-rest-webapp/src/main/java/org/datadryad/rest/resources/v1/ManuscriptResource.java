@@ -1,5 +1,3 @@
-/*
- */
 package org.datadryad.rest.resources.v1;
 
 import org.apache.log4j.Logger;
@@ -43,6 +41,7 @@ public class ManuscriptResource {
                                    @QueryParam("search") String searchParam,
                                    @DefaultValue("20") @QueryParam("count") Integer resultParam,
                                    @DefaultValue("0") @QueryParam("cursor") Integer cursorParam) {
+        log.info("GET getManuscripts journalRef=" + journalRef + " search=" + searchParam);
         try {
             // Returning a list requires POJO turned on
             StoragePath path = StoragePath.createJournalPath(journalRef);
@@ -73,6 +72,8 @@ public class ManuscriptResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getManuscript(@PathParam(StoragePath.JOURNAL_PATH) String journalCode, @PathParam(StoragePath.MANUSCRIPT_PATH) String manuscriptId) {
+        log.info("GET getManuscript journalCode=" + journalCode + " manuscriptId=" + manuscriptId);
+        System.out.println("********LOGME******* " + manuscriptId);
         try {
             StoragePath manuscriptPath = StoragePath.createManuscriptPath(journalCode, manuscriptId);
             Manuscript manuscript = manuscriptStorage.findByPath(manuscriptPath);
