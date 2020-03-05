@@ -68,12 +68,11 @@ public class ManuscriptResource {
         }
     }
 
-    @Path("/{manuscriptId}")
+    @Path("/{manuscriptId: .+}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getManuscript(@PathParam(StoragePath.JOURNAL_PATH) String journalCode, @PathParam(StoragePath.MANUSCRIPT_PATH) String manuscriptId) {
         log.info("GET getManuscript journalCode=" + journalCode + " manuscriptId=" + manuscriptId);
-        System.out.println("********LOGME******* " + manuscriptId);
         try {
             StoragePath manuscriptPath = StoragePath.createManuscriptPath(journalCode, manuscriptId);
             Manuscript manuscript = manuscriptStorage.findByPath(manuscriptPath);
