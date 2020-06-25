@@ -164,6 +164,9 @@ public class DryadEmailSubmission extends HttpServlet {
 
         if (contentType != null && contentType.startsWith("text/plain")) {
             return part;   //
+        } else if (contentType != null && contentType.startsWith("text/html")) {
+            LOGGER.warn("Content-Type is text/html; hoping we can get parseable text out of it");
+            return part;   //
         } else if (contentType != null &&
                 contentType.startsWith("multipart/alternative") ||
                 contentType.startsWith("multipart/mixed")) {    //could just use multipart as prefix, but what does this cover?
